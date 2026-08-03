@@ -1,10 +1,346 @@
-const PROG=(function(){const e="stickman_zone_progress";function c(){try{return JSON.parse(localStorage.getItem(e))||{}}catch(t){return{}}}function d(t){try{localStorage.setItem(e,JSON.stringify(t))}catch(a){}}function h(t){const a=c();return a.stars&&a.stars[t]?a.stars[t]:0}function m(t,a){const i=c();i.stars||(i.stars={}),i.highScores||(i.highScores={}),i.stars[t]=Math.max(i.stars[t]||0,a),d(i)}function r(t){const a=c();return a.highScores&&a.highScores[t]?a.highScores[t]:0}function s(t,a){const i=c();i.highScores||(i.highScores={}),i.stars||(i.stars={}),i.highScores[t]=Math.max(i.highScores[t]||0,a),d(i)}function n(){const t=c();return t.stars?Object.values(t.stars).reduce((a,i)=>a+i,0):0}function o(){return CARD_DATA.length*3}function l(){const t=document.getElementById("starDisplay");if(t){const a=n(),i=o();t.innerHTML="";for(let u=0;u<i;u++){const p=document.createElement("span");p.className="star"+(u<a?" earned":""),p.textContent="\u2B50",t.appendChild(p)}t.innerHTML+='<span class="pText">'+a+" / "+i+" stars</span>"}}return{getStars:h,setStars:m,getHighScore:r,setHighScore:s,totalStars:n,maxPossible:o,updateDisplay:l}})();let splashResolve=null;function showSplash(e,c,d,h){return new Promise(m=>{splashResolve=m;const r=document.getElementById("splashOverlay"),s=document.getElementById("spIcon"),n=document.getElementById("spTitle"),o=document.getElementById("spSub"),l=document.getElementById("spCount");s.textContent=e,n.textContent=c,o.textContent=d||"",l.textContent="",r.classList.add("show");const t=["3","2","1","GO!"];let a=0;l.textContent=t[0],l.style.animation="none",setTimeout(()=>{l.style.animation="countPulse .8s ease"},10);const i=setInterval(()=>{if(a++,a>=t.length){clearInterval(i),setTimeout(()=>{r.classList.remove("show"),m()},200);return}l.textContent=t[a],l.style.animation="none",setTimeout(()=>{l.style.animation="countPulse .8s ease"},10)},h/t.length),u=document.getElementById("spParticles");u.innerHTML="";for(let p=0;p<30;p++){const f=document.createElement("div");f.style.cssText=`position:absolute;width:${Math.random()*4+2}px;height:${Math.random()*4+2}px;background:rgba(255,255,255,${Math.random()*.4+.1});border-radius:50%;left:${Math.random()*100}%;top:${Math.random()*100}%;animation:spDrift ${2+Math.random()*3}s ease-in-out infinite alternate;animation-delay:${Math.random()*2}s`,u.appendChild(f)}})}(function(){const e=document.createElement("style");e.textContent="@keyframes spDrift { 0%{transform:translateY(0) translateX(0)} 100%{transform:translateY(-30px) translateX(10px)} }",document.head.appendChild(e)})();const MEM_ICONS=["\u{1F9B4}","\u2694\uFE0F","\u{1F94B}","\u{1F3C0}","\u{1F349}","\u{1F3C3}\u200D\u2642\uFE0F","\u{1F3AF}","\u{1F451}"];function sizeMemGrid(){const e=document.getElementById("memGridBox"),c=document.getElementById("memGrid");if(!e||!c)return;const d=Math.max(0,Math.min(e.clientWidth,e.clientHeight));c.style.width=d+"px",c.style.height=d+"px"}window.addEventListener("resize",sizeMemGrid);function createMemoryGame(){let e;function c(){const r=[];MEM_ICONS.forEach((s,n)=>{r.push({id:n,icon:s,flipped:!1,matched:!1}),r.push({id:n,icon:s,flipped:!1,matched:!1})});for(let s=r.length-1;s>0;s--){const n=Math.floor(Math.random()*(s+1));[r[s],r[n]]=[r[n],r[s]]}return{cards:r,flipped:[],matched:0,moves:0,lock:!1,over:!1,startTime:0,elapsed:0,running:!1}}function d(r){e.running&&!e.over&&(e.elapsed+=r)}function h(r){drawFlatBg("#b8d4ff","#e8f4ff");const s=document.getElementById("memStats");s&&(s.textContent=`Moves: ${e.moves}   \u2022   Time: ${Math.floor(e.elapsed)}s`)}function m(){const r=document.createElement("div");r.className="memGrid",r.id="memGrid",e.cards.forEach((n,o)=>{const l=document.createElement("div");l.className="memCard",l.dataset.idx=o,l.textContent="",l.addEventListener("click",()=>{if(!(e.over||e.lock||n.flipped||n.matched)&&(SFX.click(),e.running||(e.running=!0,e.startTime=performance.now()),n.flipped=!0,l.textContent=n.icon,l.classList.add("flipped"),e.flipped.push({idx:o,el:l,card:n}),e.flipped.length===2)){e.moves++,e.lock=!0;const[t,a]=e.flipped;if(t.card.id===a.card.id){if(t.card.matched=!0,a.card.matched=!0,t.el.classList.add("matched"),a.el.classList.add("matched"),t.el.classList.remove("flipped"),a.el.classList.remove("flipped"),e.matched+=2,e.flipped=[],e.lock=!1,SFX.match(),e.matched>=e.cards.length){e.over=!0;const i=e.moves<=20?3:e.moves<=30?2:1;PROG.setStars("memory",i),PROG.setHighScore("memory",Math.max(PROG.getHighScore("memory"),-e.moves)),PROG.updateDisplay(),setTimeout(()=>{showOverlay("\u{1F389} Memory Complete!",`You matched all pairs in ${e.moves} moves (${Math.floor(e.elapsed)}s)`,[{label:"Play Again",onClick:()=>{e=c(),m(),hideOverlay()}},{label:"Home",onClick:goHome}])},200)}}else setTimeout(()=>{t.card.flipped=!1,a.card.flipped=!1,t.el.textContent="",a.el.textContent="",t.el.classList.remove("flipped"),a.el.classList.remove("flipped"),e.flipped=[],e.lock=!1},700)}}),r.appendChild(l)});const s=document.getElementById("memGrid");s?s.replaceWith(r):document.getElementById("memGridBox").appendChild(r),sizeMemGrid()}return{title:"Memory Match",hint:"Flip cards and match the stickman-themed pairs!",domOverlay:!0,controlsHtml:`
+const PROG = (function(){
+  const KEY = 'stickman_zone_progress';
+  function load(){
+    try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; }
+  }
+  function save(data){ try{ localStorage.setItem(KEY, JSON.stringify(data)); }catch(e){} }
+  function getStars(gameId){
+    const d = load();
+    return d.stars && d.stars[gameId] ? d.stars[gameId] : 0;
+  }
+  function setStars(gameId, n){
+    const d = load();
+    if(!d.stars) d.stars = {};
+    if(!d.highScores) d.highScores = {};
+    d.stars[gameId] = Math.max(d.stars[gameId]||0, n);
+    save(d);
+  }
+  function getHighScore(gameId){
+    const d = load();
+    return d.highScores && d.highScores[gameId] ? d.highScores[gameId] : 0;
+  }
+  function setHighScore(gameId, score){
+    const d = load();
+    if(!d.highScores) d.highScores = {};
+    if(!d.stars) d.stars = {};
+    d.highScores[gameId] = Math.max(d.highScores[gameId]||0, score);
+    save(d);
+  }
+  function totalStars(){
+    const d = load();
+    if(!d.stars) return 0;
+    return Object.values(d.stars).reduce((a,b)=>a+b,0);
+  }
+  function maxPossible(){
+    return CARD_DATA.length * 3;
+  }
+  function updateDisplay(){
+    const el = document.getElementById('starDisplay');
+    if(el){
+      const ear = totalStars();
+      const max = maxPossible();
+      el.innerHTML = '';
+      for(let i=0;i<max;i++){
+        const s = document.createElement('span');
+        s.className = 'star' + (i<ear ? ' earned' : '');
+        s.textContent = '⭐';
+        el.appendChild(s);
+      }
+      el.innerHTML += '<span class="pText">'+ear+' / '+max+' stars</span>';
+    }
+  }
+  return { getStars, setStars, getHighScore, setHighScore, totalStars, maxPossible, updateDisplay };
+})();
+
+/* =========================================================
+   SPLASH SCREEN
+   ========================================================= */
+let splashResolve = null;
+function showSplash(icon, title, subtitle, durationMs){
+  return new Promise(resolve => {
+    splashResolve = resolve;
+    const ov = document.getElementById('splashOverlay');
+    const spIcon = document.getElementById('spIcon');
+    const spTitle = document.getElementById('spTitle');
+    const spSub = document.getElementById('spSub');
+    const spCount = document.getElementById('spCount');
+    spIcon.textContent = icon;
+    spTitle.textContent = title;
+    spSub.textContent = subtitle || '';
+    spCount.textContent = '';
+    ov.classList.add('show');
+    // countdown 3..2..1..GO!
+    const counts = ['3','2','1','GO!'];
+    let i = 0;
+    spCount.textContent = counts[0];
+    spCount.style.animation = 'none';
+    setTimeout(()=>{ spCount.style.animation = 'countPulse .8s ease'; }, 10);
+    const interval = setInterval(()=>{
+      i++;
+      if(i>=counts.length){
+        clearInterval(interval);
+        setTimeout(()=>{
+          ov.classList.remove('show');
+          resolve();
+        }, 200);
+        return;
+      }
+      spCount.textContent = counts[i];
+      spCount.style.animation = 'none';
+      setTimeout(()=>{ spCount.style.animation = 'countPulse .8s ease'; }, 10);
+    }, durationMs / (counts.length));
+    // splash particles
+    const spP = document.getElementById('spParticles');
+    spP.innerHTML = '';
+    for(let i=0;i<30;i++){
+      const d = document.createElement('div');
+      d.style.cssText = `position:absolute;width:${Math.random()*4+2}px;height:${Math.random()*4+2}px;background:rgba(255,255,255,${Math.random()*0.4+0.1});border-radius:50%;left:${Math.random()*100}%;top:${Math.random()*100}%;animation:spDrift ${2+Math.random()*3}s ease-in-out infinite alternate;animation-delay:${Math.random()*2}s`;
+      spP.appendChild(d);
+    }
+  });
+}
+// keyframes for splash drift added inline via style injection
+(function(){
+  const st = document.createElement('style');
+  st.textContent = `@keyframes spDrift { 0%{transform:translateY(0) translateX(0)} 100%{transform:translateY(-30px) translateX(10px)} }`;
+  document.head.appendChild(st);
+})();
+
+/* =========================================================
+   GAME 6 — Memory Match
+   ========================================================= */
+const MEM_ICONS = ['🦴','⚔️','🥋','🏀','🍉','🏃‍♂️','🎯','👑'];
+// Sizes the card grid to the largest square that fits inside its box, in exact
+// pixels. Reading clientWidth/clientHeight forces the browser to finish layout
+// first, so this is reliable even on mobile browsers where the CSS chain of
+// aspect-ratio + percentage-height inside nested flexboxes doesn't always
+// resolve the same way — that mismatch was letting the grid grow taller than
+// its panel and get its bottom row clipped against the card grid's own edge.
+function sizeMemGrid(){
+  const box = document.getElementById('memGridBox');
+  const grid = document.getElementById('memGrid');
+  if(!box || !grid) return;
+  const size = Math.max(0, Math.min(box.clientWidth, box.clientHeight));
+  grid.style.width = size+'px';
+  grid.style.height = size+'px';
+}
+window.addEventListener('resize', sizeMemGrid);
+function createMemoryGame(){
+  let state;
+  function fresh(){
+    const cards = [];
+    MEM_ICONS.forEach((icon,i)=>{
+      cards.push({id:i, icon, flipped:false, matched:false});
+      cards.push({id:i, icon, flipped:false, matched:false});
+    });
+    // shuffle
+    for(let i=cards.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [cards[i],cards[j]] = [cards[j],cards[i]];
+    }
+    return {
+      cards, flipped:[], matched:0, moves:0, lock:false,
+      over:false, startTime:0, elapsed:0, running:false,
+    };
+  }
+  function update(dt){
+    if(state.running && !state.over){
+      state.elapsed += dt;
+    }
+  }
+  function draw(g){
+    // memory match uses DOM, not canvas — draw just a bg. The Moves/Time readout
+    // is a DOM element (#memStats) layered in #domOverlay above this, not canvas
+    // text, so it never gets visually covered by the card grid sitting on top.
+    // Flat fill (no green ground band) — see drawFlatBg comment for why.
+    drawFlatBg('#b8d4ff','#e8f4ff');
+    const ms = document.getElementById('memStats');
+    if(ms) ms.textContent = `Moves: ${state.moves}   •   Time: ${Math.floor(state.elapsed)}s`;
+  }
+  function buildDOM(){
+    const wrap = document.createElement('div');
+    wrap.className = 'memGrid';
+    wrap.id = 'memGrid';
+    state.cards.forEach((c,i)=>{
+      const el = document.createElement('div');
+      el.className = 'memCard';
+      el.dataset.idx = i;
+      el.textContent = '';
+      el.addEventListener('click', ()=>{
+        if(state.over || state.lock || c.flipped || c.matched) return;
+        SFX.click();
+        if(!state.running){ state.running=true; state.startTime=performance.now(); }
+        c.flipped = true;
+        el.textContent = c.icon;
+        el.classList.add('flipped');
+        state.flipped.push({idx:i, el, card:c});
+        if(state.flipped.length===2){
+          state.moves++;
+          state.lock = true;
+          const [a,b] = state.flipped;
+          if(a.card.id === b.card.id){
+            // match!
+            a.card.matched = true; b.card.matched = true;
+            a.el.classList.add('matched'); b.el.classList.add('matched');
+            a.el.classList.remove('flipped'); b.el.classList.remove('flipped');
+            state.matched += 2;
+            state.flipped = [];
+            state.lock = false;
+            SFX.match();
+            if(state.matched >= state.cards.length){
+              state.over = true;
+              const stars = state.moves <= 20 ? 3 : state.moves <= 30 ? 2 : 1;
+              PROG.setStars('memory', stars);
+              PROG.setHighScore('memory', Math.max(PROG.getHighScore('memory'), -state.moves));
+              PROG.updateDisplay();
+              setTimeout(()=>{
+                showGameOverOverlay('memory', state.moves, '🎉 Memory Complete!', `You matched all pairs in ${state.moves} moves (${Math.floor(state.elapsed)}s)`, [
+                  {label:'Play Again', onClick:()=>{ state=fresh(); buildDOM(); hideOverlay(); }},
+                  {label:'Home', onClick: goHome}
+                ]);
+              },200);
+            }
+          } else {
+            setTimeout(()=>{
+              a.card.flipped = false; b.card.flipped = false;
+              a.el.textContent = ''; b.el.textContent = '';
+              a.el.classList.remove('flipped'); b.el.classList.remove('flipped');
+              state.flipped = [];
+              state.lock = false;
+            }, 700);
+          }
+        }
+      });
+      wrap.appendChild(el);
+    });
+    const existing = document.getElementById('memGrid');
+    if(existing) existing.replaceWith(wrap);
+    else document.getElementById('memGridBox').appendChild(wrap);
+    sizeMemGrid();
+  }
+  return {
+    title:'Memory Match', hint:'Flip cards and match the stickman-themed pairs!',
+    domOverlay:true,
+    controlsHtml:`
       <div id="memContainer" style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; gap:6px;">
-        <div class="memStats" id="memStats">Moves: 0   \u2022   Time: 0s</div>
+        <div class="memStats" id="memStats">Moves: 0   •   Time: 0s</div>
         <div id="memGridBox" style="flex:1; min-height:0; width:100%; display:flex; justify-content:center; align-items:center;"></div>
-      </div>`,bindControls(){m()},create(){return e=c(),this},restart(){e=c(),m(),hideOverlay()},update:d,draw:h}}function createReactionGame(){let e;function c(){return{phase:"ready",times:[],round:0,maxRounds:5,targetX:400,targetY:110,waitTimer:0,showStart:0,over:!1}}function d(){if(e.round++,e.round>e.maxRounds){e.phase="done",e.over=!0;const o=e.times.length?Math.round(e.times.reduce((i,u)=>i+u,0)/e.times.length):0,l=o<=300?3:o<=450?2:1;PROG.setStars("reaction",l),PROG.setHighScore("reaction",o>0?Math.min(PROG.getHighScore("reaction")||9999,o):PROG.getHighScore("reaction")||0),PROG.updateDisplay();const t=document.getElementById("reactTarget");t&&(t.style.display="none");const a=document.getElementById("reactResults");a&&(a.style.display="block",a.innerHTML=`<div class="avgTime">${o}ms</div><div>Average reaction time</div>`),setTimeout(()=>{showOverlay("\u23F1\uFE0F All Done!",`Average reaction: ${o}ms \u2014 ${o<=300?"Lightning fast! \u26A1":o<=450?"Quick! \u{1F3AF}":"Keep practicing! \u{1F4AA}"}`,[{label:"Play Again",onClick:()=>{e=c(),hideOverlay(),document.getElementById("reactResults").style.display="none"}},{label:"Home",onClick:goHome}])},300);return}e.phase="wait",e.waitTimer=1+Math.random()*2.5;const s=document.getElementById("reactTarget");s&&(s.style.display="none");const n=document.getElementById("reactText");n&&(n.textContent=`Round ${e.round}/${e.maxRounds} \u2014 Wait for it...`)}function h(s){if(!e.over&&e.phase==="wait"&&(e.waitTimer-=s,e.waitTimer<=0)){e.phase="show",e.showStart=performance.now(),e.targetX=rand(80,520),e.targetY=rand(30,170);const n=document.getElementById("reactTarget");n&&(n.style.display="block",n.style.left=e.targetX+"px",n.style.top=e.targetY+"px");const o=document.getElementById("reactText");o&&(o.textContent="CLICK NOW! \u26A1")}}function m(s){drawFlatBg("#1a2a3a","#2b3a4a"),s.fillStyle="rgba(255,255,255,0.05)";for(let n=0;n<20;n++)s.fillRect(n*43%CW,n*29%180,2,2)}function r(){if(e.phase!=="show")return;const s=performance.now()-e.showStart;e.times.push(s),SFX.coin();const n=document.getElementById("reactTarget");n&&(n.style.display="none");const o=document.getElementById("reactText");o&&(o.textContent=`${Math.round(s)}ms \u2014 Nice!`),setTimeout(()=>{d()},500)}return{title:"Reaction Time",hint:"Tap the target as fast as you can! 5 rounds.",domOverlay:!0,controlsHtml:`
+      </div>`,
+    bindControls(){ buildDOM(); },
+    create(){ state=fresh(); return this; },
+    restart(){ state=fresh(); buildDOM(); hideOverlay(); },
+    update, draw,
+  };
+}
+
+/* =========================================================
+   GAME 7 — Reaction Time
+   ========================================================= */
+function createReactionGame(){
+  let state;
+  function fresh(){
+    return {
+      phase: 'ready', // ready | wait | show | result | done
+      times: [], round:0, maxRounds:5,
+      targetX:400, targetY:110,
+      waitTimer:0, showStart:0, over:false,
+    };
+  }
+  function nextRound(){
+    state.round++;
+    if(state.round > state.maxRounds){
+      state.phase = 'done'; state.over = true;
+      const avg = state.times.length ? Math.round(state.times.reduce((a,b)=>a+b,0)/state.times.length) : 0;
+      const stars = avg <= 300 ? 3 : avg <= 450 ? 2 : 1;
+      PROG.setStars('reaction', stars);
+      PROG.setHighScore('reaction', avg > 0 ? Math.min(PROG.getHighScore('reaction')||9999, avg) : (PROG.getHighScore('reaction')||0));
+      PROG.updateDisplay();
+      const el = document.getElementById('reactTarget'); if(el) el.style.display='none';
+      const rt = document.getElementById('reactResults');
+      if(rt){
+        rt.style.display='block';
+        rt.innerHTML = `<div class="avgTime">${avg}ms</div><div>Average reaction time</div>`;
+      }
+      setTimeout(()=>{
+        showGameOverOverlay('reaction', avg, '⏱️ All Done!', `Average reaction: ${avg}ms — ${avg<=300?'Lightning fast! ⚡':avg<=450?'Quick! 🎯':'Keep practicing! 💪'}`, [
+          {label:'Play Again', onClick:()=>{ state=fresh(); hideOverlay(); document.getElementById('reactResults').style.display='none'; }},
+          {label:'Home', onClick: goHome}
+        ]);
+      },300);
+      return;
+    }
+    state.phase = 'wait';
+    state.waitTimer = 1.0 + Math.random() * 2.5;
+    const el = document.getElementById('reactTarget'); if(el) el.style.display='none';
+    const rt = document.getElementById('reactText');
+    if(rt) rt.textContent = `Round ${state.round}/${state.maxRounds} — Wait for it...`;
+  }
+  function update(dt){
+    if(state.over) return;
+    if(state.phase === 'wait'){
+      state.waitTimer -= dt;
+      if(state.waitTimer <= 0){
+        state.phase = 'show';
+        state.showStart = performance.now();
+        state.targetX = rand(80, 520);
+        state.targetY = rand(30, 170);
+        const el = document.getElementById('reactTarget');
+        if(el){
+          el.style.display = 'block';
+          el.style.left = state.targetX + 'px';
+          el.style.top = state.targetY + 'px';
+        }
+        const rt = document.getElementById('reactText');
+        if(rt) rt.textContent = 'CLICK NOW! ⚡';
+      }
+    }
+  }
+  function draw(g){
+    drawFlatBg('#1a2a3a','#2b3a4a');
+    g.fillStyle='rgba(255,255,255,0.05)';
+    for(let i=0;i<20;i++){
+      g.fillRect((i*43)%CW, (i*29)%180, 2, 2);
+    }
+  }
+  function onTargetClick(){
+    if(state.phase !== 'show') return;
+    const elapsed = performance.now() - state.showStart;
+    state.times.push(elapsed);
+    SFX.coin();
+    const el = document.getElementById('reactTarget'); if(el) el.style.display='none';
+    const rt = document.getElementById('reactText');
+    if(rt) rt.textContent = `${Math.round(elapsed)}ms — Nice!`;
+    setTimeout(()=>{ nextRound(); }, 500);
+  }
+  return {
+    title:'Reaction Time', hint:'Tap the target as fast as you can! 5 rounds.',
+    domOverlay:true,
+    controlsHtml:`
       <div id="reactArea">
         <div id="reactTarget" style="display:none;"></div>
         <div id="reactText">Tap anywhere or wait for the target...</div>
       </div>
-      <div id="reactResults"></div>`,bindControls(){const s=document.getElementById("reactArea");s&&s.addEventListener("click",o=>{o.target.id==="reactTarget"?r():e.phase==="wait"||e.phase});const n=document.getElementById("reactTarget");n&&n.addEventListener("click",r),d()},create(){return e=c(),this},restart(){e=c(),hideOverlay(),document.getElementById("reactResults").style.display="none"},update:h,draw:m}}
+      <div id="reactResults"></div>`,
+    bindControls(){
+      const ta = document.getElementById('reactArea');
+      if(ta){
+        ta.addEventListener('click', (e)=>{
+          if(e.target.id === 'reactTarget') onTargetClick();
+          else if(state.phase === 'wait' || state.phase === 'ready'){
+            // false start in wait mode? penalize
+          }
+        });
+      }
+      const tg = document.getElementById('reactTarget');
+      if(tg) tg.addEventListener('click', onTargetClick);
+      nextRound();
+    },
+    create(){ state=fresh(); return this; },
+    restart(){ state=fresh(); hideOverlay(); document.getElementById('reactResults').style.display='none'; },
+    update, draw,
+  };
+}
+
+/* =========================================================
+   GAME 8 — Platformer (Stickman Quest)
+   ========================================================= */

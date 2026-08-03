@@ -2,22 +2,25 @@
 
 Kid-friendly stick-figure multi-game website, live at [stickgames.co](https://stickgames.co).
 
-8 games in one page: Sword Duel, Dojo Kicks, Stickman Dash, Hoop Shootout, Ninja Fruit Slice, Memory Match, Reaction Time, and Stickman Quest (platformer, with background music).
+10 games in one page: Sword Duel, Dojo Kicks, Stickman Dash, Hoop Shootout, Ninja Fruit Slice, Memory Match, Reaction Time, Stickman Quest (platformer, with background music), Bubble Shooter, and Stickman Racer.
+
+Every game (except the two fight games mid-campaign) saves top scores to a local, per-device leaderboard — players can enter their name after a qualifying run, and a "🏆 Leaderboards" button on the home screen lets anyone browse any game's top 5 at any time. This is stored in the browser's `localStorage`, the same way star progress is — there's no server/database behind it, so leaderboards are per-device, not shared across players' phones.
 
 ## Structure
 
-Plain HTML5 canvas + vanilla JS, no build step, no dependencies.
+Plain HTML5 canvas + vanilla JS, no build step, no dependencies. Scripts are shipped as readable source (not minified) — since deploys now go through git rather than being embedded directly in a tool call, there's no token-cost reason to minify, and readable code is much easier to maintain.
 
 - `index.html` — page shell, loads the scripts below in order
-- `part1.js` — shared engine: input, drawing helpers, SFX (Web Audio), game loop, start/goHome logic
+- `part1.js` — shared engine: input, drawing helpers, SFX (Web Audio), game loop, start/goHome logic, the local leaderboard module
 - `part2.js` — Sword Duel / Dojo Kicks (fight game) + Stickman Dash (runner)
 - `part3.js` — Hoop Shootout + Ninja Fruit Slice
 - `part4.js` — progress/localStorage, splash screen, Memory Match + Reaction Time
 - `part5.js` — Stickman Quest (platformer)
-- `part6.js` — game registry, home screen cards, procedural home-screen music, first-tap audio unlock
+- `part7.js` — Bubble Shooter + Stickman Racer
+- `part6.js` — game registry, home screen cards, leaderboard browser modal, procedural home-screen music, first-tap audio unlock
 - `quest-bgm.mp3` — background music loop for Stickman Quest
 
-All six `part*.js` files share one global scope (loaded as classic `<script src>` tags, not modules) — variables/functions declared in one are used by later ones.
+All `part*.js` files share one global scope (loaded as classic `<script src>` tags, not modules) — variables/functions declared in one are used by later ones. Load order matters: `part7.js` must load before `part6.js`, since `part6.js`'s game registry calls `createBubbleGame()`/`createRacerGame()` immediately when it runs.
 
 ## Deploying
 

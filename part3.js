@@ -1,1 +1,310 @@
-function createHoopsGame(){let e;const f={legF:100,legB:80,armF:-70,armB:-110,lean:-90,headBob:0},d={legF:105,legB:75,armF:-40,armB:-140,lean:-88,headBob:0},h={legF:96,legB:84,armF:-175,armB:-95,lean:-95,headBob:0};function b(){return{x:rand(520,720),y:rand(120,170)}}function m(){return{ballX:195,ballY:GROUND_Y-70,vx:0,vy:0,inAir:!1,hoop:b(),score:0,time:45,made:0,shots:0,dragging:!1,dragStart:null,over:!1,swish:0,releaseT:0,poseCur:clonePose(f),clock:0,confetti:makeParticlePool(),dust:makeParticlePool()}}function p(){e.ballX=195,e.ballY=GROUND_Y-70,e.vx=0,e.vy=0,e.inAir=!1}function y(o){window.__debug={score:e.score,made:e.made,time:Math.round(e.time)},e.clock+=o,e.releaseT>0&&(e.releaseT-=o),updateParticles(e.confetti,o,240),updateParticles(e.dust,o,0);let r=f;e.dragging?r=d:e.releaseT>.15&&(r=h);const i=Math.sin(e.clock*2)*1.4,a=clonePose(r);if(a.headBob=i*.3,lerpPose(e.poseCur,a,smoothT(e.dragging?20:12,o)),!e.over){if(e.time-=o,e.swish>0&&(e.swish-=o),e.time<=0){S();return}if(e.inAir){e.vy+=650*o,e.ballX+=e.vx*o,e.ballY+=e.vy*o;const n=e.hoop.x,c=e.hoop.y;!e.scoredThisShot&&Math.abs(e.ballX-n)<24&&Math.abs(e.ballY-c)<20&&e.vy>0&&(e.score+=2,e.made++,e.scoredThisShot=!0,e.swish=.6,SFX.swish(),spawnSpark(e.confetti,n,c,"#ffd166",12),e.hoop=b()),(e.ballY>CH+40||e.ballX<-40||e.ballX>CW+40)&&p(),e.ballY>GROUND_Y-20&&e.vy>0&&(e.scoredThisShot||SFX.bounce(),spawnDust(e.dust,e.ballX,GROUND_Y-16,4),p())}}}function S(){e.over=!0;let o="Bronze \u{1F949}";e.score>=30?(o="Gold \u{1F947}",SFX.victory()):e.score>=16?(o="Silver \u{1F948}",SFX.levelup()):SFX.gameover(),setTimeout(()=>{showOverlay("Time's Up!",`Final Score: ${e.score} pts (${e.made} baskets) \u2014 ${o}`,[{label:"Play Again",onClick:()=>{e=m(),hideOverlay()}},{label:"Home",onClick:goHome}])},150)}function l(o,r){e.over||e.inAir||dist(o,r,e.ballX,e.ballY)<40&&(e.dragging=!0,e.dragStart={x:o,y:r},SFX.unlock())}function s(o,r){if(!e.dragging)return;e.dragging=!1;const i=e.dragStart.x-o,a=e.dragStart.y-r,n=clamp(Math.hypot(i,a),0,420);if(n<20)return;const c=Math.atan2(a,i);e.vx=Math.cos(c)*n*2.2,e.vy=Math.sin(c)*n*2.2,e.inAir=!0,e.scoredThisShot=!1,e.shots++,e.releaseT=.32,SFX.whoosh()}function t(o){drawGround("#87ceeb","#ffe9b3");const r=e.hoop.x,i=e.hoop.y;o.strokeStyle="#8d5524",o.lineWidth=8,o.beginPath(),o.moveTo(r+40,GROUND_Y),o.lineTo(r+40,i-30),o.stroke(),o.fillStyle="#fff",o.fillRect(r+30,i-55,10,45),o.strokeStyle="#e63946",o.lineWidth=4,o.beginPath(),o.ellipse(r,i,20,7,0,0,Math.PI*2),o.stroke(),o.strokeStyle="rgba(255,255,255,0.8)",o.lineWidth=1.5;for(let a=-2;a<=2;a++)o.beginPath(),o.moveTo(r+a*7,i),o.lineTo(r+a*4,i+18),o.stroke();drawDust(o,e.dust),drawStick(o,150,GROUND_Y,1.05,"#9b5de5",1,e.poseCur,{expr:e.dragging?"shout":"idle",accessory:"band",accessoryColor:"#ff8c42"}),o.fillStyle="#ff8c42",o.beginPath(),o.arc(e.ballX,e.ballY,13,0,Math.PI*2),o.fill(),o.strokeStyle="#000",o.lineWidth=1.5,o.beginPath(),o.moveTo(e.ballX-13,e.ballY),o.lineTo(e.ballX+13,e.ballY),o.stroke(),o.beginPath(),o.moveTo(e.ballX,e.ballY-13),o.lineTo(e.ballX,e.ballY+13),o.stroke(),e.dragging&&(o.strokeStyle="rgba(0,0,0,0.4)",o.lineWidth=3,o.setLineDash([6,6]),o.beginPath(),o.moveTo(e.ballX,e.ballY),o.lineTo(e.ballX+(e.ballX-pointer.x),e.ballY+(e.ballY-pointer.y)),o.stroke(),o.setLineDash([])),drawSparks(o,e.confetti),e.swish>0&&(o.fillStyle="#06d6a0",o.font="bold 26px Segoe UI",o.textAlign="center",o.fillText("SWISH! +2",r,i-30)),o.textAlign="left",o.font="bold 18px Segoe UI",o.fillStyle="#1c2b3a",o.fillText("Score: "+e.score,20,28),o.fillText("Baskets: "+e.made,20,50),o.textAlign="right",o.fillText("Time: "+Math.ceil(e.time)+"s",CW-20,28)}return{title:"Hoop Shootout",hint:"Drag back from the ball and release to shoot \u2014 like a slingshot!",controlsHtml:"",bindControls(){},create(){return e=m(),this},restart(){e=m(),hideOverlay()},update:y,draw:t,onPointerDown:l,onPointerUp:s}}function createNinjaGame(){let e;const f=[{c:"#ff6b6b",name:"apple"},{c:"#ffb703",name:"orange"},{c:"#06d6a0",name:"melon"},{c:"#9b5de5",name:"grape"}],d={legF:95,legB:85,armF:-60,armB:-120,lean:-90,headBob:0};function h(){return{items:[],spawnTimer:.9,score:0,lives:3,combo:0,comboT:0,over:!1,t:0,popups:[],reactT:0,reactDir:1,poseCur:clonePose(d),bits:makeParticlePool()}}function b(){const l=Math.random()<.15,s=rand(100,700),t=rand(-680,-560),o=rand(-70,70);e.items.push({x:s,y:CH+20,vx:o,vy:t,isBomb:l,r:l?22:24,sliced:!1,rot:0,vr:rand(-3,3),color:l?"#333":f[Math.floor(Math.random()*f.length)].c})}function m(l){window.__debug={score:e.score,lives:e.lives},e.t+=l,e.reactT>0&&(e.reactT-=l),updateParticles(e.bits,l,260);const s=Math.sin(e.t*2)*1.8;let t=clonePose(d);if(t.headBob=s*.35,e.reactT>0){const r=easeOutBack(1-clamp(e.reactT/.22,0,1));t.armF=-60+e.reactDir*140*r,t.armB=-120-e.reactDir*40*r,t.lean=-90+e.reactDir*6*r}if(lerpPose(e.poseCur,t,smoothT(e.reactT>0?26:12,l)),e.over)return;e.spawnTimer-=l;const o=Math.max(.45,.95-e.t*.01);if(e.spawnTimer<=0&&(b(),Math.random()<.3&&b(),e.spawnTimer=o),e.comboT>0?e.comboT-=l:e.combo=0,e.items.forEach(r=>{r.vy+=900*l,r.x+=r.vx*l,r.y+=r.vy*l,r.rot+=r.vr*l}),e.items=e.items.filter(r=>r.y<CH+60),pointer.down&&pointer.trail.length>=2){const r=pointer.trail[pointer.trail.length-2],i=pointer.trail[pointer.trail.length-1];e.items.forEach(a=>{if(a.sliced)return;if(p(a.x,a.y,r.x,r.y,i.x,i.y)<a.r+8)if(a.sliced=!0,e.reactT=.22,e.reactDir=i.x>=r.x?1:-1,a.isBomb)e.lives--,e.combo=0,e.popups.push({x:a.x,y:a.y,text:"\u{1F4A5} -1 life",color:"#ff6b6b",life:1}),spawnSpark(e.bits,a.x,a.y,"#ff8c42",16),SFX.bomb(),e.lives<=0&&y();else{e.combo++,e.comboT=.9;const c=1+Math.max(0,e.combo-1);e.score+=c,e.popups.push({x:a.x,y:a.y,text:"+"+c+(e.combo>1?" x"+e.combo:""),color:"#06d6a0",life:1}),spawnSpark(e.bits,a.x,a.y,a.color,10),SFX.slice()}}),e.items=e.items.filter(a=>!a.sliced)}e.popups.forEach(r=>{r.y-=30*l,r.life-=l}),e.popups=e.popups.filter(r=>r.life>0)}function p(l,s,t,o,r,i){const a=r-t,n=i-o,c=a*a+n*n;let u=c?((l-t)*a+(s-o)*n)/c:0;u=clamp(u,0,1);const x=t+u*a,T=o+u*n;return dist(l,s,x,T)}function y(){e.over=!0,SFX.gameover(),setTimeout(()=>{showOverlay("Game Over!",`Final Score: ${e.score} \u2014 nice slicing, ninja!`,[{label:"Play Again",onClick:()=>{e=h(),hideOverlay()}},{label:"Home",onClick:goHome}])},150)}function S(l){drawGround("#2b3a55","#1c2b3a"),l.fillStyle="rgba(255,255,255,0.6)";for(let t=0;t<30;t++){const o=t*97%CW,r=t*53%GROUND_Y;l.fillRect(o,r,2,2)}e.items.forEach(t=>{l.save(),l.translate(t.x,t.y),l.rotate(t.rot),t.isBomb?(l.fillStyle="#222",l.beginPath(),l.arc(0,0,t.r,0,Math.PI*2),l.fill(),l.strokeStyle="#ff8c42",l.lineWidth=3,l.beginPath(),l.moveTo(0,-t.r),l.lineTo(6,-t.r-10),l.stroke(),l.fillStyle="#ffd166",l.beginPath(),l.arc(6,-t.r-12,3,0,Math.PI*2),l.fill()):(l.fillStyle=t.color,l.beginPath(),l.arc(0,0,t.r,0,Math.PI*2),l.fill(),l.fillStyle="rgba(255,255,255,0.5)",l.beginPath(),l.arc(-t.r*.3,-t.r*.3,t.r*.3,0,Math.PI*2),l.fill()),l.restore()}),drawSparks(l,e.bits),pointer.down&&pointer.trail.length>1&&(l.strokeStyle="rgba(255,255,255,0.85)",l.lineWidth=4,l.lineCap="round",l.beginPath(),pointer.trail.forEach((t,o)=>{o===0?l.moveTo(t.x,t.y):l.lineTo(t.x,t.y)}),l.stroke()),drawStick(l,400,GROUND_Y+2,.9,"#06d6a0",1,e.poseCur,{expr:e.reactT>0?"shout":"idle",accessory:"mask",accessoryColor:"#16202c"}),e.popups.forEach(t=>{l.globalAlpha=clamp(t.life,0,1),l.fillStyle=t.color,l.font="bold 20px Segoe UI",l.textAlign="center",l.fillText(t.text,t.x,t.y)}),l.globalAlpha=1,l.textAlign="left",l.font="bold 18px Segoe UI",l.fillStyle="#fff",l.fillText("Score: "+e.score,20,28),l.textAlign="right";let s="";for(let t=0;t<e.lives;t++)s+="\u2764\uFE0F";l.fillText(s||"\u{1F494}",CW-20,28)}return{title:"Ninja Fruit Slice",hint:"Swipe across fruit to slice it \u2014 avoid the bombs! \u{1F4A3}",controlsHtml:"",bindControls(){},create(){return e=h(),this},restart(){e=h(),hideOverlay()},update:m,draw:S}}
+function createHoopsGame(){
+  let state;
+  const IDLE_POSE = {legF:100,legB:80,armF:-70,armB:-110,lean:-90,headBob:0};
+  const AIM_POSE  = {legF:105,legB:75,armF:-40,armB:-140,lean:-88,headBob:0};
+  const RELEASE_POSE = {legF:96,legB:84,armF:-175,armB:-95,lean:-95,headBob:0};
+  function newHoop(){
+    return { x: rand(520,720), y: rand(120,170) };
+  }
+  function fresh(){
+    return {
+      ballX:195, ballY:GROUND_Y-70, vx:0, vy:0, inAir:false,
+      hoop:newHoop(), score:0, time:45, made:0, shots:0, dragging:false,
+      dragStart:null, over:false, swish:0, releaseT:0,
+      poseCur: clonePose(IDLE_POSE), clock:0,
+      confetti: makeParticlePool(), dust: makeParticlePool(),
+    };
+  }
+  function resetBall(){
+    state.ballX=195; state.ballY=GROUND_Y-70; state.vx=0; state.vy=0; state.inAir=false;
+  }
+  function update(dt){
+    window.__debug = {score: state.score, made: state.made, time: Math.round(state.time)};
+    state.clock += dt;
+    if(state.releaseT>0) state.releaseT -= dt;
+    updateParticles(state.confetti, dt, 240);
+    updateParticles(state.dust, dt, 0);
+    // smooth pose blending: aiming pulls arm back, releasing snaps into a follow-through swing
+    let target = IDLE_POSE;
+    if(state.dragging) target = AIM_POSE;
+    else if(state.releaseT>0.15) target = RELEASE_POSE;
+    const breathe = Math.sin(state.clock*2)*1.4;
+    const blended = clonePose(target);
+    blended.headBob = breathe*0.3;
+    lerpPose(state.poseCur, blended, smoothT(state.dragging?20:12, dt));
+
+    if(state.over) return;
+    state.time -= dt;
+    if(state.swish>0) state.swish-=dt;
+    if(state.time<=0){ endGame(); return; }
+    if(state.inAir){
+      state.vy += 650*dt;
+      state.ballX += state.vx*dt;
+      state.ballY += state.vy*dt;
+      // hoop check
+      const hx=state.hoop.x, hy=state.hoop.y;
+      if(!state.scoredThisShot && Math.abs(state.ballX-hx)<24 && Math.abs(state.ballY-hy)<20 && state.vy>0){
+        state.score += 2; state.made++; state.scoredThisShot=true; state.swish=0.6;
+        SFX.swish();
+        spawnSpark(state.confetti, hx, hy, '#ffd166', 12);
+        state.hoop = newHoop();
+      }
+      if(state.ballY>CH+40 || state.ballX<-40 || state.ballX>CW+40){
+        resetBall();
+      }
+      if(state.ballY>GROUND_Y-20 && state.vy>0){
+        if(!state.scoredThisShot) SFX.bounce();
+        spawnDust(state.dust, state.ballX, GROUND_Y-16, 4);
+        resetBall();
+      }
+    }
+  }
+  function endGame(){
+    state.over = true;
+    let rank = 'Bronze 🥉';
+    if(state.score>=30){ rank='Gold 🥇'; SFX.victory(); }
+    else if(state.score>=16){ rank='Silver 🥈'; SFX.levelup(); }
+    else { SFX.gameover(); }
+    setTimeout(()=>{
+      showGameOverOverlay('hoops', state.score, "Time's Up!", `Final Score: ${state.score} pts (${state.made} baskets) — ${rank}`, [
+        {label:'Play Again', onClick:()=>{ state=fresh(); hideOverlay(); }},
+        {label:'Home', onClick: goHome}
+      ]);
+    },150);
+  }
+  function onPointerDown(x,y){
+    if(state.over || state.inAir) return;
+    if(dist(x,y,state.ballX,state.ballY)<40){
+      state.dragging = true; state.dragStart={x,y};
+      SFX.unlock();
+    }
+  }
+  function onPointerUp(x,y){
+    if(!state.dragging) return;
+    state.dragging=false;
+    const dx = state.dragStart.x-x, dy = state.dragStart.y-y;
+    const power = clamp(Math.hypot(dx,dy), 0, 420);
+    if(power<20) return;
+    const ang = Math.atan2(dy,dx);
+    state.vx = Math.cos(ang)*power*2.2;
+    state.vy = Math.sin(ang)*power*2.2;
+    state.inAir = true; state.scoredThisShot=false; state.shots++;
+    state.releaseT = 0.32;
+    SFX.whoosh();
+  }
+  function draw(g){
+    drawGround('#87ceeb','#ffe9b3');
+    // backboard/pole
+    const hx=state.hoop.x, hy=state.hoop.y;
+    g.strokeStyle='#8d5524'; g.lineWidth=8;
+    g.beginPath(); g.moveTo(hx+40,GROUND_Y); g.lineTo(hx+40,hy-30); g.stroke();
+    g.fillStyle='#fff'; g.fillRect(hx+30,hy-55,10,45);
+    g.strokeStyle='#e63946'; g.lineWidth=4;
+    g.beginPath(); g.ellipse(hx,hy,20,7,0,0,Math.PI*2); g.stroke();
+    // net
+    g.strokeStyle='rgba(255,255,255,0.8)'; g.lineWidth=1.5;
+    for(let i=-2;i<=2;i++){
+      g.beginPath(); g.moveTo(hx+i*7,hy); g.lineTo(hx+i*4,hy+18); g.stroke();
+    }
+    drawDust(g, state.dust);
+    // player (smoothly-blended pose: idle → aim → release follow-through)
+    drawStick(g, 150, GROUND_Y, 1.05, '#9b5de5', 1, state.poseCur, {expr: state.dragging?'shout':'idle', accessory:'band', accessoryColor:'#ff8c42'});
+    // ball
+    g.fillStyle='#ff8c42';
+    g.beginPath(); g.arc(state.ballX,state.ballY,13,0,Math.PI*2); g.fill();
+    g.strokeStyle='#000'; g.lineWidth=1.5;
+    g.beginPath(); g.moveTo(state.ballX-13,state.ballY); g.lineTo(state.ballX+13,state.ballY); g.stroke();
+    g.beginPath(); g.moveTo(state.ballX,state.ballY-13); g.lineTo(state.ballX,state.ballY+13); g.stroke();
+    // aim line
+    if(state.dragging){
+      g.strokeStyle='rgba(0,0,0,0.4)'; g.lineWidth=3; g.setLineDash([6,6]);
+      g.beginPath(); g.moveTo(state.ballX,state.ballY);
+      g.lineTo(state.ballX+(state.ballX-pointer.x), state.ballY+(state.ballY-pointer.y));
+      g.stroke(); g.setLineDash([]);
+    }
+    drawSparks(g, state.confetti);
+    if(state.swish>0){
+      g.fillStyle='#06d6a0'; g.font='bold 26px Segoe UI'; g.textAlign='center';
+      g.fillText('SWISH! +2', hx, hy-30);
+    }
+    // HUD
+    g.textAlign='left'; g.font='bold 18px Segoe UI'; g.fillStyle='#1c2b3a';
+    g.fillText('Score: '+state.score, 20, 28);
+    g.fillText('Baskets: '+state.made, 20, 50);
+    g.textAlign='right';
+    g.fillText('Time: '+Math.ceil(state.time)+'s', CW-20, 28);
+  }
+  return {
+    title:'Hoop Shootout', hint:'Drag back from the ball and release to shoot — like a slingshot!',
+    controlsHtml:'',
+    bindControls(){},
+    create(){ state=fresh(); return this; },
+    restart(){ state=fresh(); hideOverlay(); },
+    update, draw, onPointerDown, onPointerUp,
+  };
+}
+
+/* =========================================================
+   GAME 5 — Ninja Fruit Slice
+   ========================================================= */
+function createNinjaGame(){
+  let state;
+  const FRUIT_COLORS = [
+    {c:'#ff6b6b', name:'apple'}, {c:'#ffb703', name:'orange'},
+    {c:'#06d6a0', name:'melon'}, {c:'#9b5de5', name:'grape'}
+  ];
+  const IDLE_POSE = {legF:95,legB:85,armF:-60,armB:-120,lean:-90,headBob:0};
+  function fresh(){
+    return {
+      items:[], spawnTimer:0.9, score:0, lives:3, combo:0, comboT:0, over:false, t:0, popups:[],
+      reactT:0, reactDir:1, poseCur: clonePose(IDLE_POSE), bits: makeParticlePool(),
+    };
+  }
+  function spawn(){
+    const isBomb = Math.random()<0.15;
+    const x = rand(100,700);
+    const vy = rand(-680,-560);
+    const vx = rand(-70,70);
+    state.items.push({
+      x, y:CH+20, vx, vy, isBomb, r: isBomb?22:24,
+      sliced:false, rot:0, vr: rand(-3,3),
+      color: isBomb?'#333':FRUIT_COLORS[Math.floor(Math.random()*FRUIT_COLORS.length)].c,
+    });
+  }
+  function update(dt){
+    window.__debug = {score: state.score, lives: state.lives};
+    state.t += dt;
+    if(state.reactT>0) state.reactT -= dt;
+    updateParticles(state.bits, dt, 260);
+    // idle breathing + quick reactive swipe pose when slicing, all eased for a graceful feel
+    const breathe = Math.sin(state.t*2)*1.8;
+    let target = clonePose(IDLE_POSE);
+    target.headBob = breathe*0.35;
+    if(state.reactT>0){
+      const p = easeOutBack(1-clamp(state.reactT/0.22,0,1));
+      target.armF = -60 + state.reactDir*140*p;
+      target.armB = -120 - state.reactDir*40*p;
+      target.lean = -90 + state.reactDir*6*p;
+    }
+    lerpPose(state.poseCur, target, smoothT(state.reactT>0?26:12, dt));
+    if(state.over) return;
+    state.spawnTimer -= dt;
+    const rate = Math.max(0.45, 0.95 - state.t*0.01);
+    if(state.spawnTimer<=0){ spawn(); if(Math.random()<0.3) spawn(); state.spawnTimer = rate; }
+    if(state.comboT>0){ state.comboT-=dt; } else { state.combo=0; }
+
+    state.items.forEach(it=>{
+      it.vy += 900*dt; it.x+=it.vx*dt; it.y+=it.vy*dt; it.rot+=it.vr*dt;
+    });
+    state.items = state.items.filter(it=> it.y < CH+60);
+
+    // check slicing via pointer trail
+    if(pointer.down && pointer.trail.length>=2){
+      const a = pointer.trail[pointer.trail.length-2];
+      const b = pointer.trail[pointer.trail.length-1];
+      state.items.forEach(it=>{
+        if(it.sliced) return;
+        const d = pointDistToSeg(it.x,it.y,a.x,a.y,b.x,b.y);
+        if(d < it.r+8){
+          it.sliced = true;
+          state.reactT = 0.22; state.reactDir = (b.x>=a.x) ? 1 : -1;
+          if(it.isBomb){
+            state.lives--; state.combo=0;
+            state.popups.push({x:it.x,y:it.y,text:'💥 -1 life',color:'#ff6b6b',life:1});
+            spawnSpark(state.bits, it.x, it.y, '#ff8c42', 16);
+            SFX.bomb();
+            if(state.lives<=0){ endGame(); }
+          } else {
+            state.combo++; state.comboT=0.9;
+            const pts = 1 + Math.max(0,state.combo-1);
+            state.score += pts;
+            state.popups.push({x:it.x,y:it.y,text:'+'+pts+(state.combo>1?' x'+state.combo:''),color:'#06d6a0',life:1});
+            spawnSpark(state.bits, it.x, it.y, it.color, 10);
+            SFX.slice();
+          }
+        }
+      });
+      state.items = state.items.filter(it=>!it.sliced);
+    }
+    state.popups.forEach(p=>{ p.y-=30*dt; p.life-=dt; });
+    state.popups = state.popups.filter(p=>p.life>0);
+  }
+  function pointDistToSeg(px,py,x1,y1,x2,y2){
+    const dx=x2-x1, dy=y2-y1;
+    const len2 = dx*dx+dy*dy;
+    let t = len2? ((px-x1)*dx+(py-y1)*dy)/len2 : 0;
+    t = clamp(t,0,1);
+    const cx = x1+t*dx, cy=y1+t*dy;
+    return dist(px,py,cx,cy);
+  }
+  function endGame(){
+    state.over = true;
+    SFX.gameover();
+    setTimeout(()=>{
+      showGameOverOverlay('ninja', state.score, 'Game Over!', `Final Score: ${state.score} — nice slicing, ninja!`, [
+        {label:'Play Again', onClick:()=>{ state=fresh(); hideOverlay(); }},
+        {label:'Home', onClick: goHome}
+      ]);
+    },150);
+  }
+  function draw(g){
+    drawGround('#2b3a55','#1c2b3a');
+    // stars bg
+    g.fillStyle='rgba(255,255,255,0.6)';
+    for(let i=0;i<30;i++){
+      const x=(i*97)%CW, y=(i*53)%GROUND_Y;
+      g.fillRect(x,y,2,2);
+    }
+    state.items.forEach(it=>{
+      g.save();
+      g.translate(it.x,it.y); g.rotate(it.rot);
+      if(it.isBomb){
+        g.fillStyle='#222'; g.beginPath(); g.arc(0,0,it.r,0,Math.PI*2); g.fill();
+        g.strokeStyle='#ff8c42'; g.lineWidth=3;
+        g.beginPath(); g.moveTo(0,-it.r); g.lineTo(6,-it.r-10); g.stroke();
+        g.fillStyle='#ffd166'; g.beginPath(); g.arc(6,-it.r-12,3,0,Math.PI*2); g.fill();
+      } else {
+        g.fillStyle = it.color;
+        g.beginPath(); g.arc(0,0,it.r,0,Math.PI*2); g.fill();
+        g.fillStyle='rgba(255,255,255,0.5)';
+        g.beginPath(); g.arc(-it.r*0.3,-it.r*0.3,it.r*0.3,0,Math.PI*2); g.fill();
+      }
+      g.restore();
+    });
+    drawSparks(g, state.bits);
+    // slice trail
+    if(pointer.down && pointer.trail.length>1){
+      g.strokeStyle='rgba(255,255,255,0.85)'; g.lineWidth=4; g.lineCap='round';
+      g.beginPath();
+      pointer.trail.forEach((p,i)=>{ i===0?g.moveTo(p.x,p.y):g.lineTo(p.x,p.y); });
+      g.stroke();
+    }
+    // ninja stickman — idle bob + quick reactive swipe when slicing
+    drawStick(g, 400, GROUND_Y+2, 0.9, '#06d6a0', 1, state.poseCur, {expr: state.reactT>0?'shout':'idle', accessory:'mask', accessoryColor:'#16202c'});
+
+    state.popups.forEach(p=>{
+      g.globalAlpha=clamp(p.life,0,1);
+      g.fillStyle=p.color; g.font='bold 20px Segoe UI'; g.textAlign='center';
+      g.fillText(p.text,p.x,p.y);
+    });
+    g.globalAlpha=1;
+
+    g.textAlign='left'; g.font='bold 18px Segoe UI'; g.fillStyle='#fff';
+    g.fillText('Score: '+state.score, 20, 28);
+    g.textAlign='right';
+    let hearts=''; for(let i=0;i<state.lives;i++) hearts+='❤️';
+    g.fillText(hearts||'💔', CW-20, 28);
+  }
+  return {
+    title:'Ninja Fruit Slice', hint:'Swipe across fruit to slice it — avoid the bombs! 💣',
+    controlsHtml:'',
+    bindControls(){},
+    create(){ state=fresh(); return this; },
+    restart(){ state=fresh(); hideOverlay(); },
+    update, draw,
+  };
+}
+
+/* =========================================================
+   PROGRESSION SYSTEM (localStorage)
+   ========================================================= */
