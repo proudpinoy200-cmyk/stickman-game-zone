@@ -78,6 +78,7 @@ const GAMES = {
   platformer: createPlatformerGame(),
   bubble: createBubbleGame(),
   racer: createRacerGame(),
+  galaxy: createGalaxyGame(),
 };
 
 /* Keyboard bindings shared across fight games */
@@ -113,6 +114,7 @@ const CARD_DATA = [
   {id:'platformer', icon:'🏁', name:'Stickman Quest', desc:'Jump, collect, stomp, reach the flag!'},
   {id:'bubble', icon:'🫧', name:'Bubble Shooter', desc:'Aim, shoot, match 3+ to pop bubbles!'},
   {id:'racer', icon:'🏎️', name:'Stickman Racer', desc:'Dodge hurdles, boost, win the race!'},
+  {id:'galaxy', icon:'👾', name:'Stick Galaxy', desc:'Blast neon aliens, grab power-ups, beat the boss!'},
 ];
 
 /* =========================================================
@@ -130,6 +132,7 @@ const LB_GAMES = [
   {id:'platformer', name:'Stickman Quest', higherIsBetter:true, format:s=>s+' coins'},
   {id:'bubble', name:'Bubble Shooter', higherIsBetter:true, format:s=>s+' pts'},
   {id:'racer', name:'Stickman Racer', higherIsBetter:false, format:s=>s.toFixed(1)+'s'},
+  {id:'galaxy', name:'Stick Galaxy', higherIsBetter:true, format:s=>s+' pts'},
 ];
 function populateLbModal(){
   const sel = document.getElementById('lbGameSelect');

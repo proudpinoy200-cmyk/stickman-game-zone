@@ -514,6 +514,7 @@ function startGame(id){
     platformer:{icon:'🏁',title:'Stickman Quest',sub:'Collect coins, reach the flag!'},
     bubble:{icon:'🫧',title:'Bubble Shooter',sub:'Match 3+ to pop the bubbles!'},
     racer:{icon:'🏎️',title:'Stickman Racer',sub:'Dodge hurdles. Win the race!'},
+    galaxy:{icon:'👾',title:'Stick Galaxy',sub:'Blast aliens across 5 luminous waves!'},
   };
   const si = splashInfo[id]||{icon:'🎮',title:factory.title,sub:''};
   showSplash(si.icon, si.title, si.sub, 1800).then(()=>{
