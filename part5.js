@@ -81,8 +81,9 @@ function createPlatformerGame(){
       platforms.push({x, y, w, h:PLAT_H, type:'float'});
       lastFloatX = x + w;
     }
-    // coins
-    for(let i=0;i<6+Math.floor(diff*4);i++){
+    // coins — a noticeably bigger haul per level than before, so a full run feels
+    // more rewarding and 3-starring a level (collect every coin) is a real goal
+    for(let i=0;i<14+Math.floor(diff*8);i++){
       coins.push({x:rand(150, s.worldW-50), y:rand(GROUND_Y-140, GROUND_Y-20), taken:false});
     }
     // enemies
@@ -311,21 +312,22 @@ function createPlatformerGame(){
       }
     }
     state.enemyFireballs = state.enemyFireballs.filter(f=>f.alive);
-    // fireballs — move in a straight line, defeat the first alive enemy they touch,
-    // or chip a hit off Epal (same 3-hit HP as a stomp). Fireballs travel dead level
-    // at whatever height they were fired from (no gravity), but enemies/Epal are all
-    // squat, near-ground-height targets — a shot fired mid-jump used to sail harmlessly
-    // over their heads with no way to tell why it "missed". Vertical tolerance is wide
-    // enough to cover the player's full jump range (max jump height ≈97 units) so any
-    // shot roughly in line horizontally connects regardless of the height it was fired
-    // from — this is a ranged weapon in a kids' game, not a precision-aim mechanic.
+    // fireballs — move in a straight line at whatever height they were fired from (no
+    // gravity), and only hit something roughly at that same height. Vertical tolerance
+    // used to be wide enough (110 units) to cover the player's full jump arc, but that
+    // was wide enough to ALSO connect with a ground enemy while the player was standing
+    // still on a nearby low floating platform (a "log") well above it — a shot fired
+    // from up there has no business hitting something directly below when it only
+    // travels straight across, so tightening this to roughly an enemy's own height
+    // (plus a little slack for a short hop) fixes that while still forgiving normal
+    // ground-level aiming.
     for(const f of state.fireballs){
       if(!f.alive) continue;
       f.x += f.vx*dt;
       if(f.x < -20 || f.x > state.worldW+20){ f.alive = false; continue; }
       for(const e of state.enemies){
         if(!e.alive) continue;
-        if(Math.abs(f.x-e.x) < 20 && Math.abs(f.y-e.y) < 110){
+        if(Math.abs(f.x-e.x) < 20 && Math.abs(f.y-e.y) < 40){
           e.alive = false;
           f.alive = false;
           SFX.stomp();
@@ -335,7 +337,7 @@ function createPlatformerGame(){
       }
       if(f.alive && state.boss && state.boss.alive){
         const b = state.boss;
-        if(Math.abs(f.x-b.x) < 34 && Math.abs(f.y-b.y) < 120){
+        if(Math.abs(f.x-b.x) < 34 && Math.abs(f.y-b.y) < 55){
           f.alive = false;
           b.hp--; b.hitFlash = 0.3;
           SFX.stomp();

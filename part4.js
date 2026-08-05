@@ -249,13 +249,19 @@ function createMemoryGame(){
 /* =========================================================
    GAME 7 — Reaction Time
    ========================================================= */
+// A rotating cast of animals stands in for the old plain red dot — a fresh face
+// every round keeps repeat plays feeling less like the exact same drill.
+const REACT_ANIMALS = ['🐰','🐶','🐱','🦁','🐸','🐵','🦊','🐼','🐨','🐯','🐷','🐮','🐔','🐧','🦄'];
 function createReactionGame(){
   let state;
   function fresh(){
     return {
+      // 13 rounds with a wider, slower wait window roughly triples total play
+      // time versus the original 5-round version (about +30s), so a session
+      // lasts closer to half a minute instead of feeling like it's over in a blink.
       phase: 'ready', // ready | wait | show | result | done
-      times: [], round:0, maxRounds:5,
-      targetX:400, targetY:110,
+      times: [], round:0, maxRounds:13,
+      targetX:400, targetY:110, targetEmoji:'🐰',
       waitTimer:0, showStart:0, over:false,
     };
   }
@@ -285,7 +291,9 @@ function createReactionGame(){
       return;
     }
     state.phase = 'wait';
-    state.waitTimer = 1.0 + Math.random() * 2.5;
+    // widened from the original 1.0–3.5s window so each round takes noticeably
+    // longer to arrive, stretching the whole game out (see maxRounds comment above)
+    state.waitTimer = 1.2 + Math.random() * 3.0;
     const el = document.getElementById('reactTarget'); if(el) el.style.display='none';
     const rt = document.getElementById('reactText');
     if(rt) rt.textContent = `Round ${state.round}/${state.maxRounds} — Wait for it...`;
@@ -299,9 +307,11 @@ function createReactionGame(){
         state.showStart = performance.now();
         state.targetX = rand(80, 520);
         state.targetY = rand(30, 170);
+        state.targetEmoji = REACT_ANIMALS[Math.floor(Math.random()*REACT_ANIMALS.length)];
         const el = document.getElementById('reactTarget');
         if(el){
-          el.style.display = 'block';
+          el.textContent = state.targetEmoji;
+          el.style.display = 'flex';
           el.style.left = state.targetX + 'px';
           el.style.top = state.targetY + 'px';
         }
@@ -317,18 +327,43 @@ function createReactionGame(){
       g.fillRect((i*43)%CW, (i*29)%180, 2, 2);
     }
   }
+  // A satisfying little "pop" burst of debris + the just-tapped animal's own emoji
+  // flying outward from where it was hit, purely a DOM/CSS effect (this game's
+  // play area is HTML, not canvas) — the "character should explode" ask, applied
+  // to the animal target itself since that's the on-screen thing being tapped.
+  function explodeTarget(x, y, emoji){
+    const area = document.getElementById('reactArea');
+    if(!area) return;
+    const bits = [emoji, emoji, '💥','✨','💥','✨','⭐','✨'];
+    bits.forEach(bit=>{
+      const p = document.createElement('div');
+      const ang = Math.random()*Math.PI*2;
+      const d = 45 + Math.random()*70;
+      const dx = Math.cos(ang)*d, dy = Math.sin(ang)*d;
+      const rot = (Math.random()*360-180);
+      p.textContent = bit;
+      p.style.cssText = `position:absolute; left:${x}px; top:${y}px; font-size:${16+Math.random()*14}px; pointer-events:none; z-index:5; transition: transform .5s cubic-bezier(.15,.7,.3,1), opacity .5s ease-out; opacity:1; transform:translate(-50%,-50%) rotate(0deg) scale(1);`;
+      area.appendChild(p);
+      requestAnimationFrame(()=>{
+        p.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${rot}deg) scale(0.2)`;
+        p.style.opacity = '0';
+      });
+      setTimeout(()=>p.remove(), 560);
+    });
+  }
   function onTargetClick(){
     if(state.phase !== 'show') return;
     const elapsed = performance.now() - state.showStart;
     state.times.push(elapsed);
-    SFX.coin();
+    SFX.bomb();
+    explodeTarget(state.targetX+32, state.targetY+32, state.targetEmoji);
     const el = document.getElementById('reactTarget'); if(el) el.style.display='none';
     const rt = document.getElementById('reactText');
     if(rt) rt.textContent = `${Math.round(elapsed)}ms — Nice!`;
     setTimeout(()=>{ nextRound(); }, 500);
   }
   return {
-    title:'Reaction Time', hint:'Tap the target as fast as you can! 5 rounds.',
+    title:'Reaction Time', hint:'Tap the animal as fast as you can! 13 rounds.',
     domOverlay:true,
     controlsHtml:`
       <div id="reactArea">
