@@ -298,6 +298,32 @@ function createReactionGame(){
     const rt = document.getElementById('reactText');
     if(rt) rt.textContent = `Round ${state.round}/${state.maxRounds} — Wait for it...`;
   }
+  // The target is a real DOM element positioned in raw pixels inside #reactArea,
+  // not something drawn in the 800×450 logical canvas space — so its spawn range
+  // has to match #reactArea's ACTUAL on-screen size, not a hardcoded box. On a
+  // phone that box can be well under 520px wide, so the old fixed rand(80,520)/
+  // rand(30,170) range routinely placed the target past the right edge of the
+  // real box — off-screen and unreachable, which is exactly what looked "broken".
+  //
+  // `left`/`top` position the target's TOP-LEFT corner, not its center, so the
+  // safe range is asymmetric: the low end only needs a small margin (the pulse
+  // animation grows the box outward from its own center by a few px on every
+  // side), but the high end has to leave room for the box's full width/height
+  // PLUS that same growth margin, or the right/bottom edge pokes out past the
+  // container. Falling back to generous defaults if the box hasn't laid out yet.
+  const TARGET_SIZE = 64;
+  function getReactTargetBounds(){
+    const area = document.getElementById('reactArea');
+    const growMargin = (TARGET_SIZE*0.12)/2 + 6; // half the pulse's extra size + a little slack
+    const w = area && area.clientWidth ? area.clientWidth : 600;
+    const h = area && area.clientHeight ? area.clientHeight : 220;
+    const maxX = w - TARGET_SIZE - growMargin;
+    const maxY = h - TARGET_SIZE - growMargin;
+    return {
+      minX: growMargin, maxX: Math.max(growMargin+1, maxX),
+      minY: growMargin, maxY: Math.max(growMargin+1, maxY),
+    };
+  }
   function update(dt){
     if(state.over) return;
     if(state.phase === 'wait'){
@@ -305,8 +331,9 @@ function createReactionGame(){
       if(state.waitTimer <= 0){
         state.phase = 'show';
         state.showStart = performance.now();
-        state.targetX = rand(80, 520);
-        state.targetY = rand(30, 170);
+        const b = getReactTargetBounds();
+        state.targetX = rand(b.minX, b.maxX);
+        state.targetY = rand(b.minY, b.maxY);
         state.targetEmoji = REACT_ANIMALS[Math.floor(Math.random()*REACT_ANIMALS.length)];
         const el = document.getElementById('reactTarget');
         if(el){
@@ -356,7 +383,7 @@ function createReactionGame(){
     const elapsed = performance.now() - state.showStart;
     state.times.push(elapsed);
     SFX.bomb();
-    explodeTarget(state.targetX+32, state.targetY+32, state.targetEmoji);
+    explodeTarget(state.targetX+TARGET_SIZE/2, state.targetY+TARGET_SIZE/2, state.targetEmoji);
     const el = document.getElementById('reactTarget'); if(el) el.style.display='none';
     const rt = document.getElementById('reactText');
     if(rt) rt.textContent = `${Math.round(elapsed)}ms — Nice!`;
@@ -372,6 +399,12 @@ function createReactionGame(){
       </div>
       <div id="reactResults"></div>`,
     bindControls(){
+      // Only ONE listener actually calls onTargetClick — delegated here on the
+      // parent #reactArea, checking which element was actually clicked. A click
+      // on #reactTarget bubbles up and satisfies this same handler, so a second,
+      // separate listener directly on #reactTarget (removed) was firing AGAIN for
+      // that same bubbled event — every tap was silently counted twice, doubling
+      // the round counter and ending the game roughly twice as fast as intended.
       const ta = document.getElementById('reactArea');
       if(ta){
         ta.addEventListener('click', (e)=>{
@@ -381,8 +414,6 @@ function createReactionGame(){
           }
         });
       }
-      const tg = document.getElementById('reactTarget');
-      if(tg) tg.addEventListener('click', onTargetClick);
       nextRound();
     },
     create(){ state=fresh(); return this; },
