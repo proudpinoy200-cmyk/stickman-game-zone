@@ -192,6 +192,8 @@ function createGalaxyGame(){
     SFX.victory();
     setTimeout(()=>{
       if(state.level>=LEVELS){
+        recordRoundComplete();
+        unlockAchievement('galaxy_saved');
         showGameOverOverlay('galaxy', state.score, '🏆 Galaxy Saved!', `You defended the galaxy through all ${LEVELS} waves! Final score: ${state.score}`, [
           {label:'Play Again', onClick:()=>{ state=fresh(1,0); hideOverlay(); }},
           {label:'Home', onClick: goHome}
@@ -206,6 +208,7 @@ function createGalaxyGame(){
   function gameOver(){
     state.over = true; state.win = false;
     SFX.gameover();
+    recordRoundComplete();
     setTimeout(()=>{
       showGameOverOverlay('galaxy', state.score, '💥 Ship Down!', `Final score: ${state.score}. The galaxy needs you again!`, [
         {label:'Retry Wave', onClick:()=>{ state=fresh(state.level,0); hideOverlay(); }},

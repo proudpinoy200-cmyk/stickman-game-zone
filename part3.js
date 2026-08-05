@@ -66,6 +66,8 @@ function createHoopsGame(){
     else if(state.score>=16){ rank='Silver 🥈'; SFX.levelup(); }
     else { SFX.gameover(); }
     setTimeout(()=>{
+      recordRoundComplete();
+      if(state.score >= 15) unlockAchievement('hoops_allstar');
       showGameOverOverlay('hoops', state.score, "Time's Up!", `Final Score: ${state.score} pts (${state.made} baskets) — ${rank}`, [
         {label:'Play Again', onClick:()=>{ state=fresh(); hideOverlay(); }},
         {label:'Home', onClick: goHome}
@@ -241,6 +243,8 @@ function createNinjaGame(){
     state.over = true;
     SFX.gameover();
     setTimeout(()=>{
+      recordRoundComplete();
+      if(state.score >= 40) unlockAchievement('ninja_master');
       showGameOverOverlay('ninja', state.score, 'Game Over!', `Final Score: ${state.score} — nice slicing, ninja!`, [
         {label:'Play Again', onClick:()=>{ state=fresh(); hideOverlay(); }},
         {label:'Home', onClick: goHome}

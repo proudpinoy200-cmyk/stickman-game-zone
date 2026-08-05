@@ -356,6 +356,8 @@ function createPlatformerGame(){
       PROG.setStars('platformer', Math.max(stars, PROG.getStars('platformer')));
       PROG.setHighScore('platformer', Math.max(PROG.getHighScore('platformer'), state.coinCount));
       PROG.updateDisplay();
+      recordRoundComplete();
+      unlockAchievement('quest_hero');
       SFX.victory();
       // by the time px can reach worldW-30, the boss gate has already guaranteed
       // state.boss is either null or defeated — the "still alive" case is unreachable,
@@ -386,6 +388,7 @@ function createPlatformerGame(){
   function gameOver(){
     state.over = true;
     SFX.gameover();
+    recordRoundComplete();
     setTimeout(()=>{
       showGameOverOverlay('platformer', state.coinCount, '💀 Stumbled!', `You collected ${state.coinCount} coins. Try again!`, [
         {label:'Retry', onClick:()=>{ state=buildLevel(state.level); hideOverlay(); }},

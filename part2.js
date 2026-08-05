@@ -86,6 +86,8 @@ function createFightGame(cfg){
     setTimeout(()=>{
       if(won){
         if(state.level>=LEVELS){
+          recordRoundComplete();
+          unlockAchievement(cfg.gameId==='sword' ? 'sword_champion' : 'martial_blackbelt');
           showGameOverOverlay(cfg.gameId, totalElapsed, '🏆 Champion!',
             `You defeated every opponent and became the ${cfg.finalTitle}! Time: ${totalElapsed.toFixed(1)}s`, [
             {label:'Play Again', onClick:()=>{ state = freshState(1,100); totalElapsed = 0; hideOverlay(); }},
@@ -97,6 +99,7 @@ function createFightGame(cfg){
           ]);
         }
       } else {
+        recordRoundComplete();
         showOverlay('You Got Knocked Down!', 'Every hero takes a hit sometimes. Try again!', [
           {label:'Retry Level', onClick:()=>{ state = freshState(state.level,100); hideOverlay(); }},
           {label:'Home', onClick: goHome}
@@ -367,6 +370,8 @@ function createRunnerGame(){
     SFX.gameover();
     setTimeout(()=>{
       const score = Math.round(state.dist);
+      recordRoundComplete();
+      if(score >= 500) unlockAchievement('runner_500');
       showGameOverOverlay('runner', score, 'Game Over!', `You ran ${score}m as a stick hero! `+ (score>300?'Amazing run! 🌟':'Nice try — go further!'), [
         {label:'Play Again', onClick:()=>{ state=fresh(); hideOverlay(); }},
         {label:'Home', onClick: goHome}

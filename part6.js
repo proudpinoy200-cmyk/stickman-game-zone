@@ -104,17 +104,44 @@ window.addEventListener('keyup', e=>{
    HOME SCREEN CARDS
    ========================================================= */
 const CARD_DATA = [
-  {id:'sword', icon:'⚔️', name:'Sword Duel', desc:'Battle 5 rising opponents with your blade.'},
-  {id:'martial', icon:'🥋', name:'Dojo Kicks', desc:'Punch & kick your way to Black Belt.'},
-  {id:'runner', icon:'🏃', name:'Stickman Dash', desc:'Jump & duck an endless obstacle run.'},
-  {id:'hoops', icon:'🏀', name:'Hoop Shootout', desc:'Slingshot swishes before time runs out.'},
-  {id:'ninja', icon:'🍉', name:'Ninja Fruit Slice', desc:'Swipe fruit, dodge bombs, chain combos.'},
-  {id:'memory', icon:'🧠', name:'Memory Match', desc:'Flip & match the stickman card pairs!'},
-  {id:'reaction', icon:'⚡', name:'Reaction Time', desc:'Test your reflexes — tap fast!'},
-  {id:'platformer', icon:'🏁', name:'Stickman Quest', desc:'Jump, collect, stomp, reach the flag!'},
-  {id:'bubble', icon:'🫧', name:'Bubble Shooter', desc:'Aim, shoot, match 3+ to pop bubbles!'},
-  {id:'racer', icon:'🏎️', name:'Stickman Racer', desc:'Dodge hurdles, boost, win the race!'},
-  {id:'galaxy', icon:'👾', name:'Stick Galaxy', desc:'Blast neon aliens, grab power-ups, beat the boss!'},
+  {id:'sword', icon:'⚔️', name:'Sword Duel', desc:'Battle 5 rising opponents with your blade.', tags:['action','fighting','boss'], color:['#334155','#64748b'], isNew:false, editorPick:true},
+  {id:'martial', icon:'🥋', name:'Dojo Kicks', desc:'Punch & kick your way to Black Belt.', tags:['action','fighting'], color:['#7c2d12','#ea580c'], isNew:false, editorPick:false},
+  {id:'runner', icon:'🏃', name:'Stickman Dash', desc:'Jump & duck an endless obstacle run.', tags:['action','endless','reflex'], color:['#0ea5e9','#38bdf8'], isNew:false, editorPick:false},
+  {id:'hoops', icon:'🏀', name:'Hoop Shootout', desc:'Slingshot swishes before time runs out.', tags:['sports','arcade'], color:['#f97316','#fb923c'], isNew:false, editorPick:false},
+  {id:'ninja', icon:'🍉', name:'Ninja Fruit Slice', desc:'Swipe fruit, dodge bombs, chain combos.', tags:['arcade','reflex','slicing'], color:['#166534','#22c55e'], isNew:false, editorPick:false},
+  {id:'memory', icon:'🧠', name:'Memory Match', desc:'Flip & match the stickman card pairs!', tags:['puzzle','brain'], color:['#7c3aed','#a78bfa'], isNew:false, editorPick:false},
+  {id:'reaction', icon:'⚡', name:'Reaction Time', desc:'Test your reflexes — tap fast!', tags:['arcade','reflex','brain'], color:['#ca8a04','#fde047'], isNew:false, editorPick:false},
+  {id:'platformer', icon:'🏁', name:'Stickman Quest', desc:'Jump, collect, stomp, reach the flag!', tags:['adventure','platformer','music'], color:['#059669','#34d399'], isNew:false, editorPick:true},
+  {id:'bubble', icon:'🫧', name:'Bubble Shooter', desc:'Aim, shoot, match 3+ to pop bubbles!', tags:['puzzle','arcade','colorful'], color:['#db2777','#f472b6'], isNew:true, editorPick:false},
+  {id:'racer', icon:'🏎️', name:'Stickman Racer', desc:'Dodge hurdles, boost, win the race!', tags:['action','endless','driving'], color:['#dc2626','#f87171'], isNew:true, editorPick:false},
+  {id:'galaxy', icon:'👾', name:'Stick Galaxy', desc:'Blast neon aliens, grab power-ups, beat the boss!', tags:['action','shooter','space','boss'], color:['#4c1d95','#7c3aed'], isNew:true, editorPick:true},
+];
+
+/* =========================================================
+   ACHIEVEMENTS — definitions (unlock state itself lives in the ACH
+   module in part1.js; this is just the human-readable catalog).
+   ========================================================= */
+const ACH_DEFS = [
+  {id:'first_steps', icon:'👣', name:'First Steps', desc:'Play your very first game.'},
+  {id:'explorer', icon:'🗺️', name:'Explorer', desc:'Play every game at least once.'},
+  {id:'dedicated_10', icon:'🎮', name:'Getting Good', desc:'Complete 10 rounds across any games.'},
+  {id:'dedicated_50', icon:'🏋️', name:'Stickman Veteran', desc:'Complete 50 rounds across any games.'},
+  {id:'streak_3', icon:'🔥', name:'On a Roll', desc:'Play 3 games in one visit.'},
+  {id:'streak_10', icon:'💥', name:'Unstoppable', desc:'Play 10 games in one visit.'},
+  {id:'return_player', icon:'📅', name:'Back Again!', desc:'Visit the site on 2 different days.'},
+  {id:'week_regular', icon:'🗓️', name:'Regular', desc:'Visit the site on 5 different days.'},
+  {id:'favorite_fan', icon:'💗', name:'Favorite Fan', desc:'Favorite 3 different games.'},
+  {id:'sword_champion', icon:'⚔️', name:'Sword Master', desc:'Defeat all 5 opponents in Sword Duel.'},
+  {id:'martial_blackbelt', icon:'🥋', name:'Black Belt', desc:'Earn the Black Belt in Dojo Kicks.'},
+  {id:'runner_500', icon:'🏃', name:'Marathoner', desc:'Score 500m+ in Stickman Dash.'},
+  {id:'hoops_allstar', icon:'🏀', name:'All-Star', desc:'Score 15+ points in Hoop Shootout.'},
+  {id:'ninja_master', icon:'🍉', name:'Ninja Master', desc:'Score 40+ points in Ninja Fruit Slice.'},
+  {id:'memory_genius', icon:'🧠', name:'Memory Genius', desc:'Finish Memory Match with a perfect no-miss run.'},
+  {id:'reaction_lightning', icon:'⚡', name:'Lightning Reflexes', desc:'Average under 250ms in Reaction Time.'},
+  {id:'quest_hero', icon:'🏁', name:'Quest Hero', desc:'Reach the flag in Stickman Quest.'},
+  {id:'bubble_master', icon:'🫧', name:'Bubble Master', desc:'Clear the whole board in Bubble Shooter.'},
+  {id:'racer_champion', icon:'🏎️', name:'Racing Champion', desc:'Win the race in Stickman Racer.'},
+  {id:'galaxy_saved', icon:'👾', name:'Galaxy Saved', desc:'Beat all 5 waves and the boss in Stick Galaxy.'},
 ];
 
 /* =========================================================
@@ -179,14 +206,217 @@ function renderLbModalList(gameId){
     closeBtn.onclick = ()=>{ SFX.click(); modal.classList.remove('show'); };
   }
 })();
-const cardGrid = document.getElementById('cardGrid');
-CARD_DATA.forEach(c=>{
+/* =========================================================
+   CARD BUILDER — one shared card component used by every home
+   section (All Games, Editor's Picks, New This Week, Continue
+   Playing, Favorites) and by the in-game "You May Also Like" strip.
+   ========================================================= */
+function buildCard(c){
   const div = document.createElement('div');
-  div.className='card';
-  div.innerHTML = `<div class="icon">${c.icon}</div><h3>${c.name}</h3><p>${c.desc}</p><button class="playBtn">Play ▶</button>`;
+  div.className = 'card';
+  const playCount = CONT.getPlayCount(c.id);
+  const isFav = FAV.isFav(c.id);
+  const grad = 'linear-gradient(135deg,' + c.color[0] + ',' + c.color[1] + ')';
+  div.innerHTML = `
+    <div class="art" style="background:${grad}">
+      ${c.isNew ? '<span class="badge new">NEW</span>' : ''}
+      ${c.editorPick ? '<span class="badge pick">👑 PICK</span>' : ''}
+      <span class="icon">${c.icon}</span>
+      <button class="heart" aria-label="Favorite">${isFav ? '❤️' : '🤍'}</button>
+    </div>
+    <div class="body">
+      <h3>${c.name}</h3>
+      <p>${c.desc}</p>
+      ${playCount > 0 ? `<div class="meta">Played ${playCount}× on this device</div>` : ''}
+      <button class="playBtn">Play ▶</button>
+    </div>`;
+  const heartBtn = div.querySelector('.heart');
+  heartBtn.onclick = (e)=>{
+    e.stopPropagation();
+    const nowFav = FAV.toggle(c.id);
+    heartBtn.textContent = nowFav ? '❤️' : '🤍';
+    SFX.click();
+    if(nowFav){
+      showToast('❤️ Added to Favorites!');
+      if(FAV.getAll().length >= 3) unlockAchievement('favorite_fan');
+    }
+    refreshHomeSections();
+  };
   div.onclick = ()=>{ SFX.unlock(); SFX.click(); startGame(c.id); };
-  cardGrid.appendChild(div);
-});
+  return div;
+}
+function renderGrid(gridId, ids){
+  const grid = document.getElementById(gridId);
+  if(!grid) return;
+  grid.innerHTML = '';
+  ids.forEach(id=>{
+    const c = CARD_DATA.find(x=>x.id===id);
+    if(c) grid.appendChild(buildCard(c));
+  });
+}
+function updateAchBadge(){
+  const badge = document.getElementById('achBadge');
+  if(badge) badge.textContent = ACH.getCount() + '/' + ACH_DEFS.length;
+}
+function refreshHomeSections(){
+  const recentIds = CONT.getRecent(6).map(r=>r.id);
+  const secC = document.getElementById('sectionContinue');
+  if(secC) secC.style.display = recentIds.length ? '' : 'none';
+  renderGrid('gridContinue', recentIds);
+
+  const favIds = FAV.getAll().filter(id=>CARD_DATA.some(c=>c.id===id));
+  const secF = document.getElementById('sectionFav');
+  if(secF) secF.style.display = favIds.length ? '' : 'none';
+  renderGrid('gridFav', favIds);
+
+  renderGrid('gridPicks', CARD_DATA.filter(c=>c.editorPick).map(c=>c.id));
+  renderGrid('gridNew', CARD_DATA.filter(c=>c.isNew).map(c=>c.id));
+  renderGrid('cardGrid', CARD_DATA.map(c=>c.id));
+  updateAchBadge();
+}
+refreshHomeSections();
+
+/* =========================================================
+   DAILY GAME OF THE DAY — deterministic pick from the calendar date,
+   no backend needed since every device computes the same index for
+   the same date.
+   ========================================================= */
+function getDailyGameId(){
+  const d = new Date();
+  const key = d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate();
+  return CARD_DATA[key % CARD_DATA.length].id;
+}
+(function(){
+  const c = CARD_DATA.find(x=>x.id===getDailyGameId());
+  if(!c) return;
+  const icon = document.getElementById('dailyIcon');
+  const name = document.getElementById('dailyName');
+  const banner = document.getElementById('dailyBanner');
+  const playBtn = document.getElementById('dailyPlayBtn');
+  if(icon) icon.textContent = c.icon;
+  if(name) name.textContent = c.name;
+  const openIt = ()=>{ SFX.unlock(); SFX.click(); startGame(c.id); };
+  if(banner) banner.onclick = openIt;
+  if(playBtn) playBtn.onclick = (e)=>{ e.stopPropagation(); openIt(); };
+})();
+
+/* =========================================================
+   RECOMMENDATIONS — "You May Also Like", scored by shared tags
+   ========================================================= */
+function scoreSimilarity(a,b){
+  if(!a.tags || !b.tags) return 0;
+  return a.tags.filter(t=>b.tags.includes(t)).length;
+}
+function getRelatedGames(gameId, limit){
+  const base = CARD_DATA.find(c=>c.id===gameId);
+  if(!base) return [];
+  return CARD_DATA.filter(c=>c.id!==gameId)
+    .map(c=>({c, score: scoreSimilarity(base,c) + Math.random()*0.01}))
+    .sort((x,y)=>y.score-x.score)
+    .slice(0, limit||6)
+    .map(x=>x.c);
+}
+function renderRelatedGames(gameId){
+  const section = document.getElementById('relatedSection');
+  const grid = document.getElementById('gridRelated');
+  if(!section || !grid) return;
+  const related = getRelatedGames(gameId, 6);
+  grid.innerHTML = '';
+  related.forEach(c=>grid.appendChild(buildCard(c)));
+  section.style.display = related.length ? '' : 'none';
+}
+
+/* =========================================================
+   ACHIEVEMENTS MODAL
+   ========================================================= */
+function renderAchModal(){
+  const list = document.getElementById('achList');
+  if(!list) return;
+  list.innerHTML = '';
+  const unlockedIds = ACH.getAll();
+  ACH_DEFS.forEach(a=>{
+    const unlocked = unlockedIds.includes(a.id);
+    const div = document.createElement('div');
+    div.className = 'achItem' + (unlocked ? ' unlocked' : '');
+    div.innerHTML = `<div class="achIcon">${a.icon}</div><div class="achText"><div class="achName">${a.name}</div><div class="achDesc">${unlocked ? a.desc : '🔒 ' + a.desc}</div></div>`;
+    list.appendChild(div);
+  });
+  const countEl = document.getElementById('achModalCount');
+  if(countEl) countEl.textContent = '(' + unlockedIds.length + '/' + ACH_DEFS.length + ')';
+}
+(function(){
+  const openBtn = document.getElementById('btnAchievements');
+  const modal = document.getElementById('achModal');
+  const closeBtn = document.getElementById('achModalClose');
+  if(openBtn && modal){
+    openBtn.onclick = ()=>{ SFX.click(); renderAchModal(); modal.classList.add('show'); };
+  }
+  if(closeBtn && modal){
+    closeBtn.onclick = ()=>{ SFX.click(); modal.classList.remove('show'); };
+  }
+})();
+
+/* =========================================================
+   SURPRISE ME — slot-machine style random game picker
+   ========================================================= */
+(function(){
+  const openBtn = document.getElementById('btnSurprise');
+  const modal = document.getElementById('spinModal');
+  const closeBtn = document.getElementById('spinModalClose');
+  const goBtn = document.getElementById('spinGoBtn');
+  const playBtn = document.getElementById('spinPlayBtn');
+  const inner = document.getElementById('spinReelInner');
+  if(!openBtn || !modal || !inner) return;
+  let chosen = null;
+  const ITEM_H = 96;
+  function buildReel(){
+    inner.style.transition = 'none';
+    inner.style.transform = 'translateY(0)';
+    inner.innerHTML = '';
+    const seq = [];
+    for(let i=0;i<22;i++) seq.push(CARD_DATA[Math.floor(Math.random()*CARD_DATA.length)]);
+    const winner = CARD_DATA[Math.floor(Math.random()*CARD_DATA.length)];
+    seq.push(winner);
+    seq.forEach(c=>{
+      const item = document.createElement('div');
+      item.className = 'spinReelItem';
+      item.innerHTML = c.icon + `<div class="srName">${c.name}</div>`;
+      inner.appendChild(item);
+    });
+    return { winner, count: seq.length };
+  }
+  function spin(){
+    SFX.click();
+    playBtn.style.display = 'none';
+    const { winner, count } = buildReel();
+    chosen = winner;
+    requestAnimationFrame(()=>{
+      inner.style.transition = 'transform 2.2s cubic-bezier(.12,.85,.2,1)';
+      inner.style.transform = `translateY(-${(count-1)*ITEM_H}px)`;
+    });
+    setTimeout(()=>{
+      SFX.powerup();
+      playBtn.style.display = '';
+      playBtn.textContent = 'Play ' + winner.name + '! ▶';
+    }, 2300);
+  }
+  openBtn.onclick = ()=>{
+    SFX.click();
+    playBtn.style.display = 'none';
+    inner.style.transition = 'none';
+    inner.style.transform = 'translateY(0)';
+    inner.innerHTML = '';
+    modal.classList.add('show');
+  };
+  goBtn.onclick = spin;
+  playBtn.onclick = ()=>{
+    if(!chosen) return;
+    modal.classList.remove('show');
+    SFX.unlock(); SFX.click();
+    startGame(chosen.id);
+  };
+  if(closeBtn) closeBtn.onclick = ()=>{ SFX.click(); modal.classList.remove('show'); };
+})();
 
 /* =========================================================
    BACKGROUND MUSIC (procedural — no external files)

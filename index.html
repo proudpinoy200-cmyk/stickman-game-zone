@@ -29,34 +29,45 @@
   #homeScreen p.tagline { text-align:center; font-size:1.1em; margin: 0 0 22px; color:#2b3a4a; font-weight:600; }
   .stickIntro { display:flex; justify-content:center; margin-bottom: 6px; }
   .cardGrid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr));
-    gap: 16px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr));
+    gap: 20px;
   }
   .card {
-    background: #fff; border-radius: 18px; padding: 16px; text-align:center;
-    box-shadow: 0 6px 0 rgba(0,0,0,0.15), 0 10px 18px rgba(0,0,0,0.12);
-    cursor: pointer; border: 4px solid transparent; transition: transform .12s, border-color .12s;
-    display:flex; flex-direction:column; align-items:center; gap:6px;
+    background: #fff; border-radius: 24px; padding:0; text-align:center; overflow:hidden;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.12), 0 14px 26px rgba(0,0,0,0.10);
+    cursor: pointer; border: none; transition: transform .18s ease, box-shadow .18s ease;
+    display:flex; flex-direction:column;
   }
-  .card:active { transform: translateY(4px) scale(.98); box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
-  .card .icon { font-size: 3em; line-height:1; }
-  .card h3 { margin: 4px 0 0; font-size: 1.15em; }
-  .card p { margin: 0; font-size: .85em; color:#5a6b7a; min-height: 34px; }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 10px 0 rgba(0,0,0,0.12), 0 20px 34px rgba(0,0,0,0.15); }
+  .card:active { transform: translateY(3px) scale(.98); box-shadow: 0 3px 0 rgba(0,0,0,0.12); }
+  .card .art {
+    position:relative; height:118px; display:flex; align-items:center; justify-content:center;
+    font-size:3.6em; overflow:hidden; line-height:1;
+  }
+  .card .art .badge {
+    position:absolute; top:9px; font-size:.58em; font-weight:800; padding:4px 11px; border-radius:999px; color:#fff;
+    box-shadow:0 2px 0 rgba(0,0,0,0.2); letter-spacing:.3px;
+  }
+  .card .art .badge.new { left:9px; background:#ff6b6b; }
+  .card .art .badge.pick { right:9px; background:#ffb703; color:#1c2b3a; }
+  .card .heart {
+    position:absolute; bottom:9px; right:9px; background:rgba(255,255,255,0.88); border:none; border-radius:50%;
+    width:34px; height:34px; font-size:1.1em; display:flex; align-items:center; justify-content:center; cursor:pointer;
+    box-shadow:0 2px 6px rgba(0,0,0,0.2);
+  }
+  .card .body { padding:14px 16px 18px; display:flex; flex-direction:column; align-items:center; gap:6px; flex:1; }
+  .card .icon { font-size: 1em; line-height:1; display:block; }
+  .card h3 { margin: 0; font-size: 1.25em; }
+  .card p { margin: 0; font-size: .88em; color:#5a6b7a; min-height: 34px; }
+  .card .meta { font-size:.76em; color:#8a99a8; font-weight:700; margin-top:-2px; }
   .card .playBtn {
     margin-top:6px; background: #ff8c42; color:#fff; border:none; border-radius: 999px;
-    padding: 8px 22px; font-weight:700; font-size: .95em; box-shadow: 0 4px 0 #c9631f;
+    padding: 10px 26px; font-weight:800; font-size: 1em; box-shadow: 0 4px 0 #c9631f;
   }
-  .card:nth-child(1){ border-color:#ff6b6b33; } .card:nth-child(1) .playBtn{background:#ff6b6b; box-shadow:0 4px 0 #b83a3a;}
-  .card:nth-child(2){ border-color:#4ecdc433; } .card:nth-child(2) .playBtn{background:#2ec4b6; box-shadow:0 4px 0 #1a8a80;}
-  .card:nth-child(3){ border-color:#ffd16633; } .card:nth-child(3) .playBtn{background:#ffb703; box-shadow:0 4px 0 #b37f00;}
-  .card:nth-child(4){ border-color:#9b5de533; } .card:nth-child(4) .playBtn{background:#9b5de5; box-shadow:0 4px 0 #6a35a8;}
-  .card:nth-child(5){ border-color:#06d6a033; } .card:nth-child(5) .playBtn{background:#06a97a; box-shadow:0 4px 0 #04745a;}
-  .card:nth-child(6){ border-color:#f472b633; } .card:nth-child(6) .playBtn{background:#f472b6; box-shadow:0 4px 0 #b94378;}
-  .card:nth-child(7){ border-color:#fb923c33; } .card:nth-child(7) .playBtn{background:#fb923c; box-shadow:0 4px 0 #b85a1a;}
-  .card:nth-child(8){ border-color:#34d39933; } .card:nth-child(8) .playBtn{background:#34d399; box-shadow:0 4px 0 #1a7a5a;}
-  .card:nth-child(9){ border-color:#5b8def33; } .card:nth-child(9) .playBtn{background:#5b8def; box-shadow:0 4px 0 #2f5aa8;}
-  .card:nth-child(10){ border-color:#ff8ba733; } .card:nth-child(10) .playBtn{background:#ff8ba7; box-shadow:0 4px 0 #c94d6e;}
-  .card:nth-child(11){ border-color:#ff2fd033; } .card:nth-child(11) .playBtn{background:#ff2fd0; box-shadow:0 4px 0 #a3178a;}
+  .relatedGrid { grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); }
+  .relatedGrid .card .art { height:80px; font-size:2.4em; }
+  .relatedGrid .card p { display:none; }
+  .relatedSection { margin-top:20px; }
 
   /* ---------- GAME SCREEN ---------- */
   #gameScreen { display:none; }
@@ -250,6 +261,99 @@
     width:100%; padding:10px; border-radius:8px; font-size:1em; margin-bottom:14px;
     border:2px solid #ddd; font-family:inherit;
   }
+
+  /* ---------- DAILY GAME BANNER ---------- */
+  .dailyBanner {
+    display:flex; align-items:center; gap:14px;
+    background:linear-gradient(120deg,#ffb703,#ff8c42);
+    border-radius:22px; padding:16px 20px; margin-bottom:18px;
+    box-shadow:0 6px 0 rgba(0,0,0,0.12); color:#fff; cursor:pointer;
+  }
+  .dailyIcon { font-size:2.6em; }
+  .dailyInfo { flex:1; min-width:0; }
+  .dailyLabel { font-size:.78em; font-weight:800; opacity:.9; text-transform:uppercase; letter-spacing:.6px; }
+  .dailyName { font-size:1.35em; font-weight:800; }
+  .dailyPlayBtn {
+    background:#fff; color:#ff8c42; border:none; border-radius:999px; padding:11px 24px;
+    font-weight:800; font-size:.98em; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.15); flex-shrink:0;
+  }
+
+  /* ---------- QUICK ACTIONS ---------- */
+  .quickActions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:22px; }
+  .quickBtn {
+    position:relative; background:#fff; color:#2b3a4a; border:none; border-radius:999px; padding:12px 22px;
+    font-weight:800; font-size:.95em; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.12);
+    transition: transform .12s;
+  }
+  .quickBtn:active { transform: translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,0.12); }
+  .achBadge {
+    display:inline-block; margin-left:6px; background:#ff6b6b; color:#fff; border-radius:999px;
+    font-size:.72em; padding:1px 7px; font-weight:800; vertical-align:2px;
+  }
+  .achBadge:empty { display:none; }
+
+  /* ---------- HOME SECTIONS ---------- */
+  .homeSection { margin-bottom:28px; }
+  .sectionTitle { font-size:1.35em; margin:0 0 14px 4px; color:#1c2b3a; font-weight:800; letter-spacing:.2px; }
+
+  /* ---------- FAVORITE HEART (topbar) ---------- */
+  .favBtn.isFav { background:#ffe1e8; }
+
+  /* ---------- TOASTS ---------- */
+  #toastContainer {
+    position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:300;
+    display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none;
+  }
+  .toast {
+    background:rgba(28,43,58,0.94); color:#fff; padding:11px 22px; border-radius:999px;
+    font-weight:700; font-size:.95em; box-shadow:0 4px 14px rgba(0,0,0,0.25);
+    opacity:0; transform:translateY(-16px); transition:opacity .3s ease, transform .3s ease;
+    white-space:nowrap; max-width:90vw; text-overflow:ellipsis; overflow:hidden;
+  }
+  .toast.show { opacity:1; transform:translateY(0); }
+  .toast.toastBig { background:linear-gradient(120deg,#ffb703,#ff8c42); font-size:1.05em; padding:13px 26px; }
+
+  /* ---------- GENERIC MODAL (achievements / spin) ---------- */
+  .modalOverlay {
+    position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center;
+    background: rgba(20,30,45,0.72); padding:16px;
+  }
+  .modalOverlay.show { display:flex; }
+  .modalBox {
+    background:#fff; border-radius:20px; padding:24px; max-width:440px; width:100%;
+    max-height:82vh; overflow:auto; text-align:center; color:#1c2b3a;
+  }
+  .modalBox h2 { margin:0 0 6px; }
+
+  /* ---------- ACHIEVEMENTS MODAL ---------- */
+  .achModalCount { font-size:.55em; color:#8a99a8; font-weight:700; }
+  .achList { display:flex; flex-direction:column; gap:10px; margin:14px 0; text-align:left; max-height:52vh; overflow:auto; }
+  .achItem { display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:14px; background:#f2f5f9; }
+  .achItem.unlocked { background:#fff3c4; }
+  .achIcon { font-size:1.8em; width:40px; text-align:center; filter:grayscale(1) opacity(.4); flex-shrink:0; }
+  .achItem.unlocked .achIcon { filter:none; }
+  .achText { flex:1; min-width:0; }
+  .achName { font-weight:800; font-size:.98em; }
+  .achDesc { font-size:.8em; color:#5a6b7a; }
+
+  /* ---------- SPIN / SURPRISE ME MODAL ---------- */
+  .spinSub { color:#5a6b7a; margin:0 0 14px; font-size:.9em; }
+  .spinReel {
+    height:96px; overflow:hidden; border-radius:16px; background:#1c2b3a; margin-bottom:16px;
+    position:relative; display:flex; align-items:flex-start; justify-content:center;
+    box-shadow: inset 0 0 24px rgba(0,0,0,0.5);
+  }
+  .spinReel::before, .spinReel::after {
+    content:''; position:absolute; left:0; right:0; height:3px; background:rgba(255,183,3,0.6); z-index:2;
+  }
+  .spinReel::before { top:0; } .spinReel::after { bottom:0; }
+  .spinReelInner { display:flex; flex-direction:column; align-items:center; transition: transform 2.2s cubic-bezier(.12,.85,.2,1); }
+  .spinReelItem { height:96px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:2.1em; color:#fff; }
+  .spinReelItem .srName { font-size:.32em; font-weight:800; margin-top:3px; opacity:.85; }
+
+  /* ---------- SPLASH SKIP HINT ---------- */
+  #splashOverlay .spSkip { margin-top:26px; font-size:.85em; opacity:.5; animation: spSkipFade 1.4s ease; }
+  @keyframes spSkipFade { 0%{opacity:0} 100%{opacity:.5} }
 </style>
 <style>@keyframes spDrift { 0%{transform:translateY(0) translateX(0)} 100%{transform:translateY(-30px) translateX(10px)} }</style></head>
 <body>
@@ -260,7 +364,9 @@
   <div class="spTitle" id="spTitle">Game</div>
   <div class="spSub" id="spSub"></div>
   <div class="spCount" id="spCount">3</div>
+  <div class="spSkip">Tap to skip</div>
 </div>
+<div id="toastContainer"></div>
 <div id="lbModal">
   <div class="lbModalBox">
     <h2>🏆 Leaderboards</h2>
@@ -269,14 +375,70 @@
     <button id="lbModalClose" class="obtn" style="background:#456990;color:#fff;">Close</button>
   </div>
 </div>
+<div id="achModal" class="modalOverlay">
+  <div class="modalBox achModalBox">
+    <h2>🏅 Achievements <span id="achModalCount" class="achModalCount"></span></h2>
+    <div id="achList" class="achList"></div>
+    <button id="achModalClose" class="obtn" style="background:#456990;color:#fff;">Close</button>
+  </div>
+</div>
+<div id="spinModal" class="modalOverlay">
+  <div class="modalBox spinModalBox">
+    <h2>🎰 Surprise Me!</h2>
+    <p class="spinSub">Can't decide? Spin the wheel!</p>
+    <div class="spinReel" id="spinReel"><div class="spinReelInner" id="spinReelInner"></div></div>
+    <button id="spinGoBtn" class="obtn" style="background:#ff8c42;color:#fff;">🎲 Spin!</button>
+    <button id="spinPlayBtn" class="obtn" style="background:#06a97a;color:#fff;display:none;">Play It!</button>
+    <button id="spinModalClose" class="obtn" style="background:#456990;color:#fff;">Close</button>
+  </div>
+</div>
 <div id="app">
 
   <div id="homeScreen">
     <h1>🦴 Stickman Game Zone</h1>
     <p class="tagline">Eleven games. One brave stick hero. Pick your adventure!</p>
-    <div class="cardGrid" id="cardGrid"></div>
+
+    <div class="dailyBanner" id="dailyBanner">
+      <div class="dailyIcon" id="dailyIcon">🎮</div>
+      <div class="dailyInfo">
+        <div class="dailyLabel">🌟 Game of the Day</div>
+        <div class="dailyName" id="dailyName">—</div>
+      </div>
+      <button class="dailyPlayBtn" id="dailyPlayBtn">Play ▶</button>
+    </div>
+
+    <div class="quickActions">
+      <button id="btnSurprise" class="quickBtn">🎰 Surprise Me</button>
+      <button id="btnAchievements" class="quickBtn">🏅 Achievements<span id="achBadge" class="achBadge"></span></button>
+      <button id="btnLeaderboards" class="quickBtn">🏆 Leaderboards</button>
+    </div>
+
+    <div class="homeSection" id="sectionContinue" style="display:none;">
+      <h2 class="sectionTitle">🎯 Continue Playing</h2>
+      <div class="cardGrid" id="gridContinue"></div>
+    </div>
+
+    <div class="homeSection" id="sectionFav" style="display:none;">
+      <h2 class="sectionTitle">❤️ Your Favorites</h2>
+      <div class="cardGrid" id="gridFav"></div>
+    </div>
+
+    <div class="homeSection">
+      <h2 class="sectionTitle">👑 Editor's Picks</h2>
+      <div class="cardGrid" id="gridPicks"></div>
+    </div>
+
+    <div class="homeSection">
+      <h2 class="sectionTitle">⭐ New This Week</h2>
+      <div class="cardGrid" id="gridNew"></div>
+    </div>
+
+    <div class="homeSection">
+      <h2 class="sectionTitle">🎮 All Games</h2>
+      <div class="cardGrid" id="cardGrid"></div>
+    </div>
+
     <div id="progBar"><div id="starDisplay"><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="pText">0 / 24 stars</span></div></div>
-    <button id="btnLeaderboards" class="lbHomeBtn">🏆 Leaderboards</button>
     <footer>Made for kids who love stick figures &amp; fun 🎮</footer>
   </div>
 
@@ -285,6 +447,7 @@
       <button class="homeBtn" id="btnHome">🏠 Home</button>
       <div class="gTitle" id="gTitle">Game</div>
       <div style="display:flex; gap:8px;">
+        <button class="muteBtn favBtn" id="btnFavGame">🤍</button>
         <button class="muteBtn" id="btnMute">🔊</button>
         <button class="restartBtn" id="btnRestart">🔄 Restart</button>
       </div>
@@ -300,6 +463,10 @@
     </div>
     <div class="touchControls" id="touchControls"></div>
     <p class="hint" id="hintText"></p>
+    <div class="homeSection relatedSection" id="relatedSection" style="display:none;">
+      <h2 class="sectionTitle">🕹️ You May Also Like</h2>
+      <div class="cardGrid relatedGrid" id="gridRelated"></div>
+    </div>
   </div>
 
 </div>

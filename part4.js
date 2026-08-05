@@ -56,9 +56,21 @@ const PROG = (function(){
    SPLASH SCREEN
    ========================================================= */
 let splashResolve = null;
+// Reduce-clicks: default duration is short (see startGame's 1100ms call), and a tap/click
+// anywhere on the splash — or its "Tap to skip" hint — resolves it immediately, so a player
+// who already knows the game doesn't have to sit through a countdown every single time.
 function showSplash(icon, title, subtitle, durationMs){
   return new Promise(resolve => {
-    splashResolve = resolve;
+    let done = false;
+    const finish = ()=>{
+      if(done) return;
+      done = true;
+      ov.removeEventListener('pointerdown', skipHandler);
+      clearInterval(interval);
+      ov.classList.remove('show');
+      resolve();
+    };
+    splashResolve = finish;
     const ov = document.getElementById('splashOverlay');
     const spIcon = document.getElementById('spIcon');
     const spTitle = document.getElementById('spTitle');
@@ -69,6 +81,8 @@ function showSplash(icon, title, subtitle, durationMs){
     spSub.textContent = subtitle || '';
     spCount.textContent = '';
     ov.classList.add('show');
+    const skipHandler = e=>{ e.preventDefault(); SFX.unlock(); finish(); };
+    ov.addEventListener('pointerdown', skipHandler);
     // countdown 3..2..1..GO!
     const counts = ['3','2','1','GO!'];
     let i = 0;
@@ -79,10 +93,7 @@ function showSplash(icon, title, subtitle, durationMs){
       i++;
       if(i>=counts.length){
         clearInterval(interval);
-        setTimeout(()=>{
-          ov.classList.remove('show');
-          resolve();
-        }, 200);
+        setTimeout(finish, 150);
         return;
       }
       spCount.textContent = counts[i];
@@ -193,6 +204,8 @@ function createMemoryGame(){
               PROG.setStars('memory', stars);
               PROG.setHighScore('memory', Math.max(PROG.getHighScore('memory'), -state.moves));
               PROG.updateDisplay();
+              recordRoundComplete();
+              if(state.moves <= MEM_ICONS.length) unlockAchievement('memory_genius');
               setTimeout(()=>{
                 showGameOverOverlay('memory', state.moves, '🎉 Memory Complete!', `You matched all pairs in ${state.moves} moves (${Math.floor(state.elapsed)}s)`, [
                   {label:'Play Again', onClick:()=>{ state=fresh(); buildDOM(); hideOverlay(); }},
@@ -255,6 +268,8 @@ function createReactionGame(){
       PROG.setStars('reaction', stars);
       PROG.setHighScore('reaction', avg > 0 ? Math.min(PROG.getHighScore('reaction')||9999, avg) : (PROG.getHighScore('reaction')||0));
       PROG.updateDisplay();
+      recordRoundComplete();
+      if(avg > 0 && avg <= 250) unlockAchievement('reaction_lightning');
       const el = document.getElementById('reactTarget'); if(el) el.style.display='none';
       const rt = document.getElementById('reactResults');
       if(rt){

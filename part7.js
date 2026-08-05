@@ -144,6 +144,8 @@ function createBubbleGame(){
     SFX.victory();
     setTimeout(()=>{
       if(state.level>=LEVELS){
+        recordRoundComplete();
+        unlockAchievement('bubble_master');
         showGameOverOverlay('bubble', state.score, '🏆 Bubble Master!', `You cleared every board! Final score: ${state.score} pts`, [
           {label:'Play Again', onClick:()=>{ state=fresh(1,0); hideOverlay(); }},
           {label:'Home', onClick: goHome}
@@ -158,6 +160,7 @@ function createBubbleGame(){
   function loseGame(){
     state.over = true; state.win = false;
     SFX.gameover();
+    recordRoundComplete();
     setTimeout(()=>{
       showGameOverOverlay('bubble', state.score, '🫧 Bubbles Overflowed!', `Final score: ${state.score} pts. Try again!`, [
         {label:'Retry Level', onClick:()=>{ state=fresh(state.level, 0); hideOverlay(); }},
@@ -333,6 +336,8 @@ function createRacerGame(){
     if(state.place===1) SFX.victory(); else SFX.levelup();
     setTimeout(()=>{
       if(state.level>=LEVELS){
+        recordRoundComplete();
+        unlockAchievement('racer_champion');
         showGameOverOverlay('racer', totalTime, '🏆 Racing Champion!', `You finished all ${LEVELS} races! Total time: ${totalTime.toFixed(1)}s`, [
           {label:'Play Again', onClick:()=>{ totalTime=0; state=fresh(1); hideOverlay(); }},
           {label:'Home', onClick: goHome}

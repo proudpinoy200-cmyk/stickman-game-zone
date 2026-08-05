@@ -448,6 +448,166 @@ function showGameOverOverlay(gameId, score, title, text, buttons){
   }
 }
 
+/* ---------------- Toasts (short-lived "dopamine" pop-ups) ---------------- */
+// Small, non-blocking messages that celebrate something the player just did (first
+// time trying a game, a session streak, an achievement). Auto-creates its own
+// container the first time it's called so no HTML markup is required, though a
+// dedicated #toastContainer also lives in index.html for CSS anchoring.
+function showToast(msg, opts){
+  opts = opts || {};
+  let container = document.getElementById('toastContainer');
+  if(!container){
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    document.body.appendChild(container);
+  }
+  const t = document.createElement('div');
+  t.className = 'toast' + (opts.big ? ' toastBig' : '');
+  t.textContent = msg;
+  container.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  const life = opts.duration || 2600;
+  setTimeout(()=>{
+    t.classList.remove('show');
+    setTimeout(()=>t.remove(), 400);
+  }, life);
+}
+
+/* ---------------- Play history / "Continue Playing" tracking (local only) ---------------- */
+// Tracks which games have been played, how many times, when last, and which
+// calendar days (device-local dates) the site was opened on — all without any
+// server, purely to power "Continue Playing", session streak toasts, and a
+// couple of the achievement conditions.
+const CONT = (function(){
+  const KEY = 'stickman_zone_history';
+  function load(){
+    try{
+      const d = JSON.parse(localStorage.getItem(KEY));
+      if(d && d.games && d.days) return d;
+    }catch(e){}
+    return {games:{}, days:[]};
+  }
+  function save(d){ try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(e){} }
+  function todayKey(){ const d = new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+  function recordPlay(gameId){
+    const d = load();
+    const prev = d.games[gameId] || {count:0};
+    d.games[gameId] = { last: Date.now(), count: prev.count + 1 };
+    const t = todayKey();
+    if(!d.days.includes(t)) d.days.push(t);
+    save(d);
+    return d;
+  }
+  function getRecent(limit){
+    const d = load();
+    return Object.keys(d.games).map(id=>({id, last:d.games[id].last, count:d.games[id].count}))
+      .sort((a,b)=>b.last-a.last).slice(0, limit||6);
+  }
+  function getPlayCount(gameId){ const d=load(); return (d.games[gameId]&&d.games[gameId].count)||0; }
+  function getTotalPlays(){ const d=load(); return Object.values(d.games).reduce((s,v)=>s+(v.count||0),0); }
+  function getGamesPlayedCount(){ const d=load(); return Object.keys(d.games).length; }
+  function getDaysPlayed(){ const d=load(); return d.days.length; }
+  function getDayStreak(){
+    const d = load();
+    const daySet = new Set(d.days);
+    let streak = 0;
+    const cur = new Date();
+    while(true){
+      const key = cur.getFullYear()+'-'+(cur.getMonth()+1)+'-'+cur.getDate();
+      if(daySet.has(key)){ streak++; cur.setDate(cur.getDate()-1); } else break;
+    }
+    return streak;
+  }
+  return { recordPlay, getRecent, getPlayCount, getTotalPlays, getGamesPlayedCount, getDaysPlayed, getDayStreak };
+})();
+
+/* ---------------- Favorites (❤️, local only) ---------------- */
+const FAV = (function(){
+  const KEY = 'stickman_zone_favorites';
+  function load(){ try{ const a = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+  function save(a){ try{ localStorage.setItem(KEY, JSON.stringify(a)); }catch(e){} }
+  function isFav(id){ return load().includes(id); }
+  function toggle(id){
+    let list = load();
+    if(list.includes(id)) list = list.filter(x=>x!==id);
+    else list.push(id);
+    save(list);
+    return list.includes(id);
+  }
+  function getAll(){ return load(); }
+  return { isFav, toggle, getAll };
+})();
+
+/* ---------------- Achievements (local only, no accounts needed) ---------------- */
+// Unlocked achievement ids just live in localStorage as a flat list. ACH_DEFS (the
+// human-readable name/icon/description for each id) is declared later in part6.js —
+// same deferred-reference pattern as LB_GAMES above, safe because unlockAchievement()
+// is only ever called from real gameplay, long after every script has loaded.
+const ACH = (function(){
+  const KEY = 'stickman_zone_achievements';
+  function load(){ try{ const a = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+  function save(a){ try{ localStorage.setItem(KEY, JSON.stringify(a)); }catch(e){} }
+  function isUnlocked(id){ return load().includes(id); }
+  function unlock(id){
+    const list = load();
+    if(list.includes(id)) return false;
+    list.push(id);
+    save(list);
+    return true;
+  }
+  function getAll(){ return load(); }
+  function getCount(){ return load().length; }
+  return { isUnlocked, unlock, getAll, getCount };
+})();
+function unlockAchievement(id){
+  const def = (typeof ACH_DEFS !== 'undefined') ? ACH_DEFS.find(a=>a.id===id) : null;
+  if(!def) return;
+  if(ACH.unlock(id)){
+    showToast('🏆 Achievement unlocked: ' + def.name, {duration: 3400, big:true});
+    SFX.levelup();
+  }
+}
+// Call once from a game's true "round is over" moment (win OR lose — any completed
+// attempt counts) to power the "played N rounds" achievements.
+function recordRoundComplete(){
+  const KEY = 'stickman_zone_rounds';
+  let n = 0;
+  try{ n = parseInt(localStorage.getItem(KEY)||'0',10)||0; }catch(e){}
+  n++;
+  try{ localStorage.setItem(KEY, String(n)); }catch(e){}
+  if(n===10) unlockAchievement('dedicated_10');
+  if(n===50) unlockAchievement('dedicated_50');
+  return n;
+}
+
+// Session-only streak of games opened (resets on page reload — that's fine, it's
+// meant to reward "one sitting" play, not cross-visit tracking, which getDayStreak
+// already covers separately).
+let sessionStreak = 0;
+const TOAST_FLAVORS = ['🎉 Nice choice!','🚀 Let\'s go!','✨ Have fun!','🎮 Game on!','😄 Enjoy!'];
+function onGameStart(id){
+  const isFirstEverPlay = CONT.getTotalPlays() === 0;
+  const isFirstTimeThisGame = CONT.getPlayCount(id) === 0;
+  CONT.recordPlay(id);
+  sessionStreak++;
+  if(isFirstEverPlay) unlockAchievement('first_steps');
+  if(CONT.getGamesPlayedCount() >= (typeof CARD_DATA!=='undefined'?CARD_DATA.length:11)) unlockAchievement('explorer');
+  if(CONT.getDaysPlayed() >= 2) unlockAchievement('return_player');
+  if(CONT.getDaysPlayed() >= 5) unlockAchievement('week_regular');
+  if(FAV.getAll().length >= 3) unlockAchievement('favorite_fan');
+  if(sessionStreak === 3) unlockAchievement('streak_3');
+  if(sessionStreak === 10) unlockAchievement('streak_10');
+  if(isFirstTimeThisGame && !isFirstEverPlay){
+    showToast('⭐ You found a hidden favorite!');
+  } else if(sessionStreak===3){
+    showToast('🔥 You\'re on a 3-game streak!');
+  } else if(sessionStreak>3 && sessionStreak%5===0){
+    showToast('🔥 '+sessionStreak+'-game streak! Keep going!');
+  } else if(!isFirstEverPlay && Math.random()<0.55){
+    showToast(TOAST_FLAVORS[Math.floor(Math.random()*TOAST_FLAVORS.length)]);
+  }
+}
+
 /* ---------------- Touch control builder ---------------- */
 function setControls(html){ touchControls.innerHTML = html; }
 // Some games (Memory Match, Reaction Time) have a fully DOM-based game area
@@ -517,7 +677,7 @@ function startGame(id){
     galaxy:{icon:'👾',title:'Stick Galaxy',sub:'Blast aliens across 5 luminous waves!'},
   };
   const si = splashInfo[id]||{icon:'🎮',title:factory.title,sub:''};
-  showSplash(si.icon, si.title, si.sub, 1800).then(()=>{
+  showSplash(si.icon, si.title, si.sub, 1100).then(()=>{
     homeScreen.style.display = 'none';
     gameScreen.style.display = 'block';
     hideOverlay();
@@ -530,6 +690,9 @@ function startGame(id){
     lastTime = performance.now();
     if(rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(loop);
+    onGameStart(id);
+    updateFavBtn();
+    renderRelatedGames(id);
     // Stickman Quest swaps in its own track in place of the ambient chiptune BGM
     // (having both running together just muddies the mix) — pause the other one
     // out whichever direction we're switching, and only actually start playback
@@ -552,9 +715,25 @@ function goHome(){
   homeScreen.style.display='block';
   questBgm.pause();
   if(bgmStarted && !SFX.isMuted()) BGM.start();
+  if(typeof refreshHomeSections === 'function') refreshHomeSections();
 }
 document.getElementById('btnHome').onclick = ()=>{ SFX.click(); goHome(); };
 document.getElementById('btnRestart').onclick = ()=>{ SFX.click(); currentGame && currentGame.restart && currentGame.restart(); hideOverlay(); };
+const btnFavGame = document.getElementById('btnFavGame');
+function updateFavBtn(){
+  if(!btnFavGame || !activeGameId) return;
+  btnFavGame.textContent = FAV.isFav(activeGameId) ? '❤️' : '🤍';
+  btnFavGame.classList.toggle('isFav', FAV.isFav(activeGameId));
+}
+if(btnFavGame){
+  btnFavGame.onclick = ()=>{
+    if(!activeGameId) return;
+    const nowFav = FAV.toggle(activeGameId);
+    SFX.click();
+    updateFavBtn();
+    if(nowFav){ showToast('❤️ Added to Favorites!'); if(FAV.getAll().length>=3) unlockAchievement('favorite_fan'); }
+  };
+}
 const btnMute = document.getElementById('btnMute');
 btnMute.onclick = ()=>{
   const m = SFX.toggleMute();
