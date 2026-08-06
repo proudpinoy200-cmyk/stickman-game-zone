@@ -81,7 +81,6 @@ const GAMES = {
   galaxy: createGalaxyGame(),
   sniper: createSniperGame(),
   archery: createArcheryGame(),
-  rpgwars: createRpgWarsGame(),
   swimmer: createSwimmerGame(),
 };
 
@@ -121,7 +120,6 @@ const CARD_DATA = [
   {id:'galaxy', icon:'👾', name:'Stick Galaxy', desc:'Blast neon aliens, grab power-ups, beat the boss!', tags:['action','shooter','space','boss'], color:['#4c1d95','#7c3aed'], isNew:true, editorPick:true},
   {id:'sniper', icon:'🎯', name:'Stick Sharpshooter', desc:'Deactivate 10 rogue robots before their timer runs out!', tags:['action','precision','arcade','timed'], color:['#1e3a8a','#3b82f6'], isNew:true, editorPick:false},
   {id:'archery', icon:'🏹', name:'Stick Archery Royale', desc:'10 archers enter a free-for-all. Be the last one standing!', tags:['action','sports','battle','arcade'], color:['#92400e','#fbbf24'], isNew:true, editorPick:false},
-  {id:'rpgwars', icon:'🛡️', name:'Stick RPG Wars', desc:'Turn-based battles against 5 rivals — level up and save the kingdom!', tags:['adventure','strategy','rpg','turnbased'], color:['#701a75','#c026d3'], isNew:true, editorPick:true},
   {id:'swimmer', icon:'🏊', name:'Stick Swimmer Olympics', desc:'Mash to swim! Race 8-lane heats for the podium.', tags:['sports','racing','olympics','arcade'], color:['#0e7490','#22d3ee'], isNew:true, editorPick:false},
 ];
 
@@ -152,7 +150,6 @@ const ACH_DEFS = [
   {id:'galaxy_saved', icon:'👾', name:'Galaxy Saved', desc:'Beat all 5 waves and the boss in Stick Galaxy.'},
   {id:'sniper_hero', icon:'🎯', name:'Extraction Complete', desc:'Deactivate all 10 targets in Stick Sharpshooter.'},
   {id:'archery_champion', icon:'🏹', name:'Last One Standing', desc:'Win the free-for-all in Stick Archery Royale.'},
-  {id:'rpg_conqueror', icon:'🛡️', name:'Kingdom Saved', desc:'Defeat all 5 rivals in Stick RPG Wars.'},
   {id:'swim_gold', icon:'🏊', name:'Olympic Champion', desc:'Finish top 3 in all 3 heats of Stick Swimmer Olympics.'},
 ];
 
@@ -174,7 +171,6 @@ const LB_GAMES = [
   {id:'galaxy', name:'Stick Galaxy', higherIsBetter:true, format:s=>s+' pts'},
   {id:'sniper', name:'Stick Sharpshooter', higherIsBetter:false, format:s=>s.toFixed(1)+'s'},
   {id:'archery', name:'Stick Archery Royale', higherIsBetter:true, format:s=>s+' kills'},
-  {id:'rpgwars', name:'Stick RPG Wars', higherIsBetter:true, format:s=>s+' gold'},
   {id:'swimmer', name:'Stick Swimmer Olympics', higherIsBetter:false, format:s=>s.toFixed(1)+'s'},
 ];
 function populateLbModal(){

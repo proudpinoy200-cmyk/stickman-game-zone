@@ -2,7 +2,7 @@
 
 Kid-friendly stick-figure multi-game website, live at [stickgames.co](https://stickgames.co).
 
-15 games in one page: Sword Duel, Dojo Kicks, Stickman Dash, Hoop Shootout, Ninja Fruit Slice, Memory Match, Reaction Time, Stickman Quest (platformer, with background music), Bubble Shooter, Stickman Racer, Stick Galaxy (neon Galaga-style shooter), Stick Sharpshooter (precision-timed target elimination), Stick Archery Royale (10-player free-for-all), Stick RPG Wars (turn-based campaign against 5 rivals), and Stick Swimmer Olympics (mash-to-swim, 3-heat podium race).
+14 games in one page: Sword Duel, Dojo Kicks, Stickman Dash, Hoop Shootout, Ninja Fruit Slice, Memory Match, Reaction Time, Stickman Quest (platformer, with background music), Bubble Shooter, Stickman Racer, Stick Galaxy (neon Galaga-style shooter), Stick Sharpshooter (precision-timed target elimination), Stick Archery Royale (10-player free-for-all), and Stick Swimmer Olympics (mash-to-swim, 3-heat podium race).
 
 Every game (except the two fight games mid-campaign) saves top scores to a local, per-device leaderboard — players can enter their name after a qualifying run, and a "🏆 Leaderboards" button on the home screen lets anyone browse any game's top 5 at any time. This is stored in the browser's `localStorage`, the same way star progress is — there's no server/database behind it, so leaderboards are per-device, not shared across players' phones.
 
@@ -12,7 +12,7 @@ Every game (except the two fight games mid-campaign) saves top scores to a local
 - **Bigger, modern cards**: gradient artwork background per game, NEW/PICK badges, a ❤️ favorite toggle, and a "Played N× on this device" meta line once you've played it.
 - **Reduce-clicks**: the pre-game splash countdown is shorter and can be tapped to skip instantly.
 - **"You May Also Like"**: a tag-based recommendation strip on every game screen, scored by shared gameplay tags (no crowd data needed).
-- **Achievements**: 24 local achievements (browsable via the 🏅 Achievements button) covering exploration, streaks, return visits, favoriting, and per-game milestones (e.g. Sword Master, Black Belt, Galaxy Saved, Extraction Complete, Kingdom Saved). Unlocking one shows a celebratory toast.
+- **Achievements**: 23 local achievements (browsable via the 🏅 Achievements button) covering exploration, streaks, return visits, favoriting, and per-game milestones (e.g. Sword Master, Black Belt, Galaxy Saved, Extraction Complete). Unlocking one shows a celebratory toast.
 - **🎰 Surprise Me**: a slot-machine-style spinner on the home screen for picking a random game.
 - **Reward toasts**: short pop-up messages ("🎉 Nice choice!", "🔥 You're on a streak!", achievement unlocks) that celebrate play without being intrusive.
 
@@ -32,12 +32,13 @@ Plain HTML5 canvas + vanilla JS, no build step, no dependencies. Scripts are shi
 - `part8.js` — Stick Galaxy (neon Galaga-style space shooter)
 - `part9.js` — Stick Sharpshooter (tap-timing target elimination — deactivate 10 rogue robot decoys before their countdown expires, then a helicopter extracts you)
 - `part10.js` — Stick Archery Royale (drag-to-aim-and-release free-for-all against 9 NPC archers — you take 3 hits to fall, NPCs take 1)
-- `part11.js` — Stick RPG Wars (turn-based tactical campaign — shop/upgrade between fights, battle 5 escalating rivals with Attack/Power Strike/Heal/Defend)
 - `part12.js` — Stick Swimmer Olympics (mash-to-swim 8-lane race, best-of-3 heats, podium ceremony for top 3 finishers)
 - `part6.js` — game registry, extended card catalog (tags/colors/badges), home screen sections, achievements catalog + modal, Surprise Me spinner, recommendation engine, leaderboard browser modal, procedural home-screen music, first-tap audio unlock
 - `quest-bgm.mp3` — background music loop for Stickman Quest
 
-All `part*.js` files share one global scope (loaded as classic `<script src>` tags, not modules) — variables/functions declared in one are used by later ones. Load order matters: `part7.js` through `part12.js` must load before `part6.js`, since `part6.js`'s game registry calls each game's `createXGame()` factory function immediately when it runs. Current load order: part1 → part2 → part3 → part4 → part5 → part7 → part8 → part9 → part10 → part11 → part12 → part6.
+All `part*.js` files share one global scope (loaded as classic `<script src>` tags, not modules) — variables/functions declared in one are used by later ones. Load order matters: `part7.js` through `part12.js` must load before `part6.js`, since `part6.js`'s game registry calls each game's `createXGame()` factory function immediately when it runs. Current load order: part1 → part2 → part3 → part4 → part5 → part7 → part8 → part9 → part10 → part12 → part6.
+
+(`part11.js`, an earlier Stick RPG Wars build, is no longer referenced by `index.html` and can be deleted from the repo — kept out of the load order rather than removed outright, so there's nothing extra to re-upload right now.)
 
 ## Deploying
 

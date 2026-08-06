@@ -677,7 +677,6 @@ function startGame(id){
     galaxy:{icon:'👾',title:'Stick Galaxy',sub:'Blast aliens across 5 luminous waves!'},
     sniper:{icon:'🎯',title:'Stick Sharpshooter',sub:'Deactivate 10 rogue robots before time runs out!'},
     archery:{icon:'🏹',title:'Stick Archery Royale',sub:'10 enter. Only one walks away.'},
-    rpgwars:{icon:'🛡️',title:'Stick RPG Wars',sub:'Battle 5 rivals. Save the kingdom.'},
     swimmer:{icon:'🏊',title:'Stick Swimmer Olympics',sub:'3 races. Podium or bust!'},
   };
   const si = splashInfo[id]||{icon:'🎮',title:factory.title,sub:''};
