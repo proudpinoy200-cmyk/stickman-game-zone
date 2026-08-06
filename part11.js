@@ -275,18 +275,28 @@ function createRpgWarsGame(){
   }
 
   /* ---------------- DOM (turn menu / camp shop) ---------------- */
+  // Heights are set explicitly on every button style here (not left to the shared
+  // .ctlBtn class, which defaults to a 62px circular-button height meant for the
+  // big d-pad/jump buttons other games use). On a real phone the canvas area this
+  // panel shares is only ~200-230px tall — four 62px-tall action buttons wrapping
+  // to two rows alone would already blow that budget, silently pushing content
+  // (in the worst case, the Attack button itself) up out of the visible, clipped
+  // #domOverlay box. Every element below is sized so the common case fits in one
+  // screen without scrolling; rpgPanel (see controlsHtml) is scrollable as a
+  // fallback for extra-narrow/short viewports where wrapping still doesn't fit.
   function actBtnStyle(color, disabled){
-    return `background:${color};color:#fff;font-weight:800;opacity:${disabled?0.4:1};`;
+    return `background:${color};color:#fff;font-weight:800;opacity:${disabled?0.4:1};`+
+           `font-size:.76em;padding:0 10px;height:38px;`;
   }
   function shopBtnStyle(disabled){
-    return `background:${disabled?'#c7ccd1':'#456990'};color:#fff;font-weight:800;font-size:.78em;`+
-           `opacity:${disabled?0.6:1};padding:0 12px;height:44px;`;
+    return `background:${disabled?'#c7ccd1':'#456990'};color:#fff;font-weight:800;font-size:.74em;`+
+           `opacity:${disabled?0.6:1};padding:0 10px;height:36px;`;
   }
   function mainBtnStyle(){
-    return `background:#ff8c42;color:#fff;font-weight:800;padding:0 26px;height:50px;font-size:1em;`;
+    return `background:#ff8c42;color:#fff;font-weight:800;padding:0 22px;height:42px;font-size:.92em;`;
   }
   function badge(bg, text){
-    return `<span style="background:${bg};border-radius:999px;padding:5px 12px;">${text}</span>`;
+    return `<span style="background:${bg};border-radius:999px;padding:3px 9px;">${text}</span>`;
   }
 
   function prepHTML(){
@@ -296,15 +306,15 @@ function createRpgWarsGame(){
     const btnLabel = state.battleNum===1 ? '⚔️ Start Battle 1' : `⚔️ Continue to Battle ${state.battleNum}`;
     return `
       <div style="text-align:center;">
-        <div style="font-weight:800;font-size:1.1em;margin-bottom:6px;">${title}</div>
-        <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;font-weight:700;font-size:.88em;margin-bottom:8px;">
+        <div style="font-weight:800;font-size:1em;margin-bottom:3px;">${title}</div>
+        <div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;font-weight:700;font-size:.78em;margin-bottom:4px;">
           ${badge('#e9edf2', `❤️ HP ${p.hp}/${p.maxHp}`)}
           ${badge('#e9edf2', `⚔️ ATK ${p.atk}`)}
           ${badge('#e9edf2', `🛡️ DEF ${p.def}`)}
           ${badge('#fff3cd', `💰 ${p.gold}g`)}
         </div>
-        <div style="font-size:.82em;color:#5a6b7a;margin-bottom:8px;">Next rival: <b>${escapeHtml(enemyDef.name)}</b></div>
-        <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        <div style="font-size:.74em;color:#5a6b7a;margin-bottom:4px;">Next rival: <b>${escapeHtml(enemyDef.name)}</b></div>
+        <div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
           <button id="rpgBuyHp"  class="ctlBtn wide" style="${shopBtnStyle(p.gold<10)}" ${p.gold<10?'disabled':''}>+5 Max HP (10g)</button>
           <button id="rpgBuyAtk" class="ctlBtn wide" style="${shopBtnStyle(p.gold<12)}" ${p.gold<12?'disabled':''}>+1 Attack (12g)</button>
           <button id="rpgBuyDef" class="ctlBtn wide" style="${shopBtnStyle(p.gold<10)}" ${p.gold<10?'disabled':''}>+1 Defense (10g)</button>
@@ -319,8 +329,8 @@ function createRpgWarsGame(){
     const healDisabled = locked || state.healUses<=0;
     return `
       <div style="text-align:center;">
-        <div style="min-height:22px;font-weight:700;font-size:.9em;color:#2b3a4a;margin-bottom:6px;">${escapeHtml(state.log||'')}</div>
-        <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">
+        <div style="min-height:18px;font-weight:700;font-size:.82em;color:#2b3a4a;margin-bottom:4px;">${escapeHtml(state.log||'')}</div>
+        <div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;">
           <button id="rpgActAttack" class="ctlBtn wide" style="${actBtnStyle('#ff6b6b', locked)}" ${locked?'disabled':''}>⚔️ Attack</button>
           <button id="rpgActPower"  class="ctlBtn wide" style="${actBtnStyle('#9b5de5', powerDisabled)}" ${powerDisabled?'disabled':''}>💥 Power Strike${state.powerCooldown>0?` (${state.powerCooldown})`:''}</button>
           <button id="rpgActHeal"   class="ctlBtn wide" style="${actBtnStyle('#06d6a0', healDisabled)}" ${healDisabled?'disabled':''}>💚 Heal (${state.healUses} left)</button>
@@ -419,8 +429,8 @@ function createRpgWarsGame(){
     hint: 'Battle 5 rivals turn-by-turn — attack, defend, heal, and upgrade between fights!',
     domOverlay: true,
     controlsHtml: `
-      <div id="rpgWrap" style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;box-sizing:border-box;">
-        <div id="rpgPanel" style="width:100%;max-width:660px;background:rgba(255,255,255,0.94);border-radius:16px;padding:12px 14px;box-shadow:0 4px 0 rgba(0,0,0,0.15);box-sizing:border-box;"></div>
+      <div id="rpgWrap" style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;box-sizing:border-box;overflow:hidden;">
+        <div id="rpgPanel" style="width:100%;max-width:660px;max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;background:rgba(255,255,255,0.97);border-radius:16px;padding:8px 12px;box-shadow:0 4px 0 rgba(0,0,0,0.15);box-sizing:border-box;"></div>
       </div>`,
     bindControls(){ buildDOM(); },
     create(){ state = fresh(); return this; },
