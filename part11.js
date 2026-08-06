@@ -60,8 +60,54 @@ function createRpgWarsGame(){
       hitFlash:0,
       clock:0,
       particles: makeParticlePool(),
+      // stageGroundY/stageScale reposition & shrink the battle art (see measureStage
+      // below) so it always renders ABOVE the DOM shop/battle panel instead of being
+      // hidden behind it — default to the plain GROUND_Y/full-scale layout until the
+      // first real measurement runs.
+      stageGroundY: GROUND_Y,
+      stageScale: 1,
     };
   }
+
+  /* ---------------- responsive battle-stage layout ----------------
+     The #rpgPanel shop/battle card is docked to the BOTTOM of the same box the
+     canvas renders into. On a real phone that canvas is only ~200-230px tall, so
+     a panel sized for a roomy desktop layout can end up tall enough to cover the
+     ENTIRE canvas — hiding the Hero/rival stick figures and health bars behind an
+     opaque white card with nothing visibly fighting above it. Rather than guess a
+     single fixed size that happens to fit every device, this measures the panel's
+     *actual* rendered height in real pixels (same technique used to fix Reaction
+     Time's target spawning off-screen on mobile) and converts it into the canvas's
+     internal 800x450 coordinate space, then shrinks/raises the whole battle-stage
+     drawing (both stick figures, health bars, names) to fit entirely in whatever
+     vertical room is left above the panel. */
+  function measureStage(){
+    if(!state) return;
+    const canvasEl = document.getElementById('c');
+    if(!canvasEl || !canvasEl.getBoundingClientRect) return;
+    const cRect = canvasEl.getBoundingClientRect();
+    if(!cRect.height) return;
+    const panelEl = document.getElementById('rpgPanel');
+    let panelTopPx = cRect.bottom; // no panel measured yet → assume the full canvas is free
+    if(panelEl){
+      const pRect = panelEl.getBoundingClientRect();
+      if(pRect.height > 0) panelTopPx = pRect.top;
+    }
+    const unitsPerPx = CH / cRect.height;
+    // a little breathing room above the panel, and never let the "safe" area
+    // collapse to nothing even in pathological layouts
+    const safeBottom = clamp((panelTopPx - cRect.top) * unitsPerPx - 6, 130, CH - 4);
+    const stageTopMargin = 46; // clears the "Battle X of 5" / "War Camp" title text
+    const availableHeight = Math.max(50, safeBottom - stageTopMargin);
+    const naturalHeight = 210; // head/name/health-bar to feet, at the original full scale
+    const scale = clamp(availableHeight / naturalHeight, 0.45, 1);
+    state.stageScale = scale;
+    state.stageGroundY = safeBottom - 25*scale; // 25 ≈ how far the feet sit below GROUND_Y
+  }
+  // Rotating a phone (or resizing a desktop window) changes the canvas's rendered
+  // height without necessarily changing the panel's content/height, which shifts
+  // how much room is actually free above it — re-measure whenever that happens.
+  window.addEventListener('resize', ()=>{ if(state) measureStage(); });
 
   function escapeHtml(s){
     return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -116,7 +162,7 @@ function createRpgWarsGame(){
       msg = `⚔️ You strike ${e.name} for ${dmg} damage!`;
       SFX.sword();
       p.animPhase='attack'; p.animTimer=0.35;
-      triggerHit(e, 600, GROUND_Y-70, '#ff6b6b');
+      triggerHit(e, 600, state.stageGroundY-70*state.stageScale, '#ff6b6b');
     } else if(action==='power'){
       const dmg = Math.max(1, Math.round(p.atk * 1.8 * rand(0.85,1.15)));
       e.hp = Math.max(0, e.hp - dmg);
@@ -124,7 +170,7 @@ function createRpgWarsGame(){
       state.powerCooldown = 2;
       SFX.kick();
       p.animPhase='power'; p.animTimer=0.4;
-      triggerHit(e, 600, GROUND_Y-70, '#ffb703');
+      triggerHit(e, 600, state.stageGroundY-70*state.stageScale, '#ffb703');
     } else if(action==='heal'){
       const amt = Math.round(p.maxHp * 0.25);
       p.hp = Math.min(p.maxHp, p.hp + amt);
@@ -132,7 +178,7 @@ function createRpgWarsGame(){
       msg = `💚 You heal for ${amt} HP!`;
       SFX.powerup();
       p.animPhase='heal'; p.animTimer=0.5;
-      spawnSpark(state.particles, 200, GROUND_Y-70, '#06d6a0', 10);
+      spawnSpark(state.particles, 200, state.stageGroundY-70*state.stageScale, '#06d6a0', 10);
     } else if(action==='defend'){
       state.playerDefending = true;
       msg = `🛡️ You brace behind your guard!`;
@@ -172,7 +218,7 @@ function createRpgWarsGame(){
       e.specialCooldown = 3;
       e.animPhase='power'; e.animTimer=0.45;
       SFX.punch();
-      triggerHit(p, 200, GROUND_Y-70, '#e63946');
+      triggerHit(p, 200, state.stageGroundY-70*state.stageScale, '#e63946');
     } else if(e.specialCooldown<=0 && state.turnCount>=2 && Math.random()<0.3){
       // telegraph a special for next turn — no damage dealt this turn, so any
       // active Defend keeps holding until the real hit actually lands
@@ -189,7 +235,7 @@ function createRpgWarsGame(){
       msg = `${e.name} attacks for ${dmg} damage!`;
       e.animPhase='attack'; e.animTimer=0.35;
       SFX.punch();
-      triggerHit(p, 200, GROUND_Y-70, '#e63946');
+      triggerHit(p, 200, state.stageGroundY-70*state.stageScale, '#e63946');
     }
     state.log = msg;
     if(state.powerCooldown>0) state.powerCooldown--;
@@ -207,7 +253,7 @@ function createRpgWarsGame(){
     state.totalGold += reward;
     state.turnLock = true;
     SFX.victory();
-    spawnSpark(state.particles, 600, GROUND_Y-70, '#ffd166', 18);
+    spawnSpark(state.particles, 600, state.stageGroundY-70*state.stageScale, '#ffd166', 18);
     buildDOM();
     const ref = state;
     setTimeout(()=>{
@@ -366,6 +412,9 @@ function createRpgWarsGame(){
       panel.innerHTML = prepHTML();
       wirePrepButtons();
     }
+    // re-measure now that the panel's real height may have just changed (new
+    // content, screen switch, button wrap changing with it, etc.)
+    measureStage();
   }
 
   /* ---------------- loop ---------------- */
@@ -390,29 +439,36 @@ function createRpgWarsGame(){
     g.font = 'bold 20px "Trebuchet MS", sans-serif';
     g.fillText(state.screen==='battle' ? `⚔️ Battle ${state.battleNum} of 5` : '🏕️ War Camp', CW/2, 34);
 
+    // gY/sc reposition & shrink the whole battle stage so both fighters, their
+    // health bars, and their names always render entirely above the DOM shop/
+    // battle panel — see measureStage() for why this can't just be GROUND_Y/1.
+    const gY = state.stageGroundY != null ? state.stageGroundY : GROUND_Y;
+    const sc = state.stageScale != null ? state.stageScale : 1;
+    const barW = 160*sc;
+
     const p = state.player;
-    drawStick(g, 200, GROUND_Y, 1.25, '#2b6cb0', 1, p.animPose, {
+    drawStick(g, 200, gY, 1.25*sc, '#2b6cb0', 1, p.animPose, {
       expr: p.hp<=0 ? 'hurt' : (p.animPhase==='hurt' ? 'hurt' : (p.animPhase==='attack'||p.animPhase==='power' ? 'shout' : 'idle')),
       accessory:'band', accessoryColor:'#ffd166'
     });
-    healthBar(120, GROUND_Y-165, 160, 16, p.maxHp>0 ? p.hp/p.maxHp : 0, '#06d6a0');
-    g.font = 'bold 13px sans-serif';
-    g.fillText('Hero', 200, GROUND_Y-172);
-    g.fillText(`${Math.max(0,p.hp)}/${p.maxHp}`, 200, GROUND_Y-148);
+    healthBar(200-barW/2, gY-165*sc, barW, 16*sc, p.maxHp>0 ? p.hp/p.maxHp : 0, '#06d6a0');
+    g.font = `bold ${Math.round(13*sc)}px sans-serif`;
+    g.fillText('Hero', 200, gY-172*sc);
+    g.fillText(`${Math.max(0,p.hp)}/${p.maxHp}`, 200, gY-148*sc);
 
     const e = state.enemy;
     if(e && state.screen==='battle'){
-      drawStick(g, 600, GROUND_Y, e.scale||1.25, e.color, -1, e.animPose, {
+      drawStick(g, 600, gY, (e.scale||1.25)*sc, e.color, -1, e.animPose, {
         expr: e.hp<=0 ? 'hurt' : (e.animPhase==='hurt' ? 'hurt' : (e.animPhase==='attack'||e.animPhase==='power' ? 'shout' : 'idle')),
         accessory: e.accessory, accessoryColor: e.accessoryColor
       });
-      healthBar(520, GROUND_Y-165, 160, 16, e.maxHp>0 ? Math.max(0,e.hp)/e.maxHp : 0, '#ff6b6b');
-      g.fillText(e.name, 600, GROUND_Y-172);
-      g.fillText(`${Math.max(0,e.hp)}/${e.maxHp}`, 600, GROUND_Y-148);
+      healthBar(600-barW/2, gY-165*sc, barW, 16*sc, e.maxHp>0 ? Math.max(0,e.hp)/e.maxHp : 0, '#ff6b6b');
+      g.fillText(e.name, 600, gY-172*sc);
+      g.fillText(`${Math.max(0,e.hp)}/${e.maxHp}`, 600, gY-148*sc);
       if(e.charging){
         g.fillStyle = '#e63946';
-        g.font = 'bold 16px sans-serif';
-        g.fillText('⚠️ Charging a big attack!', 600, GROUND_Y-195);
+        g.font = `bold ${Math.round(16*sc)}px sans-serif`;
+        g.fillText('⚠️ Charging a big attack!', 600, gY-195*sc);
       }
     }
     drawSparks(g, state.particles);
