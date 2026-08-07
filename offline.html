@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Stickman Game Zone — Offline</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin:0; padding:0; min-height:100%;
+    font-family:'Segoe UI','Trebuchet MS',Verdana,sans-serif;
+    background:linear-gradient(160deg,#6ec6ff 0%,#7ee8c2 45%,#ffe27a 100%);
+    background-attachment:fixed;
+    color:#1c2b3a;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+  }
+  .box { max-width:420px; padding:32px 24px; }
+  .icon { font-size:4em; margin-bottom:8px; }
+  h1 { margin:0 0 10px; font-size:1.5em; }
+  p { margin:0 0 22px; opacity:.85; line-height:1.5; }
+  button {
+    background:linear-gradient(120deg,#ffb703,#ff8c42); color:#fff; border:none;
+    border-radius:999px; padding:13px 28px; font-weight:800; font-size:1em;
+    cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.15);
+  }
+  button:active { transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,0.15); }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="icon">🦴📡</div>
+    <h1>Hmm, that page isn't saved yet</h1>
+    <p>You're offline right now. If you've opened Stickman Game Zone before, try heading back to the home screen — your games should already be saved on this device.</p>
+    <button onclick="location.href='/index.html'">🏠 Back to Game Zone</button>
+  </div>
+</body>
+</html>

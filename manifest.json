@@ -1,0 +1,39 @@
+{
+  "name": "Stickman Game Zone",
+  "short_name": "Stick Games",
+  "description": "Different games. One brave stick hero. Play offline, anytime.",
+  "start_url": "/index.html",
+  "id": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#6ec6ff",
+  "theme_color": "#ff8c42",
+  "categories": ["games", "kids", "entertainment"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

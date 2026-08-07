@@ -4,6 +4,14 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Stickman Game Zone</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff8c42">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Stick Games">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="icon" href="/icon-192.png" type="image/png">
 <style>
   * {
     box-sizing: border-box; -webkit-tap-highlight-color: transparent;
@@ -279,6 +287,30 @@
     font-weight:800; font-size:.98em; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.15); flex-shrink:0;
   }
 
+  /* ---------- PWA INSTALL BANNER ---------- */
+  .installBanner {
+    position:fixed; left:14px; right:14px; bottom:14px; z-index:9999;
+    display:none; align-items:center; gap:14px;
+    background:linear-gradient(120deg,#ffb703,#ff8c42);
+    border-radius:22px; padding:14px 16px; color:#fff;
+    box-shadow:0 8px 22px rgba(0,0,0,0.28), 0 4px 0 rgba(0,0,0,0.15);
+    max-width:460px; margin:0 auto;
+  }
+  .installBanner.show { display:flex; }
+  .installBanner .instIcon { font-size:2.1em; flex-shrink:0; }
+  .installBanner .instInfo { flex:1; min-width:0; }
+  .installBanner .instTitle { font-weight:800; font-size:1em; margin-bottom:2px; }
+  .installBanner .instSub { font-size:.8em; opacity:.92; }
+  .installBanner .instBtns { display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
+  .installBanner .instBtn {
+    background:#fff; color:#ff8c42; border:none; border-radius:999px; padding:9px 16px;
+    font-weight:800; font-size:.85em; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,0.15); white-space:nowrap;
+  }
+  .installBanner .instDismiss {
+    background:rgba(255,255,255,0.25); color:#fff; border:none; border-radius:999px; padding:7px 16px;
+    font-weight:700; font-size:.78em; cursor:pointer;
+  }
+
   /* ---------- QUICK ACTIONS ---------- */
   .quickActions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:22px; }
   .quickBtn {
@@ -393,6 +425,18 @@
     <button id="spinModalClose" class="obtn" style="background:#456990;color:#fff;">Close</button>
   </div>
 </div>
+<div class="installBanner" id="installBanner">
+  <div class="instIcon">🦴</div>
+  <div class="instInfo">
+    <div class="instTitle">Install Stick Games!</div>
+    <div class="instSub">Play offline, right from your home screen.</div>
+  </div>
+  <div class="instBtns">
+    <button class="instBtn" id="installBtn">Install</button>
+    <button class="instDismiss" id="installDismissBtn">Not now</button>
+  </div>
+</div>
+
 <div id="app">
 
   <div id="homeScreen">
@@ -483,6 +527,61 @@
 <script src="part10.js"></script>
 <script src="part12.js"></script>
 <script src="part6.js"></script>
+
+<script>
+// ---------- PWA: service worker registration + install prompt ----------
+(function(){
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){ /* offline support just won't be available; app still works online */ });
+    });
+  }
+
+  var DISMISS_KEY = 'sgz_installBannerDismissedAt';
+  var banner = document.getElementById('installBanner');
+  var installBtn = document.getElementById('installBtn');
+  var dismissBtn = document.getElementById('installDismissBtn');
+  var deferredPrompt = null;
+
+  function wasRecentlyDismissed(){
+    try {
+      var t = parseInt(localStorage.getItem(DISMISS_KEY) || '0', 10) || 0;
+      // don't nag again for 14 days after "Not now"
+      return (Date.now() - t) < 14 * 24 * 60 * 60 * 1000;
+    } catch(e){ return false; }
+  }
+  function rememberDismissed(){
+    try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch(e){}
+  }
+
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+    if (banner && !wasRecentlyDismissed()) banner.classList.add('show');
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', function(){
+      if (banner) banner.classList.remove('show');
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.finally(function(){ deferredPrompt = null; });
+    });
+  }
+
+  if (dismissBtn) {
+    dismissBtn.addEventListener('click', function(){
+      if (banner) banner.classList.remove('show');
+      rememberDismissed();
+    });
+  }
+
+  window.addEventListener('appinstalled', function(){
+    if (banner) banner.classList.remove('show');
+    deferredPrompt = null;
+  });
+})();
+</script>
 
 
 </body></html>

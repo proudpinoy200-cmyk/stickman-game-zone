@@ -40,6 +40,18 @@ All `part*.js` files share one global scope (loaded as classic `<script src>` ta
 
 (`part11.js`, an earlier Stick RPG Wars build, is no longer referenced by `index.html` and can be deleted from the repo — kept out of the load order rather than removed outright, so there's nothing extra to re-upload right now.)
 
+## Progressive Web App (installable, offline-capable)
+
+The site is a installable PWA — on mobile, visitors get an "Install Stick Games!" banner (bottom of the home screen) that adds it to their home screen like a real app, and once it's been opened once, all games keep working with no internet connection.
+
+- `manifest.json` — app name/icons/colors used by the browser's install prompt and home-screen icon.
+- `sw.js` — the service worker. On first visit it caches `index.html`, every `part*.js` file, `quest-bgm.mp3`, the manifest, and the icons, so the whole game works offline afterward.
+- `icon-192.png` / `icon-512.png` — home-screen icons (generated to match the site's orange/gold button gradient).
+- `offline.html` — rare-case fallback page, only shown if a page is requested that somehow isn't cached and there's no network.
+- The install banner markup/CSS lives in `index.html` (`#installBanner`), and the small inline `<script>` at the bottom of `index.html` (after all the `part*.js` tags) registers the service worker and wires up the install button using the browser's `beforeinstallprompt`/`appinstalled` events.
+
+**⚠️ Important — read this before shipping any future update:** `sw.js` caches every core file by name so the app works offline. That means whenever `index.html` or any `part*.js` file changes, returning players (especially ones who installed the app or play offline) will otherwise keep seeing the **old cached code forever**, because the browser has no other way to know a new version exists. To fix this, open `sw.js` and bump the `CACHE_VERSION` constant near the top (e.g. `'v1'` → `'v2'`) on every deploy that touches any cached file. That single change is what tells returning visitors' browsers to fetch the new files and drop the old cache. This is called out in a comment at the top of `sw.js` too.
+
 ## Deploying
 
 Connected to Vercel — pushes to `main` deploy to production automatically once the Vercel project's Git integration is set up (Project Settings → Git → Connect Git Repository, pointed at this repo).
