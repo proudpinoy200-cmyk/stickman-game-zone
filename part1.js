@@ -683,6 +683,15 @@ function startGame(id){
   showSplash(si.icon, si.title, si.sub, 1100).then(()=>{
     homeScreen.style.display = 'none';
     gameScreen.style.display = 'block';
+    // Whatever scroll position the player was at on the home page (very likely
+    // scrolled down — they had to find and tap the game's card, which for
+    // games further down the grid can mean a long scroll) otherwise carries
+    // straight into the game screen. Since the game screen is usually shorter
+    // than that scroll offset, the browser clamps it to the new max, which can
+    // visually look like the game "jumped to the bottom of the page" the moment
+    // play starts — reported by players as controls (e.g. spacebar) scrolling
+    // them away, even though the actual jump happens right here on game entry.
+    window.scrollTo(0, 0);
     hideOverlay();
     keys = {};
     gTitle.textContent = factory.title;
@@ -716,6 +725,7 @@ function goHome(){
   if(rafId) cancelAnimationFrame(rafId);
   gameScreen.style.display='none';
   homeScreen.style.display='block';
+  window.scrollTo(0, 0);
   questBgm.pause();
   if(bgmStarted && !SFX.isMuted()) BGM.start();
   if(typeof refreshHomeSections === 'function') refreshHomeSections();

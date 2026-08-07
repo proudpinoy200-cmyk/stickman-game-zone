@@ -15,6 +15,7 @@ Every game (except the two fight games mid-campaign) saves top scores to a local
 - **Achievements**: 23 local achievements (browsable via the 🏅 Achievements button) covering exploration, streaks, return visits, favoriting, and per-game milestones (e.g. Sword Master, Black Belt, Galaxy Saved, Extraction Complete). Unlocking one shows a celebratory toast.
 - **🎰 Surprise Me**: a slot-machine-style spinner on the home screen for picking a random game.
 - **Reward toasts**: short pop-up messages ("🎉 Nice choice!", "🔥 You're on a streak!", achievement unlocks) that celebrate play without being intrusive.
+- **"X playing right now" badge**: a small pill under the tagline with a pulsing dot. This is cosmetic social proof, not a real visitor count — there's no backend to measure that on a static site. It follows a rough day/time curve (busier after school/evening, quiet overnight) plus a gentle random walk so the number feels alive rather than static or obviously fake. Lives in `part6.js` (`LIVE_COUNT`), purely client-side, nothing persisted or sent anywhere.
 
 Deliberately **not** built this round: public star ratings, 👍/👎, comments, "Trending"/"Most Played Today", and a Weekly Top 10 — all of these need real aggregate data from many different players, which isn't possible on a static site with only per-device `localStorage`. Favorites (❤️) covers the "mark what I like" need without a backend.
 
@@ -23,7 +24,7 @@ Deliberately **not** built this round: public star ratings, 👍/👎, comments,
 Plain HTML5 canvas + vanilla JS, no build step, no dependencies. Scripts are shipped as readable source (not minified) — since deploys now go through git rather than being embedded directly in a tool call, there's no token-cost reason to minify, and readable code is much easier to maintain.
 
 - `index.html` — page shell, loads the scripts below in order
-- `part1.js` — shared engine: input, drawing helpers, SFX (Web Audio), game loop, start/goHome logic, the local leaderboard module, toasts, play-history/favorites/achievements modules
+- `part1.js` — shared engine: input, drawing helpers, SFX (Web Audio), game loop, start/goHome logic, the local leaderboard module, toasts, play-history/favorites/achievements modules. Also resets the page's scroll position to the top whenever a game starts or the player returns home (`startGame`/`goHome`) — without this, whatever scroll position a player was at on the home page (e.g. after scrolling down to find a game further down the grid) carried straight into the game screen and could visually look like the game had "jumped to the bottom of the page." Combined with the keydown handler's `preventDefault()` on scroll-triggering keys (space/arrows) during active gameplay, this fully covers the "spacebar scrolls the page" class of bug reported on Stick Swimmer Olympics.
 - `part2.js` — Sword Duel / Dojo Kicks (fight game) + Stickman Dash (runner)
 - `part3.js` — Hoop Shootout + Ninja Fruit Slice
 - `part4.js` — progress/localStorage, splash screen, Memory Match + Reaction Time
@@ -50,7 +51,7 @@ The site is a installable PWA — on mobile, visitors get an "Install Stick Game
 - `offline.html` — rare-case fallback page, only shown if a page is requested that somehow isn't cached and there's no network.
 - The install banner markup/CSS lives in `index.html` (`#installBanner`), and the small inline `<script>` at the bottom of `index.html` (after all the `part*.js` tags) registers the service worker and wires up the install button using the browser's `beforeinstallprompt`/`appinstalled` events.
 
-**⚠️ Important — read this before shipping any future update:** `sw.js` caches every core file by name so the app works offline. That means whenever `index.html` or any `part*.js` file changes, returning players (especially ones who installed the app or play offline) will otherwise keep seeing the **old cached code forever**, because the browser has no other way to know a new version exists. To fix this, open `sw.js` and bump the `CACHE_VERSION` constant near the top (e.g. `'v1'` → `'v2'`) on every deploy that touches any cached file. That single change is what tells returning visitors' browsers to fetch the new files and drop the old cache. This is called out in a comment at the top of `sw.js` too.
+**⚠️ Important — read this before shipping any future update:** `sw.js` caches every core file by name so the app works offline. That means whenever `index.html` or any `part*.js` file changes, returning players (especially ones who installed the app or play offline) will otherwise keep seeing the **old cached code forever**, because the browser has no other way to know a new version exists. To fix this, open `sw.js` and bump the `CACHE_VERSION` constant near the top (e.g. `'v1'` → `'v2'`) on every deploy that touches any cached file. That single change is what tells returning visitors' browsers to fetch the new files and drop the old cache. This is called out in a comment at the top of `sw.js` too. (Currently at `v4`.)
 
 ## Deploying
 

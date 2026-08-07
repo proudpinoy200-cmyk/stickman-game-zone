@@ -313,6 +313,48 @@ function getDailyGameId(){
 })();
 
 /* =========================================================
+   LIVE PLAYER COUNT BADGE — playful, kid-friendly "social proof" touch on
+   the home screen. This is NOT a real live count (there's no backend/server
+   to measure it — this whole site is static, per the README) — it's a
+   believable-looking number that follows a rough day/time curve (more
+   "players" in the after-school/evening hours, fewer overnight) plus a
+   gentle random walk so it feels alive rather than static. Purely cosmetic,
+   never persisted, never sent anywhere.
+   ========================================================= */
+const LIVE_COUNT = (function(){
+  let current = null;
+  // Rough 24-hour shape: quiet overnight, ramps up after school lets out,
+  // peaks in the evening, tapers off toward bedtime.
+  const HOURLY_BASE = [16,12,9,7,6,7,10,18,26,32,36,40,44,48,56,70,86,100,108,102,84,60,40,24];
+  function baseForNow(){
+    const d = new Date();
+    const b = HOURLY_BASE[d.getHours()];
+    // small day-to-day variety so it's not the exact same curve every day,
+    // seeded off the calendar date (same trick getDailyGameId uses above)
+    const seed = d.getFullYear()*372 + d.getMonth()*31 + d.getDate();
+    const variance = (seed % 15) - 7; // -7..+7
+    return Math.max(6, b + variance);
+  }
+  function tick(){
+    const target = baseForNow();
+    if(current==null) current = target;
+    current += Math.round(rand(-3,3));
+    current = clamp(current, Math.max(4,target-12), target+12);
+    return current;
+  }
+  return { tick };
+})();
+(function(){
+  const textEl = document.getElementById('liveCountText');
+  if(!textEl) return;
+  function render(){
+    textEl.textContent = LIVE_COUNT.tick().toLocaleString() + ' playing right now';
+  }
+  render();
+  setInterval(render, 5000);
+})();
+
+/* =========================================================
    RECOMMENDATIONS — "You May Also Like", scored by shared tags
    ========================================================= */
 function scoreSimilarity(a,b){
