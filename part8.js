@@ -69,17 +69,27 @@ function createGalaxyGame(){
     const b = state.boss;
     if(!b || !b.alive) return;
     b.hp -= dmg; b.hitFlash = 0.15;
-    spawnSpark(state.particles, b.x, b.y, '#ffd166', 10);
+    spawnSpark(state.particles, b.x, b.y, b.final?'#ff2fd0':'#ffd166', b.final?16:10);
     if(b.hp<=0){
       b.alive = false;
-      state.score += 1000;
-      spawnSpark(state.particles, b.x, b.y, '#ffd166', 34);
-      state.shakeT = 0.3;
+      state.score += b.final ? 3000 : 1000;
+      spawnSpark(state.particles, b.x, b.y, '#ffd166', b.final?60:34);
+      state.shakeT = b.final ? 0.5 : 0.3;
       SFX.victory();
-      state.powerups.push({x:b.x, y:b.y, type:'life', taken:false, bob:0});
+      state.powerups.push({x:b.x-(b.final?30:0), y:b.y, type:'life', taken:false, bob:0});
+      if(b.final) state.powerups.push({x:b.x+30, y:b.y, type:'life', taken:false, bob:6});
     } else {
       SFX.hurt();
     }
+  }
+  function spawnDrone(){
+    const bx = rand(60, CW-60), by = -20;
+    state.enemies.push({
+      row:-1, col:-1, baseX:bx, baseY:by, x:bx, y:by,
+      elite:false, hp:1, maxHp:1, alive:true, diving:true, diveT:0, diveDur: rand(2.0,2.6),
+      startX:bx, startY:by, diveTargetX: clamp(state.px+rand(-40,40), 50, CW-50), diveTargetY: CH-110,
+      firedThisDive:false, hitFlash:0, drone:true,
+    });
   }
   function maybeDropPowerup(x,y){
     if(Math.random()>0.15) return;
@@ -167,15 +177,27 @@ function createGalaxyGame(){
     }
     if(e.diveT>=dur){
       e.diving=false; e.x=e.baseX; e.y=e.baseY; e.diveT=0; e.firedThisDive=false;
+      if(e.drone) e.alive=false;
     }
   }
   function makeBoss(level){
-    return { x: CW/2, y: 110, baseX: CW/2, hp: 6+level*2, maxHp: 6+level*2, alive:true, hitFlash:0, t:0, fireTimer: rand(1.2,1.8) };
+    return { x: CW/2, y: 110, baseX: CW/2, hp: 6+level*2, maxHp: 6+level*2, alive:true, hitFlash:0, t:0, fireTimer: rand(1.2,1.8), final:false };
+  }
+  // The last wave's boss — much tankier, phase-based attack patterns, and
+  // periodically calls in escort drones. Designed to be genuinely tough to
+  // out-DPS on plain auto-fire alone; power-ups (rapid/spread fire, shield to
+  // tank hits, bombs to clear drones+chip boss HP) are what make it fair.
+  function makeFinalBoss(){
+    return {
+      x: CW/2, y: 100, baseX: CW/2, hp: 46, maxHp: 46, alive:true, hitFlash:0, t:0,
+      fireTimer: 1.4, final:true, phase:1, droneTimer: rand(3,4),
+    };
   }
   function updateBoss(b, dt){
     if(!b.alive) return;
     b.t += dt;
     if(b.hitFlash>0) b.hitFlash -= dt;
+    if(b.final){ updateFinalBoss(b, dt); return; }
     b.x = b.baseX + Math.sin(b.t*0.9)*180;
     b.fireTimer -= dt;
     const rate = b.hp <= b.maxHp*0.4 ? 1.0 : 1.7;
@@ -187,6 +209,44 @@ function createGalaxyGame(){
       b.fireTimer = rate;
     }
   }
+  function updateFinalBoss(b, dt){
+    const hpFrac = b.hp / b.maxHp;
+    const phase = hpFrac > 0.66 ? 1 : hpFrac > 0.33 ? 2 : 3;
+    b.phase = phase;
+    b.x = b.baseX + Math.sin(b.t*(0.7+phase*0.15)) * (150+phase*20);
+
+    b.fireTimer -= dt;
+    const rate = phase===1 ? 1.3 : phase===2 ? 0.9 : 0.6;
+    if(b.fireTimer<=0){
+      if(phase===1){
+        [-0.5,-0.25,0,0.25,0.5].forEach(ang=>{
+          state.enemyBullets.push({x:b.x, y:b.y+24, vx:Math.sin(ang)*230, vy:Math.cos(ang)*230, color:'#ff2fd0'});
+        });
+      } else if(phase===2){
+        for(let i=0;i<10;i++){
+          const ang = (Math.PI*2/10)*i;
+          state.enemyBullets.push({x:b.x, y:b.y+10, vx:Math.sin(ang)*200, vy:Math.cos(ang)*200, color:'#ff2fd0'});
+        }
+      } else {
+        const dx = state.px-b.x, dy = state.py-b.y, d = Math.max(1, Math.hypot(dx,dy));
+        state.enemyBullets.push({x:b.x, y:b.y+24, vx:dx/d*260, vy:dy/d*260, color:'#fff'});
+        for(let i=0;i<6;i++){
+          const ang = (Math.PI*2/6)*i + b.t;
+          state.enemyBullets.push({x:b.x, y:b.y+10, vx:Math.sin(ang)*190, vy:Math.cos(ang)*190, color:'#ff2fd0'});
+        }
+      }
+      SFX.fire();
+      b.fireTimer = rate;
+    }
+
+    if(phase>=2){
+      b.droneTimer -= dt;
+      if(b.droneTimer<=0){
+        spawnDrone();
+        b.droneTimer = rand(2.4,3.4) - (phase===3?0.6:0);
+      }
+    }
+  }
   function levelComplete(){
     state.over = true; state.win = true;
     SFX.victory();
@@ -194,7 +254,7 @@ function createGalaxyGame(){
       if(state.level>=LEVELS){
         recordRoundComplete();
         unlockAchievement('galaxy_saved');
-        showGameOverOverlay('galaxy', state.score, '🏆 Galaxy Saved!', `You defended the galaxy through all ${LEVELS} waves! Final score: ${state.score}`, [
+        showGameOverOverlay('galaxy', state.score, '🏆 Galaxy Saved!', `You took down the Nova Warden and defended the galaxy through all ${LEVELS} waves! Final score: ${state.score}`, [
           {label:'Play Again', onClick:()=>{ state=fresh(1,0); hideOverlay(); }},
           {label:'Home', onClick: goHome}
         ]);
@@ -269,12 +329,12 @@ function createGalaxyGame(){
 
     for(const b of state.playerBullets){
       if(b.dead) continue;
-      if(!state.boss){
-        for(const e of state.enemies){
-          if(!e.alive) continue;
-          if(Math.abs(b.x-e.x)<18 && Math.abs(b.y-e.y)<16){ b.dead=true; hitEnemy(e); break; }
-        }
-      } else if(state.boss.alive){
+      for(const e of state.enemies){
+        if(!e.alive) continue;
+        if(Math.abs(b.x-e.x)<18 && Math.abs(b.y-e.y)<16){ b.dead=true; hitEnemy(e); break; }
+      }
+      if(b.dead) continue;
+      if(state.boss && state.boss.alive){
         const bo = state.boss;
         if(Math.abs(b.x-bo.x)<40 && Math.abs(b.y-bo.y)<30){ b.dead=true; hitBoss(1); }
       }
@@ -306,7 +366,7 @@ function createGalaxyGame(){
     const aliveGrunts = state.enemies.some(e=>e.alive);
     if(!aliveGrunts && !state.boss && !state.bossPending && !state.over){
       state.bossPending = true;
-      setTimeout(()=>{ if(!state.over){ state.boss = makeBoss(state.level); state.bossPending=false; } }, 900);
+      setTimeout(()=>{ if(!state.over){ state.boss = state.level>=LEVELS ? makeFinalBoss() : makeBoss(state.level); state.bossPending=false; } }, 900);
     }
     if(state.boss && !state.boss.alive && !state.over){
       levelComplete();
@@ -346,7 +406,7 @@ function createGalaxyGame(){
     g.fillStyle = ng; g.fillRect(0,0,CW,CH);
   }
   function drawEnemy(g,e){
-    const color = e.elite ? '#ff2fd0' : '#39ff88';
+    const color = e.drone ? '#ff5050' : (e.elite ? '#ff2fd0' : '#39ff88');
     const flash = e.hitFlash>0;
     g.save();
     g.translate(e.x, e.y);
@@ -371,6 +431,7 @@ function createGalaxyGame(){
   function drawBoss(g,b){
     if(!b.alive) return;
     const flash = b.hitFlash>0;
+    if(b.final){ drawFinalBoss(g,b,flash); return; }
     g.save();
     g.translate(b.x,b.y);
     g.shadowColor = '#ffd166'; g.shadowBlur = flash?30:18;
@@ -391,15 +452,66 @@ function createGalaxyGame(){
     g.fillText('⭐ Star Reaper', b.x, b.y-56);
     healthBar(b.x-50, b.y-50, 100, 8, b.hp/b.maxHp, '#ff2fd0');
   }
+  function drawFinalBoss(g,b,flash){
+    g.save();
+    g.translate(b.x,b.y);
+    g.shadowColor = '#ff2fd0'; g.shadowBlur = flash?38:24;
+    g.fillStyle = flash?'#fff':'#2a0a3a';
+    g.strokeStyle = '#ff2fd0'; g.lineWidth = 3;
+    g.beginPath();
+    for(let i=0;i<10;i++){
+      const ang = Math.PI/5*i - b.t*0.3;
+      const rr = i%2===0?58:34;
+      const px=Math.cos(ang)*rr, py=Math.sin(ang)*rr;
+      i===0?g.moveTo(px,py):g.lineTo(px,py);
+    }
+    g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = flash?'#2a0a3a':'#ff2fd0';
+    g.beginPath(); g.arc(-16,0,7,0,Math.PI*2); g.fill();
+    g.beginPath(); g.arc(16,0,7,0,Math.PI*2); g.fill();
+    g.restore();
+    g.textAlign='center'; g.font='bold 15px Segoe UI'; g.fillStyle='#fff';
+    g.fillText('👑 Nova Warden', b.x, b.y-80);
+    g.font='bold 11px Segoe UI'; g.fillStyle='#ff9fe8';
+    g.fillText('Phase '+b.phase+'/3', b.x, b.y-66);
+    healthBar(b.x-70, b.y-56, 140, 10, b.hp/b.maxHp, '#ff2fd0');
+  }
   function drawPowerup(g,p){
     const bob = Math.sin(state.t*4 + p.bob)*3;
     glowCircle(g, p.x, p.y+bob, 13, POWERUP_COLORS[p.type]||'#fff', 0.9);
     g.fillStyle='#0b0620'; g.font='bold 13px Segoe UI'; g.textAlign='center';
     g.fillText(POWERUP_ICONS[p.type]||'?', p.x, p.y+bob+4);
   }
+  function drawShipHull(g,x,y){
+    g.save();
+    g.translate(x,y);
+    // side thruster glow (drawn first so wings sit on top of it)
+    glowCircle(g, -40, 24, 6+Math.sin(state.t*20)*2, '#7CFFF3', 0.45);
+    glowCircle(g, 40, 24, 6+Math.sin(state.t*20+1)*2, '#7CFFF3', 0.45);
+    g.shadowColor = '#7CFFF3'; g.shadowBlur = 12;
+    g.fillStyle = '#16222e';
+    g.strokeStyle = '#7CFFF3'; g.lineWidth = 2.5;
+    g.beginPath();
+    g.moveTo(0,-22);
+    g.lineTo(48,26);
+    g.lineTo(18,18);
+    g.lineTo(0,32);
+    g.lineTo(-18,18);
+    g.lineTo(-48,26);
+    g.closePath();
+    g.fill(); g.stroke();
+    // cockpit canopy (pilot renders inside this via drawStick, called after this)
+    const cg = g.createRadialGradient(0,-8,2,0,-8,24);
+    cg.addColorStop(0,'rgba(124,255,243,0.5)');
+    cg.addColorStop(1,'rgba(124,255,243,0.04)');
+    g.fillStyle = cg;
+    g.beginPath(); g.ellipse(0,-8,22,26,0,0,Math.PI*2); g.fill();
+    g.restore();
+  }
   function drawPlayerShip(g){
     const flame = 8+Math.sin(state.t*22)*3;
     glowCircle(g, state.px, state.py+22, flame, '#7CFFF3', 0.5);
+    drawShipHull(g, state.px, state.py+8);
     if(state.shieldOn){
       g.save();
       g.globalAlpha = 0.55+0.25*Math.sin(state.t*6);
@@ -409,7 +521,7 @@ function createGalaxyGame(){
     }
     g.save();
     g.shadowColor = '#7CFFF3'; g.shadowBlur = 10;
-    drawStick(g, state.px, state.py, 0.95, '#eafcff', 1, state.poseCur, {expr:'shout', accessory:'band', accessoryColor:'#7CFFF3'});
+    drawStick(g, state.px, state.py-4, 0.82, '#eafcff', 1, state.poseCur, {expr:'shout', accessory:'band', accessoryColor:'#7CFFF3'});
     g.restore();
   }
   function drawHud(g){
@@ -423,6 +535,12 @@ function createGalaxyGame(){
     g.fillText('💣 x'+state.bombs, CW-16, 24);
     if(state.spreadT>0){ g.fillStyle='#7CFFF3'; g.fillText('Spread '+state.spreadT.toFixed(1)+'s', CW-16, 46); }
     else if(state.rapidT>0){ g.fillStyle='#ff9f45'; g.fillText('Rapid '+state.rapidT.toFixed(1)+'s', CW-16, 46); }
+    if(state.bossPending && state.level>=LEVELS){
+      g.textAlign='center';
+      g.fillStyle = Math.floor(state.t*6)%2===0 ? '#ff2fd0' : '#fff';
+      g.font='bold 20px Segoe UI';
+      g.fillText('⚠️ FINAL BOSS INCOMING ⚠️', CW/2, CH/2);
+    }
   }
   function draw(g){
     drawSpaceBg(g);
@@ -453,7 +571,7 @@ function createGalaxyGame(){
 
   return {
     title:'Stick Galaxy',
-    hint:'◀▶ to strafe (auto-fire is always on) — grab glowing power-ups, tap 💣 BOMB to clear the screen!',
+    hint:'◀▶ to strafe (auto-fire is always on) — grab glowing power-ups, tap 💣 BOMB to clear the screen! Wave 5 ends in a tough boss — save your power-ups for it!',
     controlsHtml: `
       <div class="padBtns">
         <button class="ctlBtn" id="btnGLeft">◀</button>

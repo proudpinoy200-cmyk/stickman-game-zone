@@ -2,7 +2,7 @@
 
 Kid-friendly stick-figure multi-game website, live at [stickgames.co](https://stickgames.co).
 
-14 games in one page: Sword Duel, Dojo Kicks, Stickman Dash, Hoop Shootout, Ninja Fruit Slice, Memory Match, Reaction Time, Stickman Quest (platformer, with background music), Bubble Shooter, Stickman Racer, Stick Galaxy (neon Galaga-style shooter), Stick Sharpshooter (precision-timed target elimination), Stick Archery Royale (10-player free-for-all), and Stick Swimmer Olympics (mash-to-swim, 3-heat podium race).
+14 games in one page: Sword Duel, Dojo Kicks, Stickman Dash, Hoop Shootout, Ninja Fruit Slice, Memory Match, Reaction Time, Stickman Quest (platformer, with background music), Bubble Shooter, Stickman Racer, Stick Galaxy (neon Galaga-style shooter — pilot a glowing ship through 5 waves, ending in the Nova Warden boss fight), Stick Sharpshooter (precision-timed target elimination), Stick Archery Royale (10-player free-for-all), and Stick Swimmer Olympics (mash-to-swim, 3-heat podium race).
 
 Every game (except the two fight games mid-campaign) saves top scores to a local, per-device leaderboard — players can enter their name after a qualifying run, and a "🏆 Leaderboards" button on the home screen lets anyone browse any game's top 5 at any time. This is stored in the browser's `localStorage`, the same way star progress is — there's no server/database behind it, so leaderboards are per-device, not shared across players' phones.
 
@@ -29,7 +29,7 @@ Plain HTML5 canvas + vanilla JS, no build step, no dependencies. Scripts are shi
 - `part4.js` — progress/localStorage, splash screen, Memory Match + Reaction Time
 - `part5.js` — Stickman Quest (platformer)
 - `part7.js` — Bubble Shooter + Stickman Racer
-- `part8.js` — Stick Galaxy (neon Galaga-style space shooter)
+- `part8.js` — Stick Galaxy (neon Galaga-style space shooter — player now rides a visible glowing ship; wave 5 ends in a unique tougher final boss, the Nova Warden, with 3 attack phases and escort drones — meant to be genuinely hard to beat without using power-ups)
 - `part9.js` — Stick Sharpshooter (tap-timing target elimination — deactivate 10 rogue robot decoys before their countdown expires, then a helicopter extracts you)
 - `part10.js` — Stick Archery Royale (drag-to-aim-and-release free-for-all against 9 NPC archers — you take 3 hits to fall, NPCs take 1)
 - `part12.js` — Stick Swimmer Olympics (mash-to-swim 8-lane race, best-of-3 heats, podium ceremony for top 3 finishers)
