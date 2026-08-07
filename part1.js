@@ -775,7 +775,24 @@ window.addEventListener('pointerup', e=>{
   currentGame && currentGame.onPointerUp && currentGame.onPointerUp(p.x,p.y);
   pointer.down = false; pointer.trail=[];
 });
-window.addEventListener('keydown', e=>{ SFX.unlock(); keys[e.key]=true; });
+// Keys that trigger the browser's built-in page-scroll (space, arrows, page up/down,
+// home/end). While a game is actively being played, these are game controls (e.g.
+// mashing spacebar to swim in Stick Swimmer Olympics, arrows to move/jump in the
+// fight games and platformer) — without preventDefault the browser scrolls the whole
+// page on every press, which on mobile/short screens can shove the game itself out
+// of view. Only suppressed during active gameplay, and never when a form field (like
+// the leaderboard name-entry input) has focus, so normal page scrolling/typing elsewhere
+// is untouched.
+const SCROLL_KEYS = [' ','Spacebar','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','PageUp','PageDown','Home','End'];
+window.addEventListener('keydown', e=>{
+     SFX.unlock();
+     keys[e.key]=true;
+     const t = e.target;
+     const isFormField = t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable);
+     if(currentGame && !isFormField && SCROLL_KEYS.indexOf(e.key)!==-1){
+            e.preventDefault();
+     }
+}, {passive:false});
 window.addEventListener('keyup', e=>{ keys[e.key]=false; });
 
 /* =========================================================
