@@ -678,6 +678,8 @@ function startGame(id){
     sniper:{icon:'🎯',title:'Stick Sharpshooter',sub:'Deactivate 10 rogue robots before time runs out!'},
     archery:{icon:'🏹',title:'Stick Archery Royale',sub:'10 enter. Only one walks away.'},
     swimmer:{icon:'🏊',title:'Stick Swimmer Olympics',sub:'3 races. Podium or bust!'},
+    tycoon:{icon:'💰',title:'Coin Rush Tycoon',sub:'Tap for gold. Dodge the goblin!'},
+    fortdefense:{icon:'🏰',title:'Stick Fort Defense',sub:'Defend 3 lanes. Beat the boss wave!'},
   };
   const si = splashInfo[id]||{icon:'🎮',title:factory.title,sub:''};
   showSplash(si.icon, si.title, si.sub, 1100).then(()=>{

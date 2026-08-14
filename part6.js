@@ -82,6 +82,8 @@ const GAMES = {
   sniper: createSniperGame(),
   archery: createArcheryGame(),
   swimmer: createSwimmerGame(),
+  tycoon: createTycoonGame(),
+  fortdefense: createFortDefenseGame(),
 };
 
 /* Keyboard bindings shared across fight games */
@@ -121,6 +123,8 @@ const CARD_DATA = [
   {id:'sniper', icon:'🎯', name:'Stick Sharpshooter', desc:'Deactivate 10 rogue robots before their timer runs out!', tags:['action','precision','arcade','timed'], color:['#1e3a8a','#3b82f6'], isNew:true, editorPick:false},
   {id:'archery', icon:'🏹', name:'Stick Archery Royale', desc:'10 archers enter a free-for-all. Be the last one standing!', tags:['action','sports','battle','arcade'], color:['#92400e','#fbbf24'], isNew:true, editorPick:false},
   {id:'swimmer', icon:'🏊', name:'Stick Swimmer Olympics', desc:'Mash to swim! Race 8-lane heats for the podium.', tags:['sports','racing','olympics','arcade'], color:['#0e7490','#22d3ee'], isNew:true, editorPick:false},
+  {id:'tycoon', icon:'💰', name:'Coin Rush Tycoon', desc:'Tap for gold, hire helpers, shoo the sneaky Coin Goblin!', tags:['clicker','tycoon','arcade'], color:['#b45309','#fbbf24'], isNew:true, editorPick:true},
+  {id:'fortdefense', icon:'🏰', name:'Stick Fort Defense', desc:'Place defenders, hold 3 lanes, beat the big boss wave!', tags:['strategy','tower defense','boss'], color:['#166534','#4ade80'], isNew:true, editorPick:false},
 ];
 
 /* =========================================================
@@ -151,6 +155,10 @@ const ACH_DEFS = [
   {id:'sniper_hero', icon:'🎯', name:'Extraction Complete', desc:'Deactivate all 10 targets in Stick Sharpshooter.'},
   {id:'archery_champion', icon:'🏹', name:'Last One Standing', desc:'Win the free-for-all in Stick Archery Royale.'},
   {id:'swim_gold', icon:'🏊', name:'Olympic Champion', desc:'Finish top 3 in all 3 heats of Stick Swimmer Olympics.'},
+  {id:'tycoon_richest', icon:'💰', name:'Tycoon Master', desc:'Earn 1500+ gold in one Coin Rush Tycoon run.'},
+  {id:'tycoon_goblin_slayer', icon:'🧌', name:'Goblin Slayer', desc:'Shoo away 5 Coin Goblin raids in one run.'},
+  {id:'fortdefense_boss_defeated', icon:'🏰', name:'Fort Victorious', desc:'Defeat King Wobblestomp in Stick Fort Defense.'},
+  {id:'fortdefense_flawless', icon:'🛡️', name:'Flawless Defense', desc:'Win Stick Fort Defense with 90%+ Fort HP remaining.'},
 ];
 
 /* =========================================================
@@ -172,6 +180,8 @@ const LB_GAMES = [
   {id:'sniper', name:'Stick Sharpshooter', higherIsBetter:false, format:s=>s.toFixed(1)+'s'},
   {id:'archery', name:'Stick Archery Royale', higherIsBetter:true, format:s=>s+' kills'},
   {id:'swimmer', name:'Stick Swimmer Olympics', higherIsBetter:false, format:s=>s.toFixed(1)+'s'},
+  {id:'tycoon', name:'Coin Rush Tycoon', higherIsBetter:true, format:s=>Math.round(s)+'g'},
+  {id:'fortdefense', name:'Stick Fort Defense', higherIsBetter:true, format:s=>Math.round(s)+' pts'},
 ];
 function populateLbModal(){
   const sel = document.getElementById('lbGameSelect');
