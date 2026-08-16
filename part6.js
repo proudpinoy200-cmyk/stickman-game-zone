@@ -84,6 +84,10 @@ const GAMES = {
   swimmer: createSwimmerGame(),
   tycoon: createTycoonGame(),
   fortdefense: createFortDefenseGame(),
+blockpuzzle: createBlockPuzzleGame(),
+coloring: createColoringGame(),
+wordscramble: createWordScrambleGame(),
+whackamole: createWhackAMoleGame(),
 };
 
 /* Keyboard bindings shared across fight games */
@@ -117,14 +121,18 @@ const CARD_DATA = [
   {id:'memory', icon:'🧠', name:'Memory Match', desc:'Flip & match the stickman card pairs!', tags:['puzzle','brain'], color:['#7c3aed','#a78bfa'], isNew:false, editorPick:false},
   {id:'reaction', icon:'⚡', name:'Reaction Time', desc:'Test your reflexes — tap fast!', tags:['arcade','reflex','brain'], color:['#ca8a04','#fde047'], isNew:false, editorPick:false},
   {id:'platformer', icon:'🏁', name:'Stickman Quest', desc:'Jump, collect, stomp, reach the flag!', tags:['adventure','platformer','music'], color:['#059669','#34d399'], isNew:false, editorPick:true},
-  {id:'bubble', icon:'🫧', name:'Bubble Shooter', desc:'Aim, shoot, match 3+ to pop bubbles!', tags:['puzzle','arcade','colorful'], color:['#db2777','#f472b6'], isNew:true, editorPick:false},
-  {id:'racer', icon:'🏎️', name:'Stickman Racer', desc:'Dodge hurdles, boost, win the race!', tags:['action','endless','driving'], color:['#dc2626','#f87171'], isNew:true, editorPick:false},
-  {id:'galaxy', icon:'👾', name:'Stick Galaxy', desc:'Blast neon aliens, grab power-ups, beat the boss!', tags:['action','shooter','space','boss'], color:['#4c1d95','#7c3aed'], isNew:true, editorPick:true},
-  {id:'sniper', icon:'🎯', name:'Stick Sharpshooter', desc:'Deactivate 10 rogue robots before their timer runs out!', tags:['action','precision','arcade','timed'], color:['#1e3a8a','#3b82f6'], isNew:true, editorPick:false},
-  {id:'archery', icon:'🏹', name:'Stick Archery Royale', desc:'10 archers enter a free-for-all. Be the last one standing!', tags:['action','sports','battle','arcade'], color:['#92400e','#fbbf24'], isNew:true, editorPick:false},
-  {id:'swimmer', icon:'🏊', name:'Stick Swimmer Olympics', desc:'Mash to swim! Race 8-lane heats for the podium.', tags:['sports','racing','olympics','arcade'], color:['#0e7490','#22d3ee'], isNew:true, editorPick:false},
-  {id:'tycoon', icon:'💰', name:'Coin Rush Tycoon', desc:'Tap for gold, hire helpers, shoo the sneaky Coin Goblin!', tags:['clicker','tycoon','arcade'], color:['#b45309','#fbbf24'], isNew:true, editorPick:true},
-  {id:'fortdefense', icon:'🏰', name:'Stick Fort Defense', desc:'Place defenders, hold 3 lanes, beat the big boss wave!', tags:['strategy','tower defense','boss'], color:['#166534','#4ade80'], isNew:true, editorPick:false},
+  {id:'bubble', icon:'🫧', name:'Bubble Shooter', desc:'Aim, shoot, match 3+ to pop bubbles!', tags:['puzzle','arcade','colorful'], color:['#db2777','#f472b6'], isNew:false, editorPick:false},
+  {id:'racer', icon:'🏎️', name:'Stickman Racer', desc:'Dodge hurdles, boost, win the race!', tags:['action','endless','driving'], color:['#dc2626','#f87171'], isNew:false, editorPick:false},
+  {id:'galaxy', icon:'👾', name:'Stick Galaxy', desc:'Blast neon aliens, grab power-ups, beat the boss!', tags:['action','shooter','space','boss'], color:['#4c1d95','#7c3aed'], isNew:false, editorPick:true},
+  {id:'sniper', icon:'🎯', name:'Stick Sharpshooter', desc:'Deactivate 10 rogue robots before their timer runs out!', tags:['action','precision','arcade','timed'], color:['#1e3a8a','#3b82f6'], isNew:false, editorPick:false},
+  {id:'archery', icon:'🏹', name:'Stick Archery Royale', desc:'10 archers enter a free-for-all. Be the last one standing!', tags:['action','sports','battle','arcade'], color:['#92400e','#fbbf24'], isNew:false, editorPick:false},
+  {id:'swimmer', icon:'🏊', name:'Stick Swimmer Olympics', desc:'Mash to swim! Race 8-lane heats for the podium.', tags:['sports','racing','olympics','arcade'], color:['#0e7490','#22d3ee'], isNew:false, editorPick:false},
+  {id:'tycoon', icon:'💰', name:'Coin Rush Tycoon', desc:'Tap for gold, hire helpers, shoo the sneaky Coin Goblin!', tags:['clicker','tycoon','arcade'], color:['#b45309','#fbbf24'], isNew:false, editorPick:true},
+  {id:'fortdefense', icon:'🏰', name:'Stick Fort Defense', desc:'Place defenders, hold 3 lanes, beat the big boss wave!', tags:['strategy','tower defense','boss'], color:['#166534','#4ade80'], isNew:false, editorPick:false},
+{id:'blockpuzzle', icon:'🧩', name:'Block Puzzle', desc:'Place blocks to clear rows and columns. How high can you score?', tags:['puzzle','brain','strategy'], color:['#0f766e','#2dd4bf'], isNew:true, editorPick:true},
+{id:'coloring', icon:'🎨', name:'Coloring Studio', desc:'Pick a color and paint! Try a template or draw something new.', tags:['creativity','art','relaxing'], color:['#be185d','#f9a8d4'], isNew:true, editorPick:false},
+{id:'wordscramble', icon:'🔤', name:'Word Scramble', desc:'Unscramble the letters to spell 10 picture-clue words!', tags:['word','brain','educational'], color:['#1d4ed8','#60a5fa'], isNew:true, editorPick:false},
+{id:'whackamole', icon:'🔨', name:'Whack-a-Mole', desc:'Whack the fighters fast — but dodge the sneaky bandit!', tags:['arcade','reflex','quick'], color:['#a16207','#fde047'], isNew:true, editorPick:false},
 ];
 
 /* =========================================================
@@ -159,6 +167,10 @@ const ACH_DEFS = [
   {id:'tycoon_goblin_slayer', icon:'🧌', name:'Goblin Slayer', desc:'Shoo away 5 Coin Goblin raids in one run.'},
   {id:'fortdefense_boss_defeated', icon:'🏰', name:'Fort Victorious', desc:'Defeat King Wobblestomp in Stick Fort Defense.'},
   {id:'fortdefense_flawless', icon:'🛡️', name:'Flawless Defense', desc:'Win Stick Fort Defense with 90%+ Fort HP remaining.'},
+{id:'blockpuzzle_master', icon:'🧩', name:'Block Master', desc:'Score 220+ points in Block Puzzle.'},
+{id:'creative_spirit', icon:'🎨', name:'Creative Spirit', desc:'Finish a drawing in Coloring Studio.'},
+{id:'word_wizard', icon:'🔤', name:'Word Wizard', desc:'Correctly spell 8+ words in one Word Scramble run.'},
+{id:'mole_master', icon:'🔨', name:'Mole Master', desc:'Score 20+ points in Whack-a-Mole.'},
 ];
 
 /* =========================================================
@@ -182,6 +194,9 @@ const LB_GAMES = [
   {id:'swimmer', name:'Stick Swimmer Olympics', higherIsBetter:false, format:s=>s.toFixed(1)+'s'},
   {id:'tycoon', name:'Coin Rush Tycoon', higherIsBetter:true, format:s=>Math.round(s)+'g'},
   {id:'fortdefense', name:'Stick Fort Defense', higherIsBetter:true, format:s=>Math.round(s)+' pts'},
+{id:'blockpuzzle', name:'Block Puzzle', higherIsBetter:true, format:s=>s+' pts'},
+{id:'wordscramble', name:'Word Scramble', higherIsBetter:true, format:s=>s+'/10'},
+{id:'whackamole', name:'Whack-a-Mole', higherIsBetter:true, format:s=>s+' pts'},
 ];
 function populateLbModal(){
   const sel = document.getElementById('lbGameSelect');

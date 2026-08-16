@@ -680,6 +680,10 @@ function startGame(id){
     swimmer:{icon:'🏊',title:'Stick Swimmer Olympics',sub:'3 races. Podium or bust!'},
     tycoon:{icon:'💰',title:'Coin Rush Tycoon',sub:'Tap for gold. Dodge the goblin!'},
     fortdefense:{icon:'🏰',title:'Stick Fort Defense',sub:'Defend 3 lanes. Beat the boss wave!'},
+  blockpuzzle:{icon:'🧩',title:'Block Puzzle',sub:'Clear rows and columns before the board fills up!'},
+  coloring:{icon:'🎨',title:'Coloring Studio',sub:'Pick a color and create something fun!'},
+  wordscramble:{icon:'🔤',title:'Word Scramble',sub:'Unscramble the letters to spell each word!'},
+  whackamole:{icon:'🔨',title:'Whack-a-Mole',sub:'Whack fast — dodge the bandit!'},
   };
   const si = splashInfo[id]||{icon:'🎮',title:factory.title,sub:''};
   showSplash(si.icon, si.title, si.sub, 1100).then(()=>{

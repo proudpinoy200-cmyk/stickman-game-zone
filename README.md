@@ -2,7 +2,7 @@
 
 Kid-friendly stick-figure multi-game website, live at [stickgames.co](https://stickgames.co).
 
-16 games in one page: Sword Duel, Dojo Kicks, Stickman Dash, Hoop Shootout, Ninja Fruit Slice, Memory Match, Reaction Time, Stickman Quest (platformer, with background music), Bubble Shooter, Stickman Racer, Stick Galaxy (neon Galaga-style shooter — pilot a glowing ship through 5 waves, ending in the Nova Warden boss fight), Stick Sharpshooter (precision-timed target elimination), Stick Archery Royale (10-player free-for-all), Stick Swimmer Olympics (mash-to-swim, 3-heat podium race), Coin Rush Tycoon (idle/clicker — tap for gold, hire helpers, dodge the Coin Goblin), and Stick Fort Defense (3-lane tower-defense-lite with a final boss wave).
+20 games in one page: Sword Duel, Dojo Kicks, Stickman Dash, Hoop Shootout, Ninja Fruit Slice, Memory Match, Reaction Time, Stickman Quest (platformer, with background music), Bubble Shooter, Stickman Racer, Stick Galaxy (neon Galaga-style shooter — pilot a glowing ship through 5 waves, ending in the Nova Warden boss fight), Stick Sharpshooter (precision-timed target elimination), Stick Archery Royale (10-player free-for-all), Stick Swimmer Olympics (mash-to-swim, 3-heat podium race), Coin Rush Tycoon (idle/clicker — tap for gold, hire helpers, dodge the Coin Goblin), Stick Fort Defense (3-lane tower-defense-lite with a final boss wave), Block Puzzle (tap-to-place, Blockudoku/Woodoku-style grid clearer), Coloring Studio (freeform drawing and creativity — no score, no losing), Word Scramble (tap-to-unscramble spelling game with a picture hint next to every word), and Whack-a-Mole (30-second reflex arcade, tap the fighters but dodge the bandit).
 
 The last two were added to fill genre gaps identified from research on what keeps kids ages 6-12 replaying a game: idle/clicker and strategy/tower-defense were the two most commonly cited kid-popular genres missing from the catalog, and penalty/danger mechanics (the Coin Goblin raiding your gold pile) were found to be more memorable and exciting to kids than passive rewards alone, so that became Coin Rush Tycoon's core hook.
 
@@ -38,6 +38,8 @@ Plain HTML5 canvas + vanilla JS, no build step, no dependencies. Scripts are shi
 - `part12.js` — Stick Swimmer Olympics (mash-to-swim 8-lane race, best-of-3 heats, podium ceremony for top 3 finishers)
 - `part13.js` — Coin Rush Tycoon (idle/clicker — tap a treasure pile for gold, hire helpers and buy upgrades for passive income, in a 75-second timed session; a "Coin Goblin" periodically scurries in and steals a chunk of your gold pile unless you tap him away in time)
 - `part14.js` — Stick Fort Defense (3-lane tower-defense-lite — tap a lane to place a permanent stick-soldier defender who auto-fights anything in range; defend your Fort's HP through 5 escalating waves plus a final boss wave against King Wobblestomp)
+- `part15.js` — Block Puzzle + Coloring Studio
+- `part16.js` — Word Scramble + Whack-a-Mole
 - `part6.js` — game registry, extended card catalog (tags/colors/badges), home screen sections, achievements catalog + modal, Surprise Me spinner, recommendation engine, leaderboard browser modal, procedural home-screen music, first-tap audio unlock
 - `quest-bgm.mp3` — background music loop for Stickman Quest
 
