@@ -8,6 +8,10 @@ Shared long-term plan for the weekly dev cycle (Ora1 = new games/engagement, Ora
 2. Grow organic search traffic for kids'-games-related searches.
 3. Keep the site fast, bug-free, and stable — no PR review exists, so every push to `main` goes live immediately.
 
+## Catalog decision (2026-08-16)
+
+Carol (site owner) decided 20 games is enough — the game catalog is considered feature-complete. Building new games is no longer a default weekly activity. Every run from here forward is about scaling and improving what already exists: deeper content within current games, better retention/engagement mechanics, performance, mobile polish, bug-proofing, and SEO/traffic growth. Only build an entirely new game if a run's instructions explicitly ask for one.
+
 ## Current state (as of 2026-08-16)
 
 - 20 games live (see README.md for the full list and file map).
