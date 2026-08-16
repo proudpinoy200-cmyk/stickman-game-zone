@@ -1,9 +1,61 @@
 /* =========================================================
    GAME 11 — Stick Galaxy (Galaga-style neon space shooter)
    ========================================================= */
+// Player ship art: 10 hand-tuned color palettes, one unlocked per wave
+// (wave 1 = GALAXY_ROCKET_STYLES[0] ... wave 10 = GALAXY_ROCKET_STYLES[9]),
+// drawn with the shared drawRocketShip() vector helper below so the ship
+// visibly upgrades every wave without needing any external image assets —
+// same hand-drawn canvas style as every other sprite in this game.
+const GALAXY_ROCKET_STYLES = [
+  {body:'#eef3f5', accent:'#1ec0c0', nose:'#160a30', window:'#3ea6d8', fin:'#b8c8cc'},
+  {body:'#e0501a', accent:'#f07800', nose:'#7a1d0a', window:'#4a5a5a', fin:'#607070'},
+  {body:'#66c418', accent:'#3c9000', nose:'#1a2a10', window:'#18c0c0', fin:'#2a5a10'},
+  {body:'#22cccc', accent:'#0fa0a0', nose:'#2a0a3a', window:'#eaffff', fin:'#b8e8e8'},
+  {body:'#5a6478', accent:'#c8307c', nose:'#20142e', window:'#3adede', fin:'#7a3aa0'},
+  {body:'#20b8c0', accent:'#d8318c', nose:'#170a2e', window:'#eafcff', fin:'#8a5aa8'},
+  {body:'#1ec0c0', accent:'#f07000', nose:'#2a0a3a', window:'#eafcff', fin:'#6a7a80'},
+  {body:'#4a2a80', accent:'#5a5aa0', nose:'#170a2e', window:'#3a6ad8', fin:'#8890b0'},
+  {body:'#eafcff', accent:'#1ec0c0', nose:'#2a4a4a', window:'#20c0c0', fin:'#c8e8e8'},
+  {body:'#18c060', accent:'#0fa8a8', nose:'#0a2a1a', window:'#eafcff', fin:'#0a5a48'},
+];
+function drawRocketShip(g, cx, cy, style, scale){
+  scale = scale || 1;
+  g.save();
+  g.translate(cx, cy);
+  g.scale(scale, scale);
+  g.shadowColor = style.accent; g.shadowBlur = 14;
+  // swept side fins (drawn first, behind the body)
+  g.fillStyle = style.fin;
+  g.beginPath();
+  g.moveTo(-10,10); g.lineTo(-34,34); g.lineTo(-16,34); g.lineTo(-6,16); g.closePath(); g.fill();
+  g.beginPath();
+  g.moveTo(10,10); g.lineTo(34,34); g.lineTo(16,34); g.lineTo(6,16); g.closePath(); g.fill();
+  // tapered body
+  g.fillStyle = style.body;
+  g.strokeStyle = style.accent; g.lineWidth = 2;
+  g.beginPath();
+  g.moveTo(0,-34);
+  g.quadraticCurveTo(15,-14, 14,18);
+  g.lineTo(-14,18);
+  g.quadraticCurveTo(-15,-14, 0,-34);
+  g.closePath();
+  g.fill(); g.stroke();
+  // nose cone tip
+  g.fillStyle = style.nose;
+  g.beginPath();
+  g.moveTo(0,-34); g.lineTo(7,-16); g.lineTo(-7,-16); g.closePath(); g.fill();
+  // accent stripe
+  g.strokeStyle = style.accent; g.lineWidth = 3;
+  g.beginPath(); g.moveTo(-13,6); g.lineTo(13,6); g.stroke();
+  // cockpit window
+  g.fillStyle = style.window;
+  g.beginPath(); g.arc(0,-6,7,0,Math.PI*2); g.fill();
+  g.strokeStyle = '#0b0620'; g.lineWidth = 1.5; g.stroke();
+  g.restore();
+}
 function createGalaxyGame(){
   let state;
-  const LEVELS = 5;
+  const LEVELS = 10;
   const PLAYER_SPEED = 320;
   const BULLET_SPEED = 520;
   const ENEMY_BULLET_SPEED = 260;
@@ -41,7 +93,7 @@ function createGalaxyGame(){
       score: carryScore||0, lives:3,
       px: CW/2, py: PLAYER_Y, invulnT:0,
       fireT:0, fireRate:0.22,
-      spreadT:0, rapidT:0, shieldOn:false, bombs:1,
+      spreadT:0, rapidT:0, shieldOn:false, bombs: level>=LEVELS ? 2 : 1,
       playerBullets:[], enemyBullets:[], powerups:[],
       diveTimer: rand(1.6,2.4),
       over:false, win:false,
@@ -188,9 +240,13 @@ function createGalaxyGame(){
   // out-DPS on plain auto-fire alone; power-ups (rapid/spread fire, shield to
   // tank hits, bombs to clear drones+chip boss HP) are what make it fair.
   function makeFinalBoss(){
+    // The wave-10 finale — the biggest, tankiest boss in the game: roughly
+    // double the old HP, a visibly larger hitbox to match its bigger art,
+    // and a 4th enrage phase once it's nearly dead.
     return {
-      x: CW/2, y: 100, baseX: CW/2, hp: 46, maxHp: 46, alive:true, hitFlash:0, t:0,
-      fireTimer: 1.4, final:true, phase:1, droneTimer: rand(3,4),
+      x: CW/2, y: 118, baseX: CW/2, hp: 90, maxHp: 90, alive:true, hitFlash:0, t:0,
+      fireTimer: 1.4, final:true, phase:1, droneTimer: rand(2.6,3.4),
+      hitW: 62, hitH: 46,
     };
   }
   function updateBoss(b, dt){
@@ -211,12 +267,12 @@ function createGalaxyGame(){
   }
   function updateFinalBoss(b, dt){
     const hpFrac = b.hp / b.maxHp;
-    const phase = hpFrac > 0.66 ? 1 : hpFrac > 0.33 ? 2 : 3;
+    const phase = hpFrac > 0.75 ? 1 : hpFrac > 0.5 ? 2 : hpFrac > 0.22 ? 3 : 4;
     b.phase = phase;
-    b.x = b.baseX + Math.sin(b.t*(0.7+phase*0.15)) * (150+phase*20);
+    b.x = b.baseX + Math.sin(b.t*(0.65+phase*0.14)) * (150+phase*18);
 
     b.fireTimer -= dt;
-    const rate = phase===1 ? 1.3 : phase===2 ? 0.9 : 0.6;
+    const rate = phase===1 ? 1.3 : phase===2 ? 0.95 : phase===3 ? 0.65 : 0.45;
     if(b.fireTimer<=0){
       if(phase===1){
         [-0.5,-0.25,0,0.25,0.5].forEach(ang=>{
@@ -227,12 +283,22 @@ function createGalaxyGame(){
           const ang = (Math.PI*2/10)*i;
           state.enemyBullets.push({x:b.x, y:b.y+10, vx:Math.sin(ang)*200, vy:Math.cos(ang)*200, color:'#ff2fd0'});
         }
-      } else {
+      } else if(phase===3){
         const dx = state.px-b.x, dy = state.py-b.y, d = Math.max(1, Math.hypot(dx,dy));
         state.enemyBullets.push({x:b.x, y:b.y+24, vx:dx/d*260, vy:dy/d*260, color:'#fff'});
         for(let i=0;i<6;i++){
           const ang = (Math.PI*2/6)*i + b.t;
           state.enemyBullets.push({x:b.x, y:b.y+10, vx:Math.sin(ang)*190, vy:Math.cos(ang)*190, color:'#ff2fd0'});
+        }
+      } else {
+        // enrage: double aimed shots plus a full 12-point ring
+        const dx = state.px-b.x, dy = state.py-b.y, d = Math.max(1, Math.hypot(dx,dy));
+        [-0.15,0.15].forEach(off=>{
+          state.enemyBullets.push({x:b.x, y:b.y+24, vx:(dx/d+off)*250, vy:(dy/d)*250, color:'#fff'});
+        });
+        for(let i=0;i<12;i++){
+          const ang = (Math.PI*2/12)*i - b.t*1.2;
+          state.enemyBullets.push({x:b.x, y:b.y+10, vx:Math.sin(ang)*210, vy:Math.cos(ang)*210, color:'#ff2fd0'});
         }
       }
       SFX.fire();
@@ -243,7 +309,7 @@ function createGalaxyGame(){
       b.droneTimer -= dt;
       if(b.droneTimer<=0){
         spawnDrone();
-        b.droneTimer = rand(2.4,3.4) - (phase===3?0.6:0);
+        b.droneTimer = rand(2.2,3.2) - (phase-1)*0.4;
       }
     }
   }
@@ -254,7 +320,7 @@ function createGalaxyGame(){
       if(state.level>=LEVELS){
         recordRoundComplete();
         unlockAchievement('galaxy_saved');
-        showGameOverOverlay('galaxy', state.score, '🏆 Galaxy Saved!', `You took down the Nova Warden and defended the galaxy through all ${LEVELS} waves! Final score: ${state.score}`, [
+        showGameOverOverlay('galaxy', state.score, '🏆 Galaxy Saved!', `You took down the Nova Overlord and defended the galaxy through all ${LEVELS} waves! Final score: ${state.score}`, [
           {label:'Play Again', onClick:()=>{ state=fresh(1,0); hideOverlay(); }},
           {label:'Home', onClick: goHome}
         ]);
@@ -336,7 +402,8 @@ function createGalaxyGame(){
       if(b.dead) continue;
       if(state.boss && state.boss.alive){
         const bo = state.boss;
-        if(Math.abs(b.x-bo.x)<40 && Math.abs(b.y-bo.y)<30){ b.dead=true; hitBoss(1); }
+        const hw = bo.hitW||40, hh = bo.hitH||30;
+        if(Math.abs(b.x-bo.x)<hw && Math.abs(b.y-bo.y)<hh){ b.dead=true; hitBoss(1); }
       }
     }
     state.playerBullets = state.playerBullets.filter(b=>!b.dead);
@@ -455,26 +522,32 @@ function createGalaxyGame(){
   function drawFinalBoss(g,b,flash){
     g.save();
     g.translate(b.x,b.y);
-    g.shadowColor = '#ff2fd0'; g.shadowBlur = flash?38:24;
+    g.shadowColor = '#ff2fd0'; g.shadowBlur = flash?46:30;
     g.fillStyle = flash?'#fff':'#2a0a3a';
-    g.strokeStyle = '#ff2fd0'; g.lineWidth = 3;
+    g.strokeStyle = '#ff2fd0'; g.lineWidth = 4;
     g.beginPath();
     for(let i=0;i<10;i++){
       const ang = Math.PI/5*i - b.t*0.3;
-      const rr = i%2===0?58:34;
+      const rr = i%2===0?78:46;
       const px=Math.cos(ang)*rr, py=Math.sin(ang)*rr;
       i===0?g.moveTo(px,py):g.lineTo(px,py);
     }
     g.closePath(); g.fill(); g.stroke();
+    // inner core ring — pulses faster each phase to sell the escalating danger
+    g.strokeStyle = flash?'#fff':'#ff9fe8';
+    g.lineWidth = 2;
+    g.globalAlpha = 0.6+0.3*Math.sin(b.t*(3+b.phase*1.5));
+    g.beginPath(); g.arc(0,0,30+b.phase*3,0,Math.PI*2); g.stroke();
+    g.globalAlpha = 1;
     g.fillStyle = flash?'#2a0a3a':'#ff2fd0';
-    g.beginPath(); g.arc(-16,0,7,0,Math.PI*2); g.fill();
-    g.beginPath(); g.arc(16,0,7,0,Math.PI*2); g.fill();
+    g.beginPath(); g.arc(-22,0,9,0,Math.PI*2); g.fill();
+    g.beginPath(); g.arc(22,0,9,0,Math.PI*2); g.fill();
     g.restore();
-    g.textAlign='center'; g.font='bold 15px Segoe UI'; g.fillStyle='#fff';
-    g.fillText('👑 Nova Warden', b.x, b.y-80);
+    g.textAlign='center'; g.font='bold 16px Segoe UI'; g.fillStyle='#fff';
+    g.fillText('👑 Nova Overlord', b.x, b.y-100);
     g.font='bold 11px Segoe UI'; g.fillStyle='#ff9fe8';
-    g.fillText('Phase '+b.phase+'/3', b.x, b.y-66);
-    healthBar(b.x-70, b.y-56, 140, 10, b.hp/b.maxHp, '#ff2fd0');
+    g.fillText('Phase '+b.phase+'/4', b.x, b.y-86);
+    healthBar(b.x-90, b.y-74, 180, 11, b.hp/b.maxHp, '#ff2fd0');
   }
   function drawPowerup(g,p){
     const bob = Math.sin(state.t*4 + p.bob)*3;
@@ -510,19 +583,20 @@ function createGalaxyGame(){
   }
   function drawPlayerShip(g){
     const flame = 8+Math.sin(state.t*22)*3;
-    glowCircle(g, state.px, state.py+22, flame, '#7CFFF3', 0.5);
-    drawShipHull(g, state.px, state.py+8);
+    glowCircle(g, state.px, state.py+30, flame, '#7CFFF3', 0.5);
+    // Ship art upgrades each wave — wave 1 flies style #1, wave 10 flies
+    // style #10 (the final, biggest design), so progress is visible at a glance.
+    const styleIdx = clamp(state.level-1, 0, GALAXY_ROCKET_STYLES.length-1);
+    const style = GALAXY_ROCKET_STYLES[styleIdx];
+    const shipScale = state.level>=LEVELS ? 1.15 : 1;
+    drawRocketShip(g, state.px, state.py-2, style, shipScale);
     if(state.shieldOn){
       g.save();
       g.globalAlpha = 0.55+0.25*Math.sin(state.t*6);
       g.strokeStyle='#7CFFF3'; g.lineWidth=3; g.shadowColor='#7CFFF3'; g.shadowBlur=14;
-      g.beginPath(); g.arc(state.px, state.py-6, 34, 0, Math.PI*2); g.stroke();
+      g.beginPath(); g.arc(state.px, state.py-6, 36, 0, Math.PI*2); g.stroke();
       g.restore();
     }
-    g.save();
-    g.shadowColor = '#7CFFF3'; g.shadowBlur = 10;
-    drawStick(g, state.px, state.py-4, 0.82, '#eafcff', 1, state.poseCur, {expr:'shout', accessory:'band', accessoryColor:'#7CFFF3'});
-    g.restore();
   }
   function drawHud(g){
     g.textAlign='left'; g.font='bold 16px Segoe UI'; g.fillStyle='#eafcff';
@@ -571,7 +645,7 @@ function createGalaxyGame(){
 
   return {
     title:'Stick Galaxy',
-    hint:'◀▶ to strafe (auto-fire is always on) — grab glowing power-ups, tap 💣 BOMB to clear the screen! Wave 5 ends in a tough boss — save your power-ups for it!',
+    hint:'◀▶ to strafe (auto-fire is always on) — grab glowing power-ups, tap 💣 BOMB to clear the screen! Your ship upgrades every wave, and Wave 10 ends in the Nova Overlord, the biggest boss yet — save your power-ups for it!',
     controlsHtml: `
       <div class="padBtns">
         <button class="ctlBtn" id="btnGLeft">◀</button>

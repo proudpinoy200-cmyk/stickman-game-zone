@@ -674,7 +674,7 @@ function startGame(id){
     platformer:{icon:'🏁',title:'Stickman Quest',sub:'Collect coins, reach the flag!'},
     bubble:{icon:'🫧',title:'Bubble Shooter',sub:'Match 3+ to pop the bubbles!'},
     racer:{icon:'🏎️',title:'Stickman Racer',sub:'Dodge hurdles. Win the race!'},
-    galaxy:{icon:'👾',title:'Stick Galaxy',sub:'Blast aliens across 5 luminous waves!'},
+    galaxy:{icon:'👾',title:'Stick Galaxy',sub:'Blast aliens across 10 luminous waves — new ship every wave!'},
     sniper:{icon:'🎯',title:'Stick Sharpshooter',sub:'Deactivate 10 rogue robots before time runs out!'},
     archery:{icon:'🏹',title:'Stick Archery Royale',sub:'10 enter. Only one walks away.'},
     swimmer:{icon:'🏊',title:'Stick Swimmer Olympics',sub:'3 races. Podium or bust!'},

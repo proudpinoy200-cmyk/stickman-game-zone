@@ -159,7 +159,7 @@ const ACH_DEFS = [
   {id:'quest_hero', icon:'🏁', name:'Quest Hero', desc:'Reach the flag in Stickman Quest.'},
   {id:'bubble_master', icon:'🫧', name:'Bubble Master', desc:'Clear the whole board in Bubble Shooter.'},
   {id:'racer_champion', icon:'🏎️', name:'Racing Champion', desc:'Win the race in Stickman Racer.'},
-  {id:'galaxy_saved', icon:'👾', name:'Galaxy Saved', desc:'Beat all 5 waves and the boss in Stick Galaxy.'},
+  {id:'galaxy_saved', icon:'👾', name:'Galaxy Saved', desc:'Beat all 10 waves and the Nova Overlord in Stick Galaxy.'},
   {id:'sniper_hero', icon:'🎯', name:'Extraction Complete', desc:'Deactivate all 10 targets in Stick Sharpshooter.'},
   {id:'archery_champion', icon:'🏹', name:'Last One Standing', desc:'Win the free-for-all in Stick Archery Royale.'},
   {id:'swim_gold', icon:'🏊', name:'Olympic Champion', desc:'Finish top 3 in all 3 heats of Stick Swimmer Olympics.'},
