@@ -306,7 +306,13 @@ function refreshHomeSections(){
   if(secF) secF.style.display = favIds.length ? '' : 'none';
   renderGrid('gridFav', favIds);
 
-  renderGrid('gridPicks', CARD_DATA.filter(c=>c.editorPick).map(c=>c.id));
+  const mpEntries = CONT.getMostPlayed(6).filter(r=>r.count>=2);
+const mpIds = mpEntries.map(r=>r.id).filter(id=>CARD_DATA.some(c=>c.id===id));
+const secMP = document.getElementById('sectionMostPlayed');
+if(secMP) secMP.style.display = mpIds.length ? '' : 'none';
+renderGrid('gridMostPlayed', mpIds);
+
+renderGrid('gridPicks', CARD_DATA.filter(c=>c.editorPick).map(c=>c.id));
   renderGrid('gridNew', CARD_DATA.filter(c=>c.isNew).map(c=>c.id));
   renderGrid('cardGrid', CARD_DATA.map(c=>c.id));
   updateAchBadge();

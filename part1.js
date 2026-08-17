@@ -518,7 +518,14 @@ const CONT = (function(){
     }
     return streak;
   }
-  return { recordPlay, getRecent, getPlayCount, getTotalPlays, getGamesPlayedCount, getDaysPlayed, getDayStreak };
+  function getMostPlayed(limit){
+const d = load();
+return Object.keys(d.games).map(id=>({id, count:(d.games[id]&&d.games[id].count)||0}))
+.filter(r=>r.count>0)
+.sort((a,b)=>b.count-a.count)
+.slice(0, limit||6);
+}
+return { recordPlay, getRecent, getPlayCount, getTotalPlays, getGamesPlayedCount, getDaysPlayed, getDayStreak, getMostPlayed };
 })();
 
 /* ---------------- Favorites (❤️, local only) ---------------- */

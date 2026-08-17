@@ -50,6 +50,12 @@ const WS_WORDS = [
 {word:'FROG',emoji:'🐸'},{word:'CAKE',emoji:'🎂'},{word:'BOOK',emoji:'📚'},{word:'BALL',emoji:'⚽'},
 {word:'DUCK',emoji:'🦆'},{word:'LION',emoji:'🦁'},{word:'BEAR',emoji:'🐻'},{word:'KITE',emoji:'🪁'},
 {word:'RAIN',emoji:'🌧️'},{word:'SHIP',emoji:'🚢'},{word:'CROWN',emoji:'👑'},{word:'HEART',emoji:'❤️'},
+
+{word:'FOX',emoji:'🦊'},{word:'PIG',emoji:'🐷'},{word:'COW',emoji:'🐄'},{word:'BEE',emoji:'🐝'},
+{word:'OWL',emoji:'🦉'},{word:'HEN',emoji:'🐔'},{word:'CRAB',emoji:'🦀'},{word:'WHALE',emoji:'🐳'},
+{word:'SNAIL',emoji:'🐌'},{word:'ZEBRA',emoji:'🦓'},{word:'TIGER',emoji:'🐯'},{word:'SHARK',emoji:'🦈'},
+{word:'MOUSE',emoji:'🐭'},{word:'HORSE',emoji:'🐴'},{word:'SNAKE',emoji:'🐍'},{word:'CLOCK',emoji:'🕐'},
+{word:'CHAIR',emoji:'🪑'},{word:'PLANE',emoji:'✈️'},{word:'TRAIN',emoji:'🚂'},{word:'SMILE',emoji:'😊'},
 ];
 function wsShuffleLetters(word){
 let letters = word.split('');
