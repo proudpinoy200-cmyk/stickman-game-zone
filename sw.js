@@ -12,7 +12,7 @@
 // get deleted and the new files get fetched fresh on next launch.
 //
 // So: every deploy that touches index.html or any part*.js -> bump this.
-const CACHE_VERSION = 'v8';
+const CACHE_VERSION = 'v9';
 const CACHE_NAME = `stickgames-shell-${CACHE_VERSION}`;
 
 // Every asset needed to fully play the game with no network connection.

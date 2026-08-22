@@ -12,11 +12,12 @@ Shared long-term plan for the weekly dev cycle (Ora1 = new games/engagement, Ora
 
 Carol (site owner) decided 20 games is enough — the game catalog is considered feature-complete. Building new games is no longer a default weekly activity. Every run from here forward is about scaling and improving what already exists: deeper content within current games, better retention/engagement mechanics, performance, mobile polish, bug-proofing, and SEO/traffic growth. Only build an entirely new game if a run's instructions explicitly ask for one.
 
-## Current state (as of 2026-08-17)
+## Current state (as of 2026-08-22)
 
 - 20 games live (see README.md for the full list and file map).
-- Engagement/retention features: Continue Playing, Favorites, **Most Played (On This Device)** (new this run), Editor's Picks, New This Week, Game of the Day, 31 achievements, local leaderboards, tag-based recommendations, reward toasts, day-streak tracking. All local-only (localStorage), no backend, no accounts, no tracking of individual kids across devices.
-- Installable PWA with offline support via a service worker (`sw.js`), now at `CACHE_VERSION 'v8'`.
+- Engagement/retention features: Continue Playing, Favorites, Most Played (On This Device), Editor's Picks, New This Week, Game of the Day, 31 achievements, local leaderboards, tag-based recommendations, reward toasts, day-streak tracking. All local-only (localStorage), no backend, no accounts, no tracking of individual kids across devices.
+- Installable PWA with offline support via a service worker (`sw.js`), now at `CACHE_VERSION 'v9'`.
+- Stick Fort Defense was substantially reworked on 2026-08-22 at Carol's direct request (ad hoc, not the weekly cycle) — see below.
 - Deployed automatically on every push to `main`.
 
 ## This run (2026-08-17)
@@ -38,12 +39,28 @@ Tooling notes for next run:
 - When building an `old_string`/marker to locate-and-edit HTML via the browser-API fallback, don't trust `get_page_text` output for exact whitespace — it silently strips leading indentation per line when extracting from a rendered `<pre>`. Use `charCodeAt`/leading-space-count checks on the raw fetched string instead when you need to match indentation exactly.
 - `javascript_exec`'s return-value filter can block plain HTML/attribute-like snippets it heuristically mistakes for query-string/cookie data (seen as `[BLOCKED: Cookie/query string data]`) even with no real query string present. If a debug return gets blocked, fall back to returning leading-space counts, character codes, or line lengths instead of raw text.
 
+## Ad hoc request — Stick Fort Defense overhaul (2026-08-22)
+
+Carol asked directly (outside the weekly cycle) to make Stick Fort Defense harder and richer: reskin defenders as a Spear Guard and an Archer (inspired by reference character art she shared), reskin the enemy horde, expand from 5 waves + boss to 15 levels of escalating difficulty, and make the final boss an Ogre King. Her core complaint about the old version: a single defender per lane could solo the entire game.
+
+What changed (part14.js rewritten, part6.js text updated, sw.js cache bumped):
+- **Two defender types** instead of one: 🗡️ Spear Guard (cost 3 energy, short range, higher single-hit damage, melee thrust visual) and 🏹 Archer (cost 4 energy, long range, fires a visible flying arrow, lower per-hit damage but longer reach). A small on-canvas type-selector (top-center of the play area) lets the player choose which to place next; tapping a lane places the selected type. This required shrinking the playfield slightly (lanes now start at y=72 instead of y=50) to make room for the selector — a layout change, not a mechanics one.
+- **Reskinned enemy roster**, themed to the monster-group reference image rather than reusing the old fast/tank/jumpy names: Goblin (weak, fast — levels 1+), Troll (slow, tanky — levels 4+), Orc Warrior (mid-tier — levels 7+), Wolf Rider (fast flanker — levels 10+), Skeleton Commander (armored elite, takes 20% less damage — levels 13+). Enemy pool composition unlocks progressively by level rather than all being available from the start.
+- **15 levels replacing the old 5 waves + boss.** Each level scales enemy count, HP, damage, and spawn rate via formulas (not hand-authored per level) so difficulty ramps continuously rather than in a few big steps. Fort max HP raised 100 → 140 to give a longer campaign some buffer.
+- **Ogre King final boss** (level 15) replaces "King Wobblestomp": much higher HP/damage than the old boss, plus a new **ground-slam mechanic** — every ~5s he telegraphs (a growing orange warning ring, ~0.8s) then slams, stunning defenders in his current lane for a moment. This is a genuinely new boss behavior, not just a reskin/stat bump, and it's telegraphed with enough warning that a careful kid player can react to it rather than being blindsided.
+- Difficulty was tuned via direct simulation (driving `update(dt)` in a loop rather than relying on wall-clock play, since this environment's browser tab always reports `document.visibilityState:'hidden'` and throttles `requestAnimationFrame` — see tooling note below) across three investment levels: a minimal 2-defender player now loses by level ~4, a moderate 12-defender player clears levels 1-12 for free then dies around level 13, and a maximal 18-defender (full 6 slots × 3 lanes) player clears everything up to level 14 for free and then takes real, meaningful damage fighting the Ogre King before winning. This replaces the old problem (any single-defender-per-lane strategy could win the whole game) with a curve where the game genuinely requires escalating investment, while the true final boss fight is still winnable by a well-defended player rather than being a brick wall.
+- **Judgment call — art style, not a literal image import:** Carol's reference images were photorealistic/stylized 3D game-asset renders (the kind commonly sold in mobile-game asset packs), and their exact provenance/licensing wasn't known. Rather than embedding those images directly into a public, commercial-ish, kids-facing site, the new defenders and enemies were built as new hand-drawn vector stick-figure art in the site's existing style (matching every other game on the site), using the reference images' colors, weapon types (spear/bow), and roles (troll/goblin/orc/skeleton/wolf-rider/ogre) as the design brief rather than as source assets to reproduce. Worth a quick sanity-check with Carol that this approach (matching the theme/vibe vs. the literal character designs) met what she wanted.
+- Achievement text updated: "Fort Victorious" now reads "Defeat the Ogre King..." instead of "...King Wobblestomp". Card description on the home screen updated to mention the 15 levels and Ogre King.
+- `sw.js` `CACHE_VERSION` bumped `'v8'` → `'v9'` (part14.js and part6.js both changed). No new files, so `CORE_ASSETS` unchanged.
+- Tested extensively before pushing: syntax-validated, then logic-tested by driving the game's own `update()`/`draw()` functions directly from the console (since real-time `requestAnimationFrame` play doesn't advance in this automation environment — worth remembering for future ad hoc sessions, not just weekly runs), across multiple defender-investment strategies through to both victory and defeat, confirming no runtime errors, correct achievement/high-score/overlay behavior on both outcomes, and reasonable difficulty pacing. Also did a shorter real click-driven UI pass (splash → type selection → placement → combat) to confirm the on-screen controls work as designed.
+
 ## Standing rules for whoever runs this next
 
 - Always bump CACHE_VERSION in sw.js on any push that touches index.html or any part*.js file, and add any new part*.js file to CORE_ASSETS.
 - When a github.com/api.github.com network path is unavailable from the sandboxed shell, the GitHub REST/Git Data API can be called directly from an authenticated Chrome tab's fetch() — this also allows new/changed code to be injected and played live in the browser before it's ever committed.
 - Periodically re-check CARD_DATA's isNew flags — they don't age out automatically.
 - After every deploy, spot-check the live site (stickgames.co) for console errors and that a couple of games still load, before considering the run done.
+- This automation environment's Chrome tab always reports `document.visibilityState` as `'hidden'` (even when it's the only/active tab), which throttles `requestAnimationFrame` to near-zero — any game relying on real-time animation won't visibly advance no matter how long you wait. Work around this by driving `currentGame.update(dt)` and `currentGame.draw(ctx)` directly in a loop from the console to test game logic deterministically, then do a shorter real click-driven pass for UI/visual sanity.
 
 ## Next up
 
