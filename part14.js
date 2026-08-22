@@ -19,6 +19,9 @@ const FORT_VIS_X = 88;
 const SPAWN_X = 780;
 const SLOT_XS = [230, 330, 430, 530, 630, 720];
 const POKE_DUR = 0.18;
+const ENEMY_MELEE_RANGE = 26;
+const ENEMY_ATK_INTERVAL = 1.35;
+const DEFENDER_MAX_HITS = 3;
 
 const DEFENDER_TYPES = {
 spear: { cost:3, range:120, atkRate:0.45, dmg:16, color:'#c0392b', accessory:'band', accessoryColor:'#ffd166', label:'Spear Guard', icon:'🗡️' },
@@ -66,7 +69,7 @@ return mix[0][0];
 function fresh(){
 const s = {
 phase: 'banner', waveIndex: 0, bannerT: 2.0, bannerText: 'Level 1', bannerSub: 'Pick a defender, then tap a lane!',
-clearedT: 0, fortHP: 140, maxFortHP: 140, energy: 8, maxEnergy: 22, energyT: 0, selectedType: 'spear',
+clearedT: 0, fortHP: 140, maxFortHP: 140, energy: 8, maxEnergy: 26, energyT: 0, selectedType: 'spear',
 defenders: [], enemies: [], projectiles: [], slotsOccupied: {}, spawnQueue: 0, spawnT: 0,
 particles: makeParticlePool(), popups: [], shakeT: 0, flashT: 0, flashColor: 'rgba(255,80,80,0.3)', t: 0,
 };
@@ -83,7 +86,7 @@ state.bannerSub = 'Focus fire together — watch out for his ground slam!';
 state.spawnQueue = 1;
 } else {
 state.bannerText = 'Level ' + w.n;
-state.bannerSub = w.n===1 ? 'Tap Spear Guard or Archer, then tap a lane!' : 'Here they come!';
+state.bannerSub = w.n===1 ? 'Tap Spear Guard or Archer, then tap a lane! Guards fall after 3 hits — replace them fast!' : 'Here they come!';
 state.spawnQueue = w.count;
 }
 state.spawnT = 0.5;
@@ -97,7 +100,7 @@ state.enemies.push({
 isBoss:false, type, lane, x:SPAWN_X, y:LANE_Y[lane],
 hp:T.hp*w.hpMult, maxHp:T.hp*w.hpMult, speed:T.speed*w.speedMult, dmg:Math.round(T.dmg*w.dmgMult),
 color:T.color, accessory:T.accessory, accessoryColor:T.accessoryColor, scale:T.scale,
-armor:T.armor||1, name:T.name, hitFlash:0, animT:rand(0,10),
+armor:T.armor||1, name:T.name, hitFlash:0, animT:rand(0,10), atkCooldown:rand(0,0.5),
 });
 }
 function spawnOgre(){
@@ -106,7 +109,7 @@ const b = {
 isBoss:true, type:'ogre', lane, x:SPAWN_X, y:LANE_Y[lane],
 hp:OGRE_HP, maxHp:OGRE_HP, speed:OGRE_SPEED, dmg:OGRE_DMG,
 color:'#9a8760', accessory:'mask', accessoryColor:'#4a3520', scale:2.05, armor:1, name:'Ogre King',
-hitFlash:0, animT:0, laneSwitchT: rand(4.5,5.5), slamPhase:'idle', slamTimer: 5, slamT:0,
+hitFlash:0, animT:0, laneSwitchT: rand(4.5,5.5), slamPhase:'idle', slamTimer: 5, slamT:0, atkCooldown:rand(0,0.5),
 };
 state.enemies.push(b);
 }
@@ -136,6 +139,15 @@ state.popups.push({x:FORT_VIS_X+40, y:(atY||240)-20, text:'-'+dmg+' HP', color:'
 SFX.hurt();
 if(state.fortHP<=0) triggerGameOver();
 }
+function killDefender(d){
+const i = state.defenders.indexOf(d);
+if(i>=0) state.defenders.splice(i,1);
+if(d.slotKey!=null) delete state.slotsOccupied[d.slotKey];
+spawnSpark(state.particles, d.x, d.y, '#8a8a8a', 12);
+state.popups.push({x:d.x, y:d.y-30, text:'Guard Down!', color:'#ff8a3d', life:1.0});
+SFX.hurt();
+}
+
 function fireAt(d, target){
 const AT = DEFENDER_TYPES[d.type];
 const dmgAmt = Math.max(1, Math.round(AT.dmg * (target.armor||1)));
@@ -183,7 +195,7 @@ state.popups.push({x, y:y-30, text:'Need '+AT.cost+' energy!', color:'#ffd166', 
 return;
 }
 state.energy -= AT.cost;
-const d = { type: state.selectedType, lane, x:SLOT_XS[slotIdx], y:LANE_Y[lane], cooldown:0.15, pokeT:0, wobbleT:rand(0,10) };
+const d = { type: state.selectedType, lane, x:SLOT_XS[slotIdx], y:LANE_Y[lane], cooldown:0.15, pokeT:0, wobbleT:rand(0,10), hitsTaken:0, maxHits:DEFENDER_MAX_HITS, slotKey:key, hurtT:0 };
 state.defenders.push(d);
 state.slotsOccupied[key] = d;
 spawnSpark(state.particles, d.x, d.y, '#39ff88', 10);
@@ -257,8 +269,8 @@ state.projectiles.forEach(p=>{ p.t += dt; });
 state.projectiles = state.projectiles.filter(p=>p.t < p.dur);
 if(state.phase==='victory' || state.phase==='gameover' || state.phase==='done') return;
 state.energyT += dt;
-if(state.energyT >= 1.5){
-state.energyT -= 1.5;
+if(state.energyT >= 1.25){
+state.energyT -= 1.25;
 state.energy = Math.min(state.maxEnergy, state.energy+1);
 }
 if(state.phase==='banner'){
@@ -284,6 +296,7 @@ for(const d of state.defenders){
 d.cooldown -= dt;
 d.wobbleT += dt;
 if(d.pokeT>0) d.pokeT -= dt;
+if(d.hurtT>0) d.hurtT -= dt;
 if(d.cooldown<=0){
 const AT = DEFENDER_TYPES[d.type];
 let target = null, bestDist = Infinity;
@@ -329,6 +342,24 @@ e.slamT -= dt;
 if(e.slamT<=0){ e.slamPhase = 'idle'; e.slamTimer = 5; }
 }
 }
+let inMelee = false;
+for(const d of state.defenders){
+if(d.lane !== e.lane) continue;
+if(Math.abs(e.x - d.x) <= ENEMY_MELEE_RANGE){
+inMelee = true;
+e.atkCooldown -= dt;
+if(e.atkCooldown <= 0){
+e.atkCooldown = ENEMY_ATK_INTERVAL;
+d.hitsTaken++;
+d.hurtT = 0.25;
+spawnSpark(state.particles, d.x, d.y, '#ff5050', 6);
+SFX.swordMiss();
+if(d.hitsTaken >= d.maxHits) killDefender(d);
+}
+break;
+}
+}
+if(inMelee) continue;
 e.x -= e.speed*dt;
 if(e.x <= FORT_HIT_X){
 damageFort(e.dmg, e.y);
@@ -445,7 +476,19 @@ return { legF:96, legB:92, armF:-115, armB:-140, lean:-90, headBob:Math.sin(d.wo
 function drawDefender(g,d){
 const AT = DEFENDER_TYPES[d.type];
 const pose = defenderPose(d);
-drawStick(g, d.x, d.y+18, 0.86, AT.color, 1, pose, {expr:'shout', accessory:AT.accessory, accessoryColor:AT.accessoryColor});
+const hurt = d.hurtT>0;
+g.save();
+if(hurt) g.globalAlpha = 0.65;
+drawStick(g, d.x, d.y+18, 0.86, hurt?'#ffffff':AT.color, 1, pose, {expr:'shout', accessory:AT.accessory, accessoryColor:AT.accessoryColor});
+g.restore();
+const pipY = d.y+18-46*0.86-12;
+for(let i=0;i<d.maxHits;i++){
+const px = d.x - (d.maxHits-1)*5 + i*10;
+g.beginPath();
+g.arc(px, pipY, 3, 0, Math.PI*2);
+g.fillStyle = i < (d.maxHits-d.hitsTaken) ? '#39d16b' : 'rgba(0,0,0,0.18)';
+g.fill();
+}
 if(d.type==='spear' && d.pokeT>0){
 g.save();
 g.strokeStyle = '#d8d8d8'; g.lineWidth = 3.4; g.lineCap='round';
@@ -576,7 +619,7 @@ g.restore();
 }
 return {
 title: 'Stick Fort Defense',
-hint: 'Pick 🗡️ Spear Guard or 🏹 Archer, then tap a lane to place them! Hold all 3 lanes through 15 levels and defeat the Ogre King!',
+hint: 'Pick 🗡️ Spear Guard or 🏹 Archer, then tap a lane to place them! Guards fall after 3 hits up close, so watch for empty slots and reinforce! Hold all 3 lanes through 15 levels and defeat the Ogre King!',
 controlsHtml: '',
 bindControls(){},
 create(){ state = fresh(); startWave(0); return this; },
