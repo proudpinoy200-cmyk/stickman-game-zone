@@ -307,6 +307,12 @@
     width:100%; padding:10px; border-radius:8px; font-size:1em; margin-bottom:14px;
     border:2px solid #ddd; font-family:inherit;
   }
+  .lbTabs { display:flex; gap:8px; justify-content:center; margin:0 0 14px; }
+  .lbTab {
+    flex:1; max-width:170px; background:#f2f5f9; color:#5a6b7a; border:none; border-radius:999px;
+    padding:9px 12px; font-weight:800; font-size:.85em; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,0.08);
+  }
+  .lbTab.active { background:#ffb703; color:#1c2b3a; box-shadow:0 3px 0 #b37f00; }
 
   /* ---------- LIVE PLAYER COUNT BADGE ---------- */
   .liveBadge {
@@ -460,6 +466,7 @@
   <div class="lbModalBox">
     <h2>🏆 Leaderboards</h2>
     <select id="lbGameSelect"></select>
+    <div class="lbTabs" id="lbModalTabs" style="display:none;"></div>
     <ol id="lbModalList" class="lbList"></ol>
     <button id="lbModalClose" class="obtn" style="background:#456990;color:#fff;">Close</button>
   </div>

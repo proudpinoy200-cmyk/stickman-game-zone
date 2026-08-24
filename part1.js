@@ -365,6 +365,36 @@ const LB = (function(){
   return { getScores, qualifies, addScore };
 })();
 
+/* ---------------- Global leaderboard (real cross-player rankings, backed by a
+   small serverless API + Redis database — see /api/leaderboard.js). Only a
+   handful of flagship games support this (GLOBAL_LB_GAMES, defined in part6.js
+   alongside LB_GAMES); every other game keeps using the local-only LB above.
+   Every call is best-effort: if the API/database isn't reachable (network
+   hiccup, or the database hasn't been connected to the Vercel project yet),
+   these fail silently — a kid never sees a scary network error over a game
+   score, the local leaderboard still works exactly as before either way. ---------------- */
+const GLB = (function(){
+  async function fetchTop(gameId){
+    try{
+      const res = await fetch('/api/leaderboard?game=' + encodeURIComponent(gameId));
+      if(!res.ok) return null;
+      const data = await res.json();
+      return Array.isArray(data.entries) ? data.entries : null;
+    }catch(e){ return null; }
+  }
+  async function submit(gameId, name, score){
+    try{
+      const res = await fetch('/api/leaderboard', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({game:gameId, name, score}),
+      });
+      return res.ok;
+    }catch(e){ return false; }
+  }
+  return { fetchTop, submit };
+})();
+
 // LB_GAMES (which games have a leaderboard, whether lower/higher scores win, and how to
 // format a raw score into a display string) is defined later in part6.js once all the game
 // ids/names exist — but since these functions are only ever CALLED from user interaction
@@ -423,6 +453,11 @@ function showScoreEntryOverlay(gameId, score, cfg, buttons){
   const doSave = ()=>{
     const name = (input.value||'').trim().slice(0,14) || 'Player';
     LB.addScore(gameId, name, score, cfg.higherIsBetter);
+    // Best-effort global submission too, for the handful of games that support
+    // it — fire-and-forget, never blocks or errors the local flow either way.
+    if(typeof GLOBAL_LB_GAMES !== 'undefined' && GLOBAL_LB_GAMES.includes(gameId)){
+      GLB.submit(gameId, name, score);
+    }
     SFX.click();
     showLeaderboardOverlay(gameId, cfg, buttons);
   };

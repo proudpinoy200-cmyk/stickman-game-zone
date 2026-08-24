@@ -198,6 +198,16 @@ const LB_GAMES = [
 {id:'wordscramble', name:'Word Scramble', higherIsBetter:true, format:s=>s+'/10'},
 {id:'whackamole', name:'Whack-a-Mole', higherIsBetter:true, format:s=>s+' pts'},
 ];
+
+/* =========================================================
+   GLOBAL LEADERBOARDS — real cross-player rankings for a handful of
+   flagship games, backed by /api/leaderboard.js + a Redis database.
+   Every other game only has the local (per-device) leaderboard above.
+   ========================================================= */
+const GLOBAL_LB_GAMES = ['sword','platformer','galaxy','tycoon','blockpuzzle'];
+let lbActiveTab = 'local'; // 'local' | 'global' — which tab the leaderboard modal is showing
+let lbGlobalRequestSeq = 0; // guards against a slow/late global fetch overwriting a newer tab/game switch
+
 function populateLbModal(){
   const sel = document.getElementById('lbGameSelect');
   if(!sel) return;
@@ -207,13 +217,46 @@ function populateLbModal(){
     opt.value = cfg.id; opt.textContent = cfg.name;
     sel.appendChild(opt);
   });
-  sel.onchange = ()=> renderLbModalList(sel.value);
+  sel.onchange = ()=>{ lbActiveTab = 'local'; renderLbTabs(sel.value); renderLbModalList(sel.value); };
+  lbActiveTab = 'local';
+  renderLbTabs(sel.value);
   renderLbModalList(sel.value);
+}
+function renderLbTabs(gameId){
+  const tabs = document.getElementById('lbModalTabs');
+  if(!tabs) return;
+  if(!GLOBAL_LB_GAMES.includes(gameId)){
+    tabs.style.display = 'none';
+    tabs.innerHTML = '';
+    return;
+  }
+  tabs.style.display = '';
+  tabs.innerHTML = '';
+  const mk = (key,label)=>{
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'lbTab' + (lbActiveTab===key ? ' active' : '');
+    b.textContent = label;
+    b.onclick = ()=>{
+      if(lbActiveTab===key) return;
+      lbActiveTab = key;
+      SFX.click();
+      renderLbTabs(gameId);
+      renderLbModalList(gameId);
+    };
+    return b;
+  };
+  tabs.appendChild(mk('local','📱 This Device'));
+  tabs.appendChild(mk('global','🌍 Global'));
 }
 function renderLbModalList(gameId){
   const cfg = LB_GAMES.find(g=>g.id===gameId);
   const list = document.getElementById('lbModalList');
   if(!list || !cfg) return;
+  if(lbActiveTab==='global' && GLOBAL_LB_GAMES.includes(gameId)){
+    renderLbModalListGlobal(gameId, cfg);
+    return;
+  }
   list.innerHTML = '';
   const entries = LB.getScores(gameId);
   if(!entries.length){
@@ -231,6 +274,38 @@ function renderLbModalList(gameId){
       list.appendChild(li);
     });
   }
+}
+function renderLbModalListGlobal(gameId, cfg){
+  const list = document.getElementById('lbModalList');
+  if(!list) return;
+  list.innerHTML = '';
+  const loading = document.createElement('li');
+  loading.className = 'lbEmpty';
+  loading.textContent = 'Loading global rankings…';
+  list.appendChild(loading);
+  const requestId = ++lbGlobalRequestSeq;
+  GLB.fetchTop(gameId).then(entries=>{
+    // A player may have switched games/tabs again before this came back —
+    // ignore a now-stale response rather than overwriting what they're looking at.
+    if(requestId !== lbGlobalRequestSeq) return;
+    if(lbActiveTab!=='global') return;
+    list.innerHTML = '';
+    if(!entries || !entries.length){
+      const empty = document.createElement('li');
+      empty.className = 'lbEmpty';
+      empty.textContent = entries ? 'No global scores yet — be the first!' : "Global rankings aren't available right now.";
+      list.appendChild(empty);
+      return;
+    }
+    entries.forEach((e,i)=>{
+      const li = document.createElement('li');
+      const rank = document.createElement('span'); rank.className='lbRank'; rank.textContent=(i+1)+'.';
+      const name = document.createElement('span'); name.className='lbName'; name.textContent=e.name;
+      const sc = document.createElement('span'); sc.className='lbScore'; sc.textContent=cfg.format(e.score);
+      li.appendChild(rank); li.appendChild(name); li.appendChild(sc);
+      list.appendChild(li);
+    });
+  });
 }
 (function(){
   const openBtn = document.getElementById('btnLeaderboards');

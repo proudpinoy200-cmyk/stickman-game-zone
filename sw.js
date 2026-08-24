@@ -12,7 +12,7 @@
 // get deleted and the new files get fetched fresh on next launch.
 //
 // So: every deploy that touches index.html or any part*.js -> bump this.
-const CACHE_VERSION = 'v10';
+const CACHE_VERSION = 'v11';
 const CACHE_NAME = `stickgames-shell-${CACHE_VERSION}`;
 
 // Every asset needed to fully play the game with no network connection.
@@ -63,12 +63,21 @@ self.addEventListener('activate', (event) => {
 // clean break, this just smooths normal same-version updates like a CDN
 // re-fetch). Anything not in our known list falls back to network, then to
 // the offline page for full-page navigations only.
+//
+// /api/* (the global leaderboard) is explicitly excluded from all of this —
+// those requests need live, current data every time (today's rankings, not
+// whatever happened to be cached), so they're left completely alone here and
+// go straight to the network via the browser's normal handling. If a player
+// is offline, the leaderboard's own fetch() calls in part1.js/part6.js
+// already fail gracefully (try/catch, no error shown) rather than serving
+// stale scores from a cache.
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // don't intercept 3rd-party requests
+  if (url.pathname.startsWith('/api/')) return; // leaderboard API: always live network, never cached
 
   event.respondWith(
     caches.match(req).then((cached) => {
