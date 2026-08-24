@@ -24,19 +24,61 @@ const KV_TOKEN =
   process.env.UPSTASH_REDIS_REST_TOKEN ||
   process.env.REDIS_REST_API_TOKEN;
 
-// Only these games have global leaderboards for now. Each entry defines
-// whether a lower or higher number is a better score, and a generous but
-// real min/max sanity range used to reject obviously-impossible submitted
-// scores (basic anti-cheat - a determined cheater with devtools can still
-// fake a plausible-looking number, there's no way around that without
-// server-side game replay verification, but this blocks careless/blatant
-// cases and typos).
+// All games with global leaderboards. Each entry defines:
+// - higherIsBetter: whether higher/lower scores rank better
+// - min/max: sanity range for score validation (anti-cheat)
+// - Examples of ranges:
+//   * Time-based games: lower is better (e.g., 3-600 seconds)
+//   * Score-based games: higher is better (e.g., 0-999999 points)
 const ALLOWED_GAMES = {
-  sword: { higherIsBetter: false, min: 3, max: 600 }, // seconds to clear all 5 duels
-  platformer: { higherIsBetter: true, min: 0, max: 999 }, // coins collected
-  galaxy: { higherIsBetter: true, min: 0, max: 999999 }, // score
-  tycoon: { higherIsBetter: true, min: 0, max: 100000 }, // gold earned in a 75s run
-  blockpuzzle: { higherIsBetter: true, min: 0, max: 20000 }, // score
+  // Fight games (time to complete all 5 levels)
+  sword: { higherIsBetter: false, min: 3, max: 600 },
+  martial: { higherIsBetter: false, min: 3, max: 600 },
+  
+  // Platformer (coins collected)
+  platformer: { higherIsBetter: true, min: 0, max: 999 },
+  
+  // Space shooter (score across 10 waves)
+  galaxy: { higherIsBetter: true, min: 0, max: 999999 },
+  
+  // Idle/Clicker (gold in 75s session)
+  tycoon: { higherIsBetter: true, min: 0, max: 100000 },
+  
+  // Puzzle (blocks cleared)
+  blockpuzzle: { higherIsBetter: true, min: 0, max: 20000 },
+  
+  // Runner (distance in meters)
+  runner: { higherIsBetter: true, min: 0, max: 10000 },
+  
+  // Basketball (points before time runs out)
+  hoops: { higherIsBetter: true, min: 0, max: 500 },
+  
+  // Ninja fruit (combo/points)
+  ninja: { higherIsBetter: true, min: 0, max: 2000 },
+  
+  // Bubble shooter (points)
+  bubble: { higherIsBetter: true, min: 0, max: 5000 },
+  
+  // Racing (time to finish)
+  racer: { higherIsBetter: false, min: 3, max: 180 },
+  
+  // Precision shooter (time to eliminate targets)
+  sniper: { higherIsBetter: false, min: 5, max: 120 },
+  
+  // Archery PvP (kills before knocked down)
+  archery: { higherIsBetter: true, min: 0, max: 50 },
+  
+  // Swimming (time for 3-race heats)
+  swimmer: { higherIsBetter: false, min: 6, max: 300 },
+  
+  // Tower defense (points + waves survived)
+  fortdefense: { higherIsBetter: true, min: 0, max: 50000 },
+  
+  // Word puzzle (words spelled correctly)
+  wordscramble: { higherIsBetter: true, min: 0, max: 10 },
+  
+  // Whack-a-mole (points)
+  whackamole: { higherIsBetter: true, min: 0, max: 500 },
 };
 
 const TOP_N = 10;
