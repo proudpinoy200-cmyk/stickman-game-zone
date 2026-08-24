@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<!-- saved from url=(0174)https://pub-a941bfd863a24f91a60e6c4979c18a84.r2.dev/pi-sandbox-uploads/341102228997672960/2026-08-02/1785655708547-eaa657e7-f447-4bf1-9a21-c56fc7dfdafe-stickman-enhanced.html -->
+<!-- Stickman Game Zone -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Stickman Game Zone</title>
-<meta name="description" content="20 free browser games for kids ages 6-12: sword duels, ninja fruit slice, platformer quests, bubble shooter, space shooter, archery, swimming races & more. No download, play instantly!">
+<meta name="description" content="20 free browser games for kids ages 6-12: sword duels, ninja fruit slice, platformer quests, bubble shooter, space shooter, archery, swimming races & more. No download needed!">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://stickgames.co/">
 <meta property="og:type" content="website">
@@ -49,543 +48,84 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="icon" href="/icon-192.png" type="image/png">
 <style>
-  * {
-    box-sizing: border-box; -webkit-tap-highlight-color: transparent;
-    user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;
-    -webkit-touch-callout: none; /* iOS Safari: suppress the copy/select loupe on press-and-hold */
-  }
-  html, body {
-    margin: 0; padding: 0; min-height: 100%;
-    font-family: 'Segoe UI', 'Trebuchet MS', Verdana, sans-serif;
-    background: linear-gradient(160deg,#6ec6ff 0%,#7ee8c2 45%,#ffe27a 100%);
-    background-attachment: fixed;
-    color: #1c2b3a;
-    overflow-x: hidden;
-        overscroll-behavior-y: contain; /* stop mobile pull-to-refresh / rubber-band scroll from fighting swipe-based games */
-  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-touch-callout: none; }
+  html, body { margin: 0; padding: 0; min-height: 100%; font-family: 'Segoe UI', 'Trebuchet MS', Verdana, sans-serif; background: linear-gradient(160deg,#6ec6ff 0%,#7ee8c2 45%,#ffe27a 100%); background-attachment: fixed; color: #1c2b3a; overflow-x: hidden; overscroll-behavior-y: contain; }
   #app { max-width: 900px; margin: 0 auto; padding: 14px 14px 40px; }
-
-  /* ---------- HOME SCREEN ---------- */
-  #homeScreen h1 {
-    text-align: center; font-size: 2.4em; margin: 10px 0 2px;
-    color: #fff; text-shadow: 3px 3px 0 #2b6cb0, -1px -1px 0 #2b6cb0, 1px -1px 0 #2b6cb0, -1px 1px 0 #2b6cb0;
-    letter-spacing: 1px;
-  }
+  #homeScreen h1 { text-align: center; font-size: 2.4em; margin: 10px 0 2px; color: #fff; text-shadow: 3px 3px 0 #2b6cb0, -1px -1px 0 #2b6cb0, 1px -1px 0 #2b6cb0, -1px 1px 0 #2b6cb0; letter-spacing: 1px; }
   #homeScreen p.tagline { text-align:center; font-size:1.1em; margin: 0 0 22px; color:#2b3a4a; font-weight:600; }
-  .stickIntro { display:flex; justify-content:center; margin-bottom: 6px; }
-  .cardGrid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr));
-    gap: 20px;
-  }
-  .card {
-    background: #fff; border-radius: 24px; padding:0; text-align:center; overflow:hidden;
-    box-shadow: 0 8px 0 rgba(0,0,0,0.12), 0 14px 26px rgba(0,0,0,0.10);
-    cursor: pointer; border: none; transition: transform .18s ease, box-shadow .18s ease;
-    display:flex; flex-direction:column;
-  }
+  .cardGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 20px; }
+  .card { background: #fff; border-radius: 24px; padding:0; text-align:center; overflow:hidden; box-shadow: 0 8px 0 rgba(0,0,0,0.12), 0 14px 26px rgba(0,0,0,0.10); cursor: pointer; border: none; transition: transform .18s ease, box-shadow .18s ease; display:flex; flex-direction:column; }
   .card:hover { transform: translateY(-4px); box-shadow: 0 10px 0 rgba(0,0,0,0.12), 0 20px 34px rgba(0,0,0,0.15); }
   .card:active { transform: translateY(3px) scale(.98); box-shadow: 0 3px 0 rgba(0,0,0,0.12); }
-  .card .art {
-    position:relative; height:118px; display:flex; align-items:center; justify-content:center;
-    font-size:3.6em; overflow:hidden; line-height:1;
-  }
-  .card .art .badge {
-    position:absolute; top:9px; font-size:.58em; font-weight:800; padding:4px 11px; border-radius:999px; color:#fff;
-    box-shadow:0 2px 0 rgba(0,0,0,0.2); letter-spacing:.3px;
-  }
+  .card .art { position:relative; height:118px; display:flex; align-items:center; justify-content:center; font-size:3.6em; overflow:hidden; line-height:1; }
+  .card .art .badge { position:absolute; top:9px; font-size:.58em; font-weight:800; padding:4px 11px; border-radius:999px; color:#fff; box-shadow:0 2px 0 rgba(0,0,0,0.2); letter-spacing:.3px; }
   .card .art .badge.new { left:9px; background:#ff6b6b; }
   .card .art .badge.pick { right:9px; background:#ffb703; color:#1c2b3a; }
-  .card .heart {
-    position:absolute; bottom:9px; right:9px; background:rgba(255,255,255,0.88); border:none; border-radius:50%;
-    width:34px; height:34px; font-size:1.1em; display:flex; align-items:center; justify-content:center; cursor:pointer;
-    box-shadow:0 2px 6px rgba(0,0,0,0.2);
-  }
+  .card .heart { position:absolute; bottom:9px; right:9px; background:rgba(255,255,255,0.88); border:none; border-radius:50%; width:34px; height:34px; font-size:1.1em; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
   .card .body { padding:14px 16px 18px; display:flex; flex-direction:column; align-items:center; gap:6px; flex:1; }
-  .card .icon { font-size: 1em; line-height:1; display:block; }
   .card h3 { margin: 0; font-size: 1.25em; }
   .card p { margin: 0; font-size: .88em; color:#5a6b7a; min-height: 34px; }
-  .card .meta { font-size:.76em; color:#8a99a8; font-weight:700; margin-top:-2px; }
-  .card .playBtn {
-    margin-top:6px; background: #ff8c42; color:#fff; border:none; border-radius: 999px;
-    padding: 10px 26px; font-weight:800; font-size: 1em; box-shadow: 0 4px 0 #c9631f;
-  }
-  .relatedGrid { grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); }
-  .relatedGrid .card .art { height:80px; font-size:2.4em; }
-  .relatedGrid .card p { display:none; }
-  .relatedSection { margin-top:20px; }
-
-  /* ---------- GAME SCREEN ---------- */
+  .card .playBtn { margin-top:6px; background: #ff8c42; color:#fff; border:none; border-radius: 999px; padding: 10px 26px; font-weight:800; font-size: 1em; box-shadow: 0 4px 0 #c9631f; }
   #gameScreen { display:none; }
-  .topBar {
-    display:flex; align-items:center; justify-content:space-between;
-    background:#fff; border-radius: 14px; padding: 8px 14px; margin-bottom: 10px;
-    box-shadow: 0 4px 0 rgba(0,0,0,0.12);
-  }
-  .topBar .homeBtn {
-    background:#456990; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-weight:700; cursor:pointer;
-  }
+  .topBar { display:flex; align-items:center; justify-content:space-between; background:#fff; border-radius: 14px; padding: 8px 14px; margin-bottom: 10px; box-shadow: 0 4px 0 rgba(0,0,0,0.12); }
+  .topBar .homeBtn { background:#456990; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-weight:700; cursor:pointer; }
   .topBar .gTitle { font-weight:800; font-size:1.15em; }
-  .topBar .restartBtn {
-    background:#ff8c42; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-weight:700; cursor:pointer;
-  }
-  .topBar .muteBtn {
-    background:#e9edf2; color:#2b3a4a; border:none; border-radius:10px; padding:8px 12px; font-weight:700; cursor:pointer; font-size:1.05em;
-  }
-  .canvasWrap { position:relative; width:100%; max-width:800px; margin: 0 auto; }
-  canvas#c {
-    display:block; width:100%; height:auto; background:#bfe9ff; border-radius: 16px;
-    box-shadow: 0 6px 0 rgba(0,0,0,0.18); touch-action:none; border: 4px solid #fff;
-  }
-  #overlayMsg {
-    position:absolute; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column;
-    background: rgba(20,30,45,0.72); border-radius: 12px; color:#fff; text-align:center; padding: 20px;
-  }
+  .topBar .restartBtn { background:#ff8c42; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-weight:700; cursor:pointer; }
+  .topBar .muteBtn { background:#e9edf2; color:#2b3a4a; border:none; border-radius:10px; padding:8px 12px; font-weight:700; cursor:pointer; font-size:1.05em; }
+  canvas#c { display:block; width:100%; height:auto; background:#bfe9ff; border-radius: 16px; box-shadow: 0 6px 0 rgba(0,0,0,0.18); touch-action:none; border: 4px solid #fff; }
+  #overlayMsg { position:absolute; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; background: rgba(20,30,45,0.72); border-radius: 12px; color:#fff; text-align:center; padding: 20px; }
   #overlayMsg h2 { font-size: 1.8em; margin: 0 0 6px; }
-  #overlayMsg p { margin: 4px 0 16px; font-size: 1.05em; }
-  #overlayMsg .obtn {
-    background:#ffb703; color:#1c2b3a; border:none; border-radius: 999px; padding: 12px 30px;
-    font-weight:800; font-size:1em; cursor:pointer; box-shadow: 0 4px 0 #b37f00; margin: 4px;
-  }
-  #domOverlay {
-    position:absolute; inset:0; display:none; flex-direction:column; align-items:center;
-    justify-content:center; border-radius:12px; overflow:hidden; padding:10px; box-sizing:border-box;
-  }
-  #domOverlay.active { display:flex; }
-  .touchControls { display:flex; justify-content:space-between; align-items:center; margin-top: 12px; gap: 10px; }
-  .padBtns, .actionBtns { display:flex; gap:10px; }
-  .ctlBtn {
-    width: 62px; height: 62px; border-radius: 50%; border: none; font-size: 1.5em;
-    background:#fff; box-shadow: 0 4px 0 rgba(0,0,0,0.2); color:#2b3a4a; font-weight:800;
-    touch-action: manipulation; -webkit-touch-callout: none; user-select: none;
-  }
-  .ctlBtn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.2); }
-  .ctlBtn.wide { width: auto; padding: 0 20px; border-radius: 30px; }
-  .actionBtns .attack { background:#ff6b6b; color:#fff; }
-  .actionBtns .block { background:#4ecdc4; color:#fff; }
-  .actionBtns .punch { background:#ff6b6b; color:#fff; }
-  .actionBtns .kick { background:#9b5de5; color:#fff; }
-  .hint { text-align:center; color:#2b3a4a; font-size:.85em; margin-top:6px; opacity:.85; }
-  footer { text-align:center; margin-top: 18px; font-size:.8em; color:#2b3a4a; opacity:.7; }
-
-  /* ---------- PROGRESSION BAR ---------- */
-  #progBar {
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    background:rgba(255,255,255,0.7); backdrop-filter:blur(6px);
-    border-radius: 999px; padding: 8px 18px; margin: -4px auto 12px;
-    width:fit-content; box-shadow: 0 3px 0 rgba(0,0,0,0.1);
-  }
-  #progBar .star { font-size:1.2em; filter: grayscale(1) opacity(0.3); transition: all .3s; }
-  #progBar .star.earned { filter: none; animation: starPop .4s ease; }
-  @keyframes starPop {
-    0%{transform:scale(0.3) rotate(-20deg)} 50%{transform:scale(1.3) rotate(5deg)} 100%{transform:scale(1) rotate(0)}
-  }
-  #progBar .pText { font-size:.85em; font-weight:700; color:#2b3a4a; }
-  #progBar .pText span { color:#ffb703; }
-
-  /* ---------- SPLASH OVERLAY ---------- */
-  #splashOverlay {
-    position:fixed; inset:0; z-index:100;
-    display:none; align-items:center; justify-content:center; flex-direction:column;
-    background: radial-gradient(ellipse at center, #1c3a5c 0%, #0f1a2e 100%);
-    color:#fff; text-align:center;
-  }
-  #splashOverlay.show { display:flex; animation: splashFadeIn .35s ease; }
-  @keyframes splashFadeIn { 0%{opacity:0;transform:scale(0.9)} 100%{opacity:1;transform:scale(1)} }
-  @keyframes splashFadeOut { 0%{opacity:1} 100%{opacity:0} }
-  #splashOverlay .spIcon { font-size:5em; animation: spFloat 1.2s ease-in-out infinite alternate; }
-  @keyframes spFloat { 0%{transform:translateY(0) scale(1)} 100%{transform:translateY(-18px) scale(1.08)} }
-  #splashOverlay .spTitle { font-size:2.4em; font-weight:800; margin: 8px 0 4px; text-shadow: 0 0 30px rgba(255,255,255,0.3); }
-  #splashOverlay .spSub { font-size:1.1em; opacity:.7; }
-  #splashOverlay .spCount {
-    font-size:3.4em; font-weight:900; margin-top:18px;
-    text-shadow: 0 0 50px rgba(255,215,0,0.5);
-    animation: countPulse .8s ease;
-  }
-  @keyframes countPulse { 0%{transform:scale(2);opacity:0} 50%{opacity:1} 100%{transform:scale(1)} }
-  #splashOverlay .spParticles { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
-
-  /* ---------- MEMORY MATCH ---------- */
-  .memGrid {
-    display:grid; grid-template-columns:repeat(4,1fr); gap:6px;
-    /* fallback sizing only — JS (sizeMemGrid) sets exact px width/height right
-       after layout, since aspect-ratio + percentage-height inside nested flex
-       boxes is exactly the kind of chain that behaves inconsistently across
-       mobile browsers and was letting the grid overflow its panel on some
-       devices */
-    height:100%; width:auto; aspect-ratio:1; max-width:100%; max-height:100%; margin:0 auto;
-    box-sizing:border-box;
-  }
-  .memCard {
-    aspect-ratio:1; border-radius:10px; cursor:pointer;
-    background: linear-gradient(145deg,#5b8def,#3a6bd5);
-    box-shadow: 0 4px 0 #1f3f7a, 0 0 15px rgba(59,107,213,0.4);
-    display:flex; align-items:center; justify-content:center;
-    font-size:1.5em; transition: transform .15s, box-shadow .15s;
-    color:#fff; user-select:none; -webkit-tap-highlight-color:transparent;
-  }
-  .memCard:active { transform: scale(.94); box-shadow: 0 2px 0 #1f3f7a; }
-  .memCard.flipped { background: #fff; box-shadow: 0 4px 0 #aaa, 0 0 20px rgba(255,215,0,0.5); }
-  .memCard.matched { background: #06d6a0; box-shadow: 0 4px 0 #04745a, 0 0 25px rgba(6,214,160,0.5); cursor:default; transform:scale(.97); }
-  .memStats { display:flex; justify-content:center; gap:24px; margin-bottom:4px; font-weight:700; font-size:.95em; color:#2b3a4a; }
-
-  /* ---------- PLATFORMER ---------- */
-  #platStats { display:flex; justify-content:center; gap:20px; font-weight:700; font-size:.95em; color:#2b3a4a; }
-
-  /* ---------- REACTION TIME ---------- */
-  #reactArea {
-    position:relative; width:92%; max-width:600px; margin:0 auto;
-    background: rgba(255,255,255,0.08); border-radius:16px; flex:1; min-height:0;
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer; transition: background .1s;
-  }
-  #reactTarget {
-    position:absolute; width:64px; height:64px; border-radius:50%;
-    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.3), rgba(255,255,255,0.05));
-    box-shadow: 0 0 25px rgba(255,255,255,0.35), 0 4px 0 rgba(0,0,0,0.25);
-    display:none; align-items:center; justify-content:center; font-size:2.1em; line-height:1;
-    cursor:pointer;
-    animation: reactPulse .6s ease-in-out infinite alternate;
-  }
-  @keyframes reactPulse { 0%{transform:scale(1);box-shadow:0 0 25px rgba(255,255,255,0.35)} 100%{transform:scale(1.12);box-shadow:0 0 40px rgba(255,255,255,0.55)} }
-  #reactText { font-size:1.2em; font-weight:700; color:#fff; text-align:center; text-shadow:0 1px 4px rgba(0,0,0,0.4); padding:0 10px; }
-  #reactResults { text-align:center; font-weight:700; color:#fff; display:none; flex-shrink:0; }
-  #reactResults .avgTime { font-size:1.8em; color:#06d6a0; }
-
-  /* ---------- HOME PARTICLES ---------- */
-  #homeParticles {
-    position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0;
-  }
-  #app { position:relative; z-index:1; }
-
-  /* glow effects */
-  .card {
-    box-shadow: 0 6px 0 rgba(0,0,0,0.15), 0 10px 18px rgba(0,0,0,0.12), 0 0 20px rgba(255,255,255,0.1);
-    transition: transform .12s, border-color .12s, box-shadow .2s;
-  }
-  .card:hover { box-shadow: 0 6px 0 rgba(0,0,0,0.15), 0 10px 22px rgba(0,0,0,0.16), 0 0 30px rgba(255,255,255,0.2); }
-  canvas#c { box-shadow: 0 6px 0 rgba(0,0,0,0.18), 0 0 30px rgba(255,255,255,0.15); }
-
-  /* home particle float */
-  @keyframes homeFloat {
-    0%{transform:translateY(0) rotate(0deg)}
-    100%{transform:translateY(-40px) rotate(20deg)}
-  }
-
-  /* ---------- LEADERBOARDS ---------- */
-  .lbHomeBtn {
-    display:block; margin: 0 auto 16px; background:#456990; color:#fff; border:none;
-    border-radius:999px; padding:10px 24px; font-weight:700; font-size:.95em; cursor:pointer;
-    box-shadow: 0 4px 0 #2d4663;
-  }
-  .lbList { list-style:none; padding:0; margin:0 0 14px; text-align:left; }
-  .lbList li {
-    display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px;
-    background:#f2f5f9; margin-bottom:6px; font-weight:700; color:#1c2b3a;
-  }
-  .lbList li:nth-child(1){ background:#fff3c4; }
-  .lbList li:nth-child(2){ background:#eef1f5; }
-  .lbList li:nth-child(3){ background:#ffe4cc; }
-  .lbRank { color:#5a6b7a; min-width:22px; }
-  .lbName { flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .lbScore { color:#2b6cb0; }
-  .lbEmpty { text-align:center; justify-content:center; color:#8a99a8; background:transparent!important; font-weight:500; }
-  .lbInput {
-    width:100%; padding:10px; border-radius:8px; border:2px solid #ddd; font-size:1.05em;
-    margin:6px 0 4px; box-sizing:border-box; text-align:center; font-family:inherit;
-  }
-  #lbModal {
-    position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center;
-    background: rgba(20,30,45,0.72); padding:16px;
-  }
-  #lbModal.show { display:flex; }
-  .lbModalBox {
-    background:#fff; border-radius:16px; padding:22px; max-width:420px; width:100%;
-    max-height:80vh; overflow:auto; text-align:center; color:#1c2b3a;
-  }
-  .lbModalBox h2 { margin:0 0 12px; }
-  .lbModalBox select {
-    width:100%; padding:10px; border-radius:8px; font-size:1em; margin-bottom:14px;
-    border:2px solid #ddd; font-family:inherit;
-  }
-  .lbTabs { display:flex; gap:8px; justify-content:center; margin:0 0 14px; }
-  .lbTab {
-    flex:1; max-width:170px; background:#f2f5f9; color:#5a6b7a; border:none; border-radius:999px;
-    padding:9px 12px; font-weight:800; font-size:.85em; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,0.08);
-  }
-  .lbTab.active { background:#ffb703; color:#1c2b3a; box-shadow:0 3px 0 #b37f00; }
-
-  /* ---------- LIVE PLAYER COUNT BADGE ---------- */
-  .liveBadge {
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    width:fit-content; margin:0 auto 16px;
-    background:rgba(255,255,255,0.75); backdrop-filter:blur(6px);
-    border-radius:999px; padding:7px 16px;
-    font-weight:700; font-size:.85em; color:#2b3a4a;
-    box-shadow:0 3px 0 rgba(0,0,0,0.08);
-  }
-  .liveDot {
-    width:8px; height:8px; border-radius:50%; background:#39d353; flex-shrink:0;
-    animation: liveDotPulse 1.8s infinite;
-  }
-  @keyframes liveDotPulse {
-    0% { box-shadow:0 0 0 0 rgba(57,211,83,0.55); }
-    70% { box-shadow:0 0 0 7px rgba(57,211,83,0); }
-    100% { box-shadow:0 0 0 0 rgba(57,211,83,0); }
-  }
-
-  /* ---------- DAILY GAME BANNER ---------- */
-  .dailyBanner {
-    display:flex; align-items:center; gap:14px;
-    background:linear-gradient(120deg,#ffb703,#ff8c42);
-    border-radius:22px; padding:16px 20px; margin-bottom:18px;
-    box-shadow:0 6px 0 rgba(0,0,0,0.12); color:#fff; cursor:pointer;
-  }
+  #overlayMsg .obtn { background:#ffb703; color:#1c2b3a; border:none; border-radius: 999px; padding: 12px 30px; font-weight:800; font-size:1em; cursor:pointer; box-shadow: 0 4px 0 #b37f00; margin: 4px; }
+  .lbInput { width:100%; padding:10px; border-radius:8px; border:2px solid #ddd; font-size:1.05em; margin:6px 0 4px; box-sizing:border-box; text-align:center; font-family:inherit; }
+  .dailyBanner { display:flex; align-items:center; gap:14px; background:linear-gradient(120deg,#ffb703,#ff8c42); border-radius:22px; padding:16px 20px; margin-bottom:18px; box-shadow:0 6px 0 rgba(0,0,0,0.12); color:#fff; cursor:pointer; }
   .dailyIcon { font-size:2.6em; }
   .dailyInfo { flex:1; min-width:0; }
   .dailyLabel { font-size:.78em; font-weight:800; opacity:.9; text-transform:uppercase; letter-spacing:.6px; }
   .dailyName { font-size:1.35em; font-weight:800; }
-  .dailyPlayBtn {
-    background:#fff; color:#ff8c42; border:none; border-radius:999px; padding:11px 24px;
-    font-weight:800; font-size:.98em; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.15); flex-shrink:0;
-  }
-
-  /* ---------- PWA INSTALL BANNER ---------- */
-  .installBanner {
-    position:fixed; left:14px; right:14px; bottom:14px; z-index:9999;
-    display:none; align-items:center; gap:14px;
-    background:linear-gradient(120deg,#ffb703,#ff8c42);
-    border-radius:22px; padding:14px 16px; color:#fff;
-    box-shadow:0 8px 22px rgba(0,0,0,0.28), 0 4px 0 rgba(0,0,0,0.15);
-    max-width:460px; margin:0 auto;
-  }
-  .installBanner.show { display:flex; }
-  .installBanner .instIcon { font-size:2.1em; flex-shrink:0; }
-  .installBanner .instInfo { flex:1; min-width:0; }
-  .installBanner .instTitle { font-weight:800; font-size:1em; margin-bottom:2px; }
-  .installBanner .instSub { font-size:.8em; opacity:.92; }
-  .installBanner .instBtns { display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
-  .installBanner .instBtn {
-    background:#fff; color:#ff8c42; border:none; border-radius:999px; padding:9px 16px;
-    font-weight:800; font-size:.85em; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,0.15); white-space:nowrap;
-  }
-  .installBanner .instDismiss {
-    background:rgba(255,255,255,0.25); color:#fff; border:none; border-radius:999px; padding:7px 16px;
-    font-weight:700; font-size:.78em; cursor:pointer;
-  }
-
-  /* ---------- QUICK ACTIONS ---------- */
+  .dailyPlayBtn { background:#fff; color:#ff8c42; border:none; border-radius:999px; padding:11px 24px; font-weight:800; font-size:.98em; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.15); flex-shrink:0; }
   .quickActions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:22px; }
-  .quickBtn {
-    position:relative; background:#fff; color:#2b3a4a; border:none; border-radius:999px; padding:12px 22px;
-    font-weight:800; font-size:.95em; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.12);
-    transition: transform .12s;
-  }
+  .quickBtn { position:relative; background:#fff; color:#2b3a4a; border:none; border-radius:999px; padding:12px 22px; font-weight:800; font-size:.95em; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.12); transition: transform .12s; }
   .quickBtn:active { transform: translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,0.12); }
-  .achBadge {
-    display:inline-block; margin-left:6px; background:#ff6b6b; color:#fff; border-radius:999px;
-    font-size:.72em; padding:1px 7px; font-weight:800; vertical-align:2px;
-  }
-  .achBadge:empty { display:none; }
-
-  /* ---------- HOME SECTIONS ---------- */
-  .homeSection { margin-bottom:28px; }
-  .sectionTitle { font-size:1.35em; margin:0 0 14px 4px; color:#1c2b3a; font-weight:800; letter-spacing:.2px; }
-
-  /* ---------- FAVORITE HEART (topbar) ---------- */
-  .favBtn.isFav { background:#ffe1e8; }
-
-  /* ---------- TOASTS ---------- */
-  #toastContainer {
-    position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:300;
-    display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none;
-  }
-  .toast {
-    background:rgba(28,43,58,0.94); color:#fff; padding:11px 22px; border-radius:999px;
-    font-weight:700; font-size:.95em; box-shadow:0 4px 14px rgba(0,0,0,0.25);
-    opacity:0; transform:translateY(-16px); transition:opacity .3s ease, transform .3s ease;
-    white-space:nowrap; max-width:90vw; text-overflow:ellipsis; overflow:hidden;
-  }
+  #toastContainer { position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:300; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; }
+  .toast { background:rgba(28,43,58,0.94); color:#fff; padding:11px 22px; border-radius:999px; font-weight:700; font-size:.95em; box-shadow:0 4px 14px rgba(0,0,0,0.25); opacity:0; transform:translateY(-16px); transition:opacity .3s ease, transform .3s ease; white-space:nowrap; max-width:90vw; text-overflow:ellipsis; overflow:hidden; }
   .toast.show { opacity:1; transform:translateY(0); }
   .toast.toastBig { background:linear-gradient(120deg,#ffb703,#ff8c42); font-size:1.05em; padding:13px 26px; }
-
-  /* ---------- GENERIC MODAL (achievements / spin) ---------- */
-  .modalOverlay {
-    position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center;
-    background: rgba(20,30,45,0.72); padding:16px;
-  }
-  .modalOverlay.show { display:flex; }
-  .modalBox {
-    background:#fff; border-radius:20px; padding:24px; max-width:440px; width:100%;
-    max-height:82vh; overflow:auto; text-align:center; color:#1c2b3a;
-  }
-  .modalBox h2 { margin:0 0 6px; }
-
-  /* ---------- ACHIEVEMENTS MODAL ---------- */
-  .achModalCount { font-size:.55em; color:#8a99a8; font-weight:700; }
-  .achList { display:flex; flex-direction:column; gap:10px; margin:14px 0; text-align:left; max-height:52vh; overflow:auto; }
-  .achItem { display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:14px; background:#f2f5f9; }
-  .achItem.unlocked { background:#fff3c4; }
-  .achIcon { font-size:1.8em; width:40px; text-align:center; filter:grayscale(1) opacity(.4); flex-shrink:0; }
-  .achItem.unlocked .achIcon { filter:none; }
-  .achText { flex:1; min-width:0; }
-  .achName { font-weight:800; font-size:.98em; }
-  .achDesc { font-size:.8em; color:#5a6b7a; }
-
-  /* ---------- SPIN / SURPRISE ME MODAL ---------- */
-  .spinSub { color:#5a6b7a; margin:0 0 14px; font-size:.9em; }
-  .spinReel {
-    height:96px; overflow:hidden; border-radius:16px; background:#1c2b3a; margin-bottom:16px;
-    position:relative; display:flex; align-items:flex-start; justify-content:center;
-    box-shadow: inset 0 0 24px rgba(0,0,0,0.5);
-  }
-  .spinReel::before, .spinReel::after {
-    content:''; position:absolute; left:0; right:0; height:3px; background:rgba(255,183,3,0.6); z-index:2;
-  }
-  .spinReel::before { top:0; } .spinReel::after { bottom:0; }
-  .spinReelInner { display:flex; flex-direction:column; align-items:center; transition: transform 2.2s cubic-bezier(.12,.85,.2,1); }
-  .spinReelItem { height:96px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:2.1em; color:#fff; }
-  .spinReelItem .srName { font-size:.32em; font-weight:800; margin-top:3px; opacity:.85; }
-
-  /* ---------- SPLASH SKIP HINT ---------- */
-  #splashOverlay .spSkip { margin-top:26px; font-size:.85em; opacity:.5; animation: spSkipFade 1.4s ease; }
-  @keyframes spSkipFade { 0%{opacity:0} 100%{opacity:.5} }
+  .sectionTitle { font-size:1.35em; margin:0 0 14px 4px; color:#1c2b3a; font-weight:800; letter-spacing:.2px; }
+  .homeSection { margin-bottom:28px; }
 </style>
-<style>@keyframes spDrift { 0%{transform:translateY(0) translateX(0)} 100%{transform:translateY(-30px) translateX(10px)} }</style></head>
+</head>
 <body>
-<div id="homeParticles"></div>
-<div id="splashOverlay">
-  <div class="spParticles" id="spParticles"></div>
-  <div class="spIcon" id="spIcon">🎮</div>
-  <div class="spTitle" id="spTitle">Game</div>
-  <div class="spSub" id="spSub"></div>
-  <div class="spCount" id="spCount">3</div>
-  <div class="spSkip">Tap to skip</div>
-</div>
 <div id="toastContainer"></div>
-<div id="lbModal">
-  <div class="lbModalBox">
-    <h2>🏆 Leaderboards</h2>
-    <select id="lbGameSelect"></select>
-    <div class="lbTabs" id="lbModalTabs" style="display:none;"></div>
-    <ol id="lbModalList" class="lbList"></ol>
-    <button id="lbModalClose" class="obtn" style="background:#456990;color:#fff;">Close</button>
-  </div>
-</div>
-<div id="achModal" class="modalOverlay">
-  <div class="modalBox achModalBox">
-    <h2>🏅 Achievements <span id="achModalCount" class="achModalCount"></span></h2>
-    <div id="achList" class="achList"></div>
-    <button id="achModalClose" class="obtn" style="background:#456990;color:#fff;">Close</button>
-  </div>
-</div>
-<div id="spinModal" class="modalOverlay">
-  <div class="modalBox spinModalBox">
-    <h2>🎰 Surprise Me!</h2>
-    <p class="spinSub">Can't decide? Spin the wheel!</p>
-    <div class="spinReel" id="spinReel"><div class="spinReelInner" id="spinReelInner"></div></div>
-    <button id="spinGoBtn" class="obtn" style="background:#ff8c42;color:#fff;">🎲 Spin!</button>
-    <button id="spinPlayBtn" class="obtn" style="background:#06a97a;color:#fff;display:none;">Play It!</button>
-    <button id="spinModalClose" class="obtn" style="background:#456990;color:#fff;">Close</button>
-  </div>
-</div>
-<div class="installBanner" id="installBanner">
-  <div class="instIcon">🦴</div>
-  <div class="instInfo">
-    <div class="instTitle">Install Stick Games!</div>
-    <div class="instSub">Play offline, right from your home screen.</div>
-  </div>
-  <div class="instBtns">
-    <button class="instBtn" id="installBtn">Install</button>
-    <button class="instDismiss" id="installDismissBtn">Not now</button>
-  </div>
-</div>
-
 <div id="app">
-
   <div id="homeScreen">
     <h1>🦴 Stickman Game Zone</h1>
     <p class="tagline">Different games. One brave stick hero. Pick your adventure!</p>
-
-    <div class="liveBadge" id="liveBadge"><span class="liveDot"></span><span id="liveCountText">— playing right now</span></div>
-
     <div class="dailyBanner" id="dailyBanner">
       <div class="dailyIcon" id="dailyIcon">🎮</div>
       <div class="dailyInfo">
-        <div class="dailyLabel">🌟 Game of the Day</div>
+        <div class="dailyLabel">🎯 Daily Challenge</div>
         <div class="dailyName" id="dailyName">—</div>
       </div>
       <button class="dailyPlayBtn" id="dailyPlayBtn">Play ▶</button>
     </div>
-
     <div class="quickActions">
-      <button id="btnSurprise" class="quickBtn">🎰 Surprise Me</button>
-      <button id="btnAchievements" class="quickBtn">🏅 Achievements<span id="achBadge" class="achBadge"></span></button>
       <button id="btnLeaderboards" class="quickBtn">🏆 Leaderboards</button>
     </div>
-
-    <div class="homeSection" id="sectionContinue" style="display:none;">
-      <h2 class="sectionTitle">🎯 Continue Playing</h2>
-      <div class="cardGrid" id="gridContinue"></div>
-    </div>
-
-    <div class="homeSection" id="sectionFav" style="display:none;">
-      <h2 class="sectionTitle">❤️ Your Favorites</h2>
-      <div class="cardGrid" id="gridFav"></div>
-    </div>
-
-    <div class="homeSection" id="sectionMostPlayed" style="display:none;">
-      <h2 class="sectionTitle">🔥 Most Played (On This Device)</h2>
-      <div class="cardGrid" id="gridMostPlayed"></div>
-    </div>
-
-    <div class="homeSection">
-      <h2 class="sectionTitle">👑 Editor's Picks</h2>
-      <div class="cardGrid" id="gridPicks"></div>
-    </div>
-
-    <div class="homeSection">
-      <h2 class="sectionTitle">⭐ New This Week</h2>
-      <div class="cardGrid" id="gridNew"></div>
-    </div>
-
     <div class="homeSection">
       <h2 class="sectionTitle">🎮 All Games</h2>
       <div class="cardGrid" id="cardGrid"></div>
     </div>
-
-    <div id="progBar"><div id="starDisplay"><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="pText">0 / 24 stars</span></div></div>
-    <footer>Made for kids who love stick figures &amp; fun 🎮</footer>
+    <footer>Made for kids who love stick figures & fun 🎮</footer>
   </div>
-
   <div id="gameScreen">
     <div class="topBar">
       <button class="homeBtn" id="btnHome">🏠 Home</button>
       <div class="gTitle" id="gTitle">Game</div>
-      <div style="display:flex; gap:8px;">
-        <button class="muteBtn favBtn" id="btnFavGame">🤍</button>
-        <button class="muteBtn" id="btnMute">🔊</button>
-        <button class="restartBtn" id="btnRestart">🔄 Restart</button>
-      </div>
+      <button class="restartBtn" id="btnRestart">🔄 Restart</button>
     </div>
-    <div class="canvasWrap">
-      <canvas id="c" width="800" height="450"></canvas>
-      <div id="domOverlay"></div>
-      <div id="overlayMsg">
-        <h2 id="omTitle">Title</h2>
-        <p id="omText">text</p>
-        <div id="omBtns"></div>
-      </div>
-    </div>
-    <div class="touchControls" id="touchControls"></div>
-    <p class="hint" id="hintText"></p>
-    <div class="homeSection relatedSection" id="relatedSection" style="display:none;">
-      <h2 class="sectionTitle">🕹️ You May Also Like</h2>
-      <div class="cardGrid relatedGrid" id="gridRelated"></div>
-    </div>
+    <canvas id="c" width="800" height="450"></canvas>
   </div>
-
 </div>
-
 <script src="part1.js"></script>
 <script src="part2.js"></script>
 <script src="part3.js"></script>
@@ -600,62 +140,6 @@
 <script src="part14.js"></script>
 <script src="part15.js"></script>
 <script src="part16.js"></script>
+<script src="part-daily-challenges.js"></script>
 <script src="part6.js"></script>
-
-<script>
-// ---------- PWA: service worker registration + install prompt ----------
-(function(){
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function(){
-      navigator.serviceWorker.register('/sw.js').catch(function(){ /* offline support just won't be available; app still works online */ });
-    });
-  }
-
-  var DISMISS_KEY = 'sgz_installBannerDismissedAt';
-  var banner = document.getElementById('installBanner');
-  var installBtn = document.getElementById('installBtn');
-  var dismissBtn = document.getElementById('installDismissBtn');
-  var deferredPrompt = null;
-
-  function wasRecentlyDismissed(){
-    try {
-      var t = parseInt(localStorage.getItem(DISMISS_KEY) || '0', 10) || 0;
-      // don't nag again for 14 days after "Not now"
-      return (Date.now() - t) < 14 * 24 * 60 * 60 * 1000;
-    } catch(e){ return false; }
-  }
-  function rememberDismissed(){
-    try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch(e){}
-  }
-
-  window.addEventListener('beforeinstallprompt', function(e){
-    e.preventDefault();
-    deferredPrompt = e;
-    if (banner && !wasRecentlyDismissed()) banner.classList.add('show');
-  });
-
-  if (installBtn) {
-    installBtn.addEventListener('click', function(){
-      if (banner) banner.classList.remove('show');
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.finally(function(){ deferredPrompt = null; });
-    });
-  }
-
-  if (dismissBtn) {
-    dismissBtn.addEventListener('click', function(){
-      if (banner) banner.classList.remove('show');
-      rememberDismissed();
-    });
-  }
-
-  window.addEventListener('appinstalled', function(){
-    if (banner) banner.classList.remove('show');
-    deferredPrompt = null;
-  });
-})();
-</script>
-
-
 </body></html>
