@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<!-- Stickman Game Zone -->
+<!-- saved from url=(0174)https://pub-a941bfd863a24f91a60e6c4979c18a84.r2.dev/pi-sandbox-uploads/341102228997672960/2026-08-02/1785655708547-eaa657e7-f447-4bf1-9a21-c56fc7dfdafe-stickman-enhanced.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Stickman Game Zone</title>
-<meta name="description" content="20 free browser games for kids ages 6-12: sword duels, ninja fruit slice, platformer quests, bubble shooter, space shooter, archery, swimming races & more. No download needed!">
+<meta name="description" content="20 free browser games for kids ages 6-12: sword duels, ninja fruit slice, platformer quests, bubble shooter, space shooter, archery, swimming races & more. No download, play instantly!">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://stickgames.co/">
 <meta property="og:type" content="website">
@@ -306,9 +307,12 @@
     width:100%; padding:10px; border-radius:8px; font-size:1em; margin-bottom:14px;
     border:2px solid #ddd; font-family:inherit;
   }
-.lbModalTabs { display:flex; gap:8px; justify-content:center; margin-bottom:14px; }
-.lbTab { background:#e9edf2; color:#2b3a4a; border:none; border-radius:999px; padding:8px 16px; font-weight:700; font-size:.9em; cursor:pointer; font-family:inherit; }
-.lbTab.active { background:#ff8c42; color:#fff; }
+  .lbTabs { display:flex; gap:8px; justify-content:center; margin:0 0 14px; }
+  .lbTab {
+    flex:1; max-width:170px; background:#f2f5f9; color:#5a6b7a; border:none; border-radius:999px;
+    padding:9px 12px; font-weight:800; font-size:.85em; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,0.08);
+  }
+  .lbTab.active { background:#ffb703; color:#1c2b3a; box-shadow:0 3px 0 #b37f00; }
 
   /* ---------- LIVE PLAYER COUNT BADGE ---------- */
   .liveBadge {
@@ -446,6 +450,7 @@
   #splashOverlay .spSkip { margin-top:26px; font-size:.85em; opacity:.5; animation: spSkipFade 1.4s ease; }
   @keyframes spSkipFade { 0%{opacity:0} 100%{opacity:.5} }
 </style>
+<style>@keyframes spDrift { 0%{transform:translateY(0) translateX(0)} 100%{transform:translateY(-30px) translateX(10px)} }</style></head>
 <body>
 <div id="homeParticles"></div>
 <div id="splashOverlay">
@@ -461,7 +466,7 @@
   <div class="lbModalBox">
     <h2>🏆 Leaderboards</h2>
     <select id="lbGameSelect"></select>
-<div id="lbModalTabs" class="lbModalTabs"></div>
+    <div class="lbTabs" id="lbModalTabs" style="display:none;"></div>
     <ol id="lbModalList" class="lbList"></ol>
     <button id="lbModalClose" class="obtn" style="background:#456990;color:#fff;">Close</button>
   </div>
@@ -506,7 +511,7 @@
     <div class="dailyBanner" id="dailyBanner">
       <div class="dailyIcon" id="dailyIcon">🎮</div>
       <div class="dailyInfo">
-        <div class="dailyLabel">🌟 Game of the Day</div>
+        <div class="dailyLabel">🎯 DAILY CHALLENGE</div>
         <div class="dailyName" id="dailyName">—</div>
       </div>
       <button class="dailyPlayBtn" id="dailyPlayBtn">Play ▶</button>
