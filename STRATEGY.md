@@ -12,11 +12,11 @@ Shared long-term plan for the weekly dev cycle (Ora1 = new games/engagement, Ora
 
 Carol (site owner) decided 20 games is enough — the game catalog is considered feature-complete. Building new games is no longer a default weekly activity. Every run from here forward is about scaling and improving what already exists: deeper content within current games, better retention/engagement mechanics, performance, mobile polish, bug-proofing, and SEO/traffic growth. Only build an entirely new game if a run's instructions explicitly ask for one.
 
-## Current state (as of 2026-08-22)
+## Current state (as of 2026-08-28)
 
 - 20 games live (see README.md for the full list and file map).
 - Engagement/retention features: Continue Playing, Favorites, Most Played (On This Device), Editor's Picks, New This Week, Game of the Day, 31 achievements, local leaderboards, tag-based recommendations, reward toasts, day-streak tracking. All local-only (localStorage), no backend, no accounts, no tracking of individual kids across devices.
-- Installable PWA with offline support via a service worker (`sw.js`), now at `CACHE_VERSION 'v9'`.
+- Installable PWA with offline support via a service worker (`sw.js`), now at `CACHE_VERSION 'v13'`. **Note:** index.html was badly broken (missing ~2/3 of its DOM) from 2026-08-24 until this run's hotfix on 2026-08-28 — see below.
 - Stick Fort Defense was substantially reworked on 2026-08-22 at Carol's direct request (ad hoc, not the weekly cycle) — see below.
 - Deployed automatically on every push to `main`.
 
@@ -54,6 +54,89 @@ What changed (part14.js rewritten, part6.js text updated, sw.js cache bumped):
 - `sw.js` `CACHE_VERSION` bumped `'v8'` → `'v9'` (part14.js and part6.js both changed). No new files, so `CORE_ASSETS` unchanged.
 - Tested extensively before pushing: syntax-validated, then logic-tested by driving the game's own `update()`/`draw()` functions directly from the console (since real-time `requestAnimationFrame` play doesn't advance in this automation environment — worth remembering for future ad hoc sessions, not just weekly runs), across multiple defender-investment strategies through to both victory and defeat, confirming no runtime errors, correct achievement/high-score/overlay behavior on both outcomes, and reasonable difficulty pacing. Also did a shorter real click-driven UI pass (splash → type selection → placement → combat) to confirm the on-screen controls work as designed.
 
+## This run (2026-08-28) — CRITICAL HOTFIX: site was fully unplayable
+
+Carol reported "can't play it on mobile devices" mid-run. Investigation found the
+outage was NOT mobile-specific — the entire site had been broken for every visitor,
+on every device, since 2026-08-24.
+
+**Root cause:** two commits that day ("Global leaderboard" and "Add daily challenges
+system") replaced `index.html` with a drastically stripped-down version — 542 lines
+deleted, only 33 added. The new index.html kept the card grid and basic shell but
+dropped the splash-screen overlay (#splashOverlay/#spIcon/#spTitle/#spSub/#spCount),
+the mute button (#btnMute), the achievements/leaderboard/spin modals, the favorites/
+continue-playing/most-played home sections, the PWA install banner, and the service
+worker registration script — while part1.js, part4.js, and part6.js still referenced
+all of it. Two of those references threw uncaught top-level exceptions on every page
+load (part1.js:799 `btnMute.onclick` on null, part4.js:79 `showSplash()` writing
+`.textContent` onto missing splash elements), and the second one broke every game's
+start flow — clicking any "Play" button did nothing, on any device or browser. This
+had been live for 4 days before it was caught; none of it was flagged in STRATEGY.md
+at the time (these two commits weren't part of a logged weekly/ad-hoc run).
+
+**Fix (commit bb31d6a):** rebuilt index.html using the last known-good structure
+(commit d425866a, 2026-08-17 weekly run) as the base, then layered the genuinely
+new, wired-up Aug 24 work back on top: kept the `part-daily-challenges.js` script
+tag, and added the `#lbModalTabs` div + `.lbTab`/`.lbModalTabs` CSS that part6.js's
+new Global-leaderboard-tab code (`renderLbTabs`, `GLOBAL_LB_GAMES`) needs but the
+broken HTML never had. Did **not** wire in the five other new-but-orphaned files
+(part-achievement-notifications.js, part-combo-system.js, part-dark-mode.js,
+part-difficulty-system.js, part-pause-system.js) — none of them are referenced by
+any `<script>` tag, so none contributed to the outage, and blind-integrating five
+untested features into an emergency hotfix isn't safe. They're still sitting in the
+repo unused; a future run should evaluate each one deliberately (finish + wire in,
+or delete) rather than have them linger indefinitely like part11.js.
+
+**Judgment call:** reverted the home banner label from "🎯 Daily Challenge" back to
+"🌟 Game of the Day" — the code that actually populates that banner (part6.js's
+`getDailyGameId`/IIFE) still only implements the original deterministic
+Game-of-the-Day pick, not the new daily-challenge target. The new `DAILY` module
+(part-daily-challenges.js) loads and its localStorage/challenge-generation logic
+works standalone (verified in isolation), but **nothing calls `checkDailyChallenge()`
+from any game's game-over flow** — it's present but functionally inert right now.
+Left it that way rather than rush a cross-cutting integration into every game during
+a hotfix. Worth a quick check with Carol on whether the Daily Challenge system was
+meant to ship yet, since it's currently dead code with no UI surfaced for it (no
+"Daily Challenge" panel/banner exists in the restored HTML — only the original
+Game-of-the-Day banner does).
+
+**Verification methodology (why this wasn't caught by "live testing" in past runs):**
+past runs' live-testing sections in this file describe injecting code and driving
+`update()`/`draw()` directly, or synthetic interactions — never a genuine, real
+(non-scripted) click on the production "Play" button end-to-end. That gap is
+exactly why this regression went live undetected. This run's verification used:
+1. A real (computer-tool, non-synthetic) click on the live, broken production Play
+   button first, to confirm the outage independent of any fix.
+2. An isolated same-origin `<iframe>` with a fresh JS global scope (avoids the
+   "identifier already declared" errors you get re-running `<script>` tags into an
+   already-executed page) to load-test the reconstructed index.html against the
+   live part*.js files before committing anything — checked Sword Duel (canvas
+   action game), Memory Match (domOverlay game), the achievements modal, and the
+   leaderboards modal including the new Global tab. Zero console errors.
+3. After push + deploy, cleared `caches`/unregistered the service worker, reloaded
+   the real production URL fresh, re-read console (zero errors), and did another
+   real click through to Sword Duel plus a synthetic pointerdown/move/up drag on
+   Ninja Fruit Slice's canvas to confirm pointer/touch handling actually fires.
+
+**Tooling note for next run:** this environment's Chrome tab still cannot actually
+narrow `window.innerWidth` (resize_window changes the OS window but not the page's
+effective viewport — confirmed innerWidth stayed 1920 after a 390×844 resize call),
+so a true mobile-viewport layout check is still not possible here. If Carol's mobile
+report resurfaces after this fix (which addressed a universal, non-mobile-specific
+outage), the next thing to check is real per-viewport CSS/layout on an actual phone,
+not just touch-input wiring.
+
+Also did the routine weekly QA pass: retired `isNew:true` on Block Puzzle, Coloring
+Studio, Word Scramble, and Whack-a-Mole (added 2026-08-16, now 12 days old — past the
+1-2 week window flagged last run), bumped `sitemap.xml`'s `<lastmod>` to 2026-08-28,
+and bumped `sw.js` `CACHE_VERSION` twice (v11→v12 with the hotfix, v12→v13 with the
+part6.js isNew-flag change) — see commits bb31d6a and 099df39.
+
+Given the severity of the outage, this run's time went entirely to incident response
+plus routine Ora2 QA — no new Ora1 engagement feature was built this run (deliberate
+scope call, not an oversight). A full bug-hunt pass through all 20 games (beyond the
+ones spot-checked above) is still not done and is carried forward again.
+
 ## Standing rules for whoever runs this next
 
 - Always bump CACHE_VERSION in sw.js on any push that touches index.html or any part*.js file, and add any new part*.js file to CORE_ASSETS.
@@ -64,9 +147,33 @@ What changed (part14.js rewritten, part6.js text updated, sw.js cache bumped):
 
 ## Next up
 
-- Full bug-hunt pass through the 16 pre-existing (non-Block Puzzle/Coloring/Word Scramble/Whack-a-Mole) games — still not done, now carried over 2 runs.
-- Re-check the 4 newest games' `isNew` flags in ~1-2 weeks (added 2026-08-16, still legitimately new as of this run).
-- Consider deleting the orphaned part11.js.
-- Bigger SEO items to consider: per-game landing content (currently everything is one SPA route), a blog/tips section, backlinks from kids'-game directories.
-- If a genuine mobile-viewport resize tool becomes available, use it to re-verify small-screen layout — this run could only confirm touch-style interactions work, not actual narrow-width rendering.
-- Consider evolving "Most Played (On This Device)" into a rolling weekly window (would need timestamped per-play entries rather than a running lifetime count) if the lifetime-count version feels too static over time.
+- Full bug-hunt pass through all 20 games — still not done, now carried over 3 runs
+  (this run's time went to the index.html incident instead).
+- Decide the fate of the 5 orphaned-but-new files added 2026-08-24 and never wired
+  into any `<script>` tag: part-achievement-notifications.js, part-combo-system.js,
+  part-dark-mode.js, part-difficulty-system.js, part-pause-system.js. Check with
+  Carol whether these were meant to ship — either finish integrating + testing them
+  properly, or delete them so they stop accumulating as dead code alongside part11.js.
+- Decide the fate of the Daily Challenge system (part-daily-challenges.js): it's
+  loaded and functional in isolation but nothing calls `checkDailyChallenge()` from
+  any game, and there's no UI showing the player what today's challenge even is.
+  Either wire it up properly (a `checkDailyChallenge(gameId, score)` call at each
+  game's game-over point, plus a small UI surface) or pull the script tag until it's
+  ready.
+- Clean up the stray `-api/leaderboard.js` file (leading-dash duplicate, likely an
+  accidental path artifact from the 2026-08-24 upload) — appears unused, low priority.
+- Consider deleting the orphaned part11.js (still unreferenced, unchanged from
+  earlier runs).
+- If a genuine mobile-viewport resize tool becomes available, use it to check real
+  narrow-width CSS/layout — resize_window still does not change `window.innerWidth`
+  in this environment (confirmed again this run), so true small-screen rendering
+  still can't be visually verified here, only touch/pointer event wiring.
+- Bigger SEO items to consider: per-game landing content (currently everything is
+  one SPA route), a blog/tips section, backlinks from kids'-game directories.
+- Consider evolving "Most Played (On This Device)" into a rolling weekly window if
+  the lifetime-count version feels too static over time.
+- **Process suggestion:** any ad hoc change made outside the logged weekly cycle
+  (like the 2026-08-24 commits that caused this incident) should still get a short
+  STRATEGY.md entry when it happens, the way the 2026-08-22 Stick Fort Defense
+  overhaul did — that would have made this regression far easier to catch quickly
+  instead of it sitting live for 4 days.
