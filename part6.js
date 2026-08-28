@@ -129,10 +129,10 @@ const CARD_DATA = [
   {id:'swimmer', icon:'🏊', name:'Stick Swimmer Olympics', desc:'Mash to swim! Race 8-lane heats for the podium.', tags:['sports','racing','olympics','arcade'], color:['#0e7490','#22d3ee'], isNew:false, editorPick:false},
   {id:'tycoon', icon:'💰', name:'Coin Rush Tycoon', desc:'Tap for gold, hire helpers, shoo the sneaky Coin Goblin!', tags:['clicker','tycoon','arcade'], color:['#b45309','#fbbf24'], isNew:false, editorPick:true},
   {id:'fortdefense', icon:'🏰', name:'Stick Fort Defense', desc:'Command Spear Guards & Archers through 15 levels and defeat the Ogre King!', tags:['strategy','tower defense','boss'], color:['#166534','#4ade80'], isNew:false, editorPick:false},
-{id:'blockpuzzle', icon:'🧩', name:'Block Puzzle', desc:'Place blocks to clear rows and columns. How high can you score?', tags:['puzzle','brain','strategy'], color:['#0f766e','#2dd4bf'], isNew:true, editorPick:true},
-{id:'coloring', icon:'🎨', name:'Coloring Studio', desc:'Pick a color and paint! Try a template or draw something new.', tags:['creativity','art','relaxing'], color:['#be185d','#f9a8d4'], isNew:true, editorPick:false},
-{id:'wordscramble', icon:'🔤', name:'Word Scramble', desc:'Unscramble the letters to spell 10 picture-clue words!', tags:['word','brain','educational'], color:['#1d4ed8','#60a5fa'], isNew:true, editorPick:false},
-{id:'whackamole', icon:'🔨', name:'Whack-a-Mole', desc:'Whack the fighters fast — but dodge the sneaky bandit!', tags:['arcade','reflex','quick'], color:['#a16207','#fde047'], isNew:true, editorPick:false},
+{id:'blockpuzzle', icon:'🧩', name:'Block Puzzle', desc:'Place blocks to clear rows and columns. How high can you score?', tags:['puzzle','brain','strategy'], color:['#0f766e','#2dd4bf'], isNew:false, editorPick:true},
+{id:'coloring', icon:'🎨', name:'Coloring Studio', desc:'Pick a color and paint! Try a template or draw something new.', tags:['creativity','art','relaxing'], color:['#be185d','#f9a8d4'], isNew:false, editorPick:false},
+{id:'wordscramble', icon:'🔤', name:'Word Scramble', desc:'Unscramble the letters to spell 10 picture-clue words!', tags:['word','brain','educational'], color:['#1d4ed8','#60a5fa'], isNew:false, editorPick:false},
+{id:'whackamole', icon:'🔨', name:'Whack-a-Mole', desc:'Whack the fighters fast — but dodge the sneaky bandit!', tags:['arcade','reflex','quick'], color:['#a16207','#fde047'], isNew:false, editorPick:false},
 ];
 
 /* =========================================================
