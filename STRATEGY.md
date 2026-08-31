@@ -12,11 +12,11 @@ Shared long-term plan for the weekly dev cycle (Ora1 = new games/engagement, Ora
 
 Carol (site owner) decided 20 games is enough — the game catalog is considered feature-complete. Building new games is no longer a default weekly activity. Every run from here forward is about scaling and improving what already exists: deeper content within current games, better retention/engagement mechanics, performance, mobile polish, bug-proofing, and SEO/traffic growth. Only build an entirely new game if a run's instructions explicitly ask for one.
 
-## Current state (as of 2026-08-28)
+## Current state (as of 2026-08-31)
 
 - 20 games live (see README.md for the full list and file map).
-- Engagement/retention features: Continue Playing, Favorites, Most Played (On This Device), Editor's Picks, New This Week, Game of the Day, 31 achievements, local leaderboards, tag-based recommendations, reward toasts, day-streak tracking. All local-only (localStorage), no backend, no accounts, no tracking of individual kids across devices.
-- Installable PWA with offline support via a service worker (`sw.js`), now at `CACHE_VERSION 'v13'`. **Note:** index.html was badly broken (missing ~2/3 of its DOM) from 2026-08-24 until this run's hotfix on 2026-08-28 — see below.
+- Engagement/retention features: Continue Playing, Favorites, Most Played (On This Device), Editor's Picks, New This Week, Game of the Day, 31 achievements, local leaderboards, tag-based recommendations, reward toasts, day-streak tracking, Dark Mode toggle, a universal Pause button (all local-only, added/wired this run). All local-only (localStorage), no backend, no accounts, no tracking of individual kids across devices.
+- Installable PWA with offline support via a service worker (`sw.js`), now at `CACHE_VERSION 'v14'`. index.html was badly broken (missing ~2/3 of its DOM) from 2026-08-24 to 2026-08-28 — fixed, see that run's entry below.
 - Stick Fort Defense was substantially reworked on 2026-08-22 at Carol's direct request (ad hoc, not the weekly cycle) — see below.
 - Deployed automatically on every push to `main`.
 
@@ -137,6 +137,99 @@ plus routine Ora2 QA — no new Ora1 engagement feature was built this run (deli
 scope call, not an oversight). A full bug-hunt pass through all 20 games (beyond the
 ones spot-checked above) is still not done and is carried forward again.
 
+## This run (2026-08-31)
+
+Run conditions: unlike the last two runs, the sandboxed shell had normal network access
+this time — `git clone`/`push` against github.com worked directly with the provided
+token, so the browser-API fallback wasn't needed. Both roles were again done
+sequentially by the chief engineer (not parallel subagents) to keep one coherent view
+of the repo before pushing, consistent with the last two runs' reasoning.
+
+Ora1 (scale/improve existing, no new games) — wired in 3 of the 5 orphaned-but-built
+feature files flagged as "next up" for two runs running:
+- **Dark Mode** (`part-dark-mode.js`): a 🌙/☀️ toggle button (top-right of the home
+  screen), persisted in localStorage, plus a `T` keyboard shortcut. Purely additive —
+  it only touches `body`/`html` inline styles and injects its own `<style>` block, so
+  it doesn't alter any existing game code.
+- **Universal Pause** (`part-pause-system.js`): every game screen now gets a
+  ⏸ Pause button next to Restart, plus `P`/`Esc` keyboard shortcuts, showing a
+  Resume/Restart/Home overlay (reusing the existing `showOverlay()` modal). It works
+  by wrapping the shared `requestAnimationFrame` loop (`window.loop`) to skip
+  `currentGame.update()` while paused but keep the frame ticking — no per-game code
+  needed, so it works uniformly across all 20 games including the DOM-overlay ones.
+  **Bug caught and fixed during integration, not present in the orphaned file as
+  written:** the pause flag is a single page-global (not per-game-session), so
+  without a fix, pausing game A, going home, and starting game B would leave game B
+  silently frozen (loop still running, no update, no overlay explaining why) —
+  confirmed this was a real bug by reproducing it live on production before patching.
+  Fixed by adding `PAUSE.resume()` + `updatePauseUI()` calls to both `startGame()` and
+  `goHome()` in `part1.js`, and having `startGame()` call `initPauseButton()` so the
+  button is present from the very first game a player opens.
+- **Achievement Notifications** (`part-achievement-notifications.js`): overrides the
+  existing `unlockAchievement()` with a bigger, longer-lived, icon-forward toast
+  (functionally equivalent to the original — same `ACH.unlock()`/localStorage call —
+  just a richer visual). Verified this is a pure superset of the original behavior by
+  reading both implementations side by side before wiring it in.
+- **Deliberately left un-integrated:** `part-combo-system.js` and
+  `part-difficulty-system.js`. Both are just generic helper modules with no calls
+  into any specific game yet — combo tracking needs a `COMBO.increment()`/
+  `getMissed()` call added at each relevant game's own hit/miss logic, and the
+  difficulty selector needs each fight game's enemy-stat code to actually read
+  `DIFFICULTY.getMultipliers()`. That's real per-game logic surgery across multiple
+  `part*.js` files, judged too risky to do blind in one run on a site with no PR
+  review — flagged as next up, one game/system at a time rather than all at once.
+
+Testing methodology: rather than editing production directly, the new/changed
+`part-dark-mode.js`/`part-pause-system.js`/`part-achievement-notifications.js` code
+was injected as a `<script>` tag into the **live production page** via the browser's
+JS console (not an isolated iframe this time, since these three files are additive
+monkey-patches with no risk of "identifier already declared" collisions with the
+already-loaded page). Real, non-synthetic actions were then driven: clicked the dark
+mode toggle and confirmed the class/style actually flipped; started a real game
+(Memory Match), called `initPauseButton()`, clicked the on-screen Pause button and
+confirmed the overlay appeared, clicked "Resume Game" and confirmed play resumed;
+dispatched real `Escape` keydown events and confirmed the same toggle worked; called
+`unlockAchievement()` with real ids from the live `ACH_DEFS` catalog and confirmed the
+new toast rendered with the right text/icon. Also **reproduced the pause-state-leak
+bug live before patching** (paused a game, called `goHome()`, confirmed `PAUSE.get()`
+stayed `true`) to make sure the fix in `part1.js` was addressing a real bug and not a
+hypothetical one. Zero console errors from any of this (only unrelated
+browser-extension/`vercel.live` noise, confirmed unrelated by checking their source
+files aren't part of this repo).
+
+Ora2 (QA/SEO/PWA):
+- **Load-crash pass across all 20 games** (the "next up" item carried over 3 runs) —
+  finally done, at the load-time-crash level: scripted `startGame(id)` → wait →
+  `goHome()` across all 13 games not already spot-checked in the last two runs
+  (sword, runner, hoops, bubble, racer, galaxy, sniper, archery, swimmer, tycoon,
+  fortdefense, platformer, reaction), with a global `window.onerror` collector running
+  throughout. Zero errors across all 13. Combined with Memory Match, Block Puzzle,
+  Coloring Studio, Word Scramble, Whack-a-Mole, Sword Duel, and Ninja Fruit Slice
+  already covered by the previous two runs, that's load-crash coverage for all 20
+  games. Also did one real click-driven interaction test (a drag-to-aim-and-shoot in
+  Bubble Shooter) to sanity-check pointer handling, not just load. **Caveat, so this
+  isn't overclaimed:** this is load + a couple of spot interaction checks, not a full
+  play-through of every game's win/lose states and edge cases — a deeper per-game
+  interaction pass is still worth doing eventually, just no longer the totally-untouched
+  item it was.
+- Checked `CARD_DATA`'s `isNew` flags: all 20 are already `isNew:false` — nothing to
+  flip this run.
+- Bumped `sitemap.xml`'s `<lastmod>` to 2026-08-31.
+- `sw.js` `CACHE_VERSION` bumped `'v13'` → `'v14'` (index.html and part1.js changed,
+  plus 3 new files added) and added `part-dark-mode.js`, `part-pause-system.js`,
+  `part-achievement-notifications.js` to `CORE_ASSETS` so they're available offline
+  too.
+- Investigated a suspicious-looking string in `part6.js` (Whack-a-Mole's card
+  description rendered with `���` in one tool's text output) — traced it to raw bytes
+  and confirmed it's a correctly-encoded UTF-8 em dash (`—`, bytes `e2 80 94`), not a
+  real encoding bug. False alarm, noted here so it isn't re-investigated next run.
+
+After pushing, re-verified live: cleared the service worker cache/unregistered it,
+reloaded stickgames.co fresh, confirmed `CACHE_VERSION v14` is what's being served,
+re-ran the dark mode/pause/achievement toast checks against the real deployed code
+(not just the console-injected version), and re-checked all 20 games still start
+clean. Zero console errors post-deploy.
+
 ## Standing rules for whoever runs this next
 
 - Always bump CACHE_VERSION in sw.js on any push that touches index.html or any part*.js file, and add any new part*.js file to CORE_ASSETS.
@@ -147,27 +240,30 @@ ones spot-checked above) is still not done and is carried forward again.
 
 ## Next up
 
-- Full bug-hunt pass through all 20 games — still not done, now carried over 3 runs
-  (this run's time went to the index.html incident instead).
-- Decide the fate of the 5 orphaned-but-new files added 2026-08-24 and never wired
-  into any `<script>` tag: part-achievement-notifications.js, part-combo-system.js,
-  part-dark-mode.js, part-difficulty-system.js, part-pause-system.js. Check with
-  Carol whether these were meant to ship — either finish integrating + testing them
-  properly, or delete them so they stop accumulating as dead code alongside part11.js.
+- A deeper per-game interaction/edge-case pass (win states, lose states, restart
+  loops) across all 20 games — the load-crash-level pass is now done (see this run),
+  but nobody has scripted a genuine play-to-completion of most games yet.
+- Wire `part-combo-system.js` into the arcade-style games it was written for (ninja,
+  bubble, whackamole, archery, etc — see its own file comment) one game at a time,
+  each with its own live-tested integration, rather than all at once.
+- Wire `part-difficulty-system.js` into the two fight games it targets (Sword Duel,
+  Dojo Kicks) — needs each game's enemy speed/damage code to read
+  `DIFFICULTY.getMultipliers()`, plus rendering `createDifficultySelector()`
+  somewhere in the pre-game flow. Not done this run; same reasoning as combo above.
 - Decide the fate of the Daily Challenge system (part-daily-challenges.js): it's
   loaded and functional in isolation but nothing calls `checkDailyChallenge()` from
   any game, and there's no UI showing the player what today's challenge even is.
   Either wire it up properly (a `checkDailyChallenge(gameId, score)` call at each
   game's game-over point, plus a small UI surface) or pull the script tag until it's
-  ready.
+  ready. Worth a quick check with Carol on whether this was meant to ship yet.
 - Clean up the stray `-api/leaderboard.js` file (leading-dash duplicate, likely an
   accidental path artifact from the 2026-08-24 upload) — appears unused, low priority.
 - Consider deleting the orphaned part11.js (still unreferenced, unchanged from
   earlier runs).
 - If a genuine mobile-viewport resize tool becomes available, use it to check real
   narrow-width CSS/layout — resize_window still does not change `window.innerWidth`
-  in this environment (confirmed again this run), so true small-screen rendering
-  still can't be visually verified here, only touch/pointer event wiring.
+  in this environment, so true small-screen rendering still can't be visually
+  verified here, only touch/pointer event wiring.
 - Bigger SEO items to consider: per-game landing content (currently everything is
   one SPA route), a blog/tips section, backlinks from kids'-game directories.
 - Consider evolving "Most Played (On This Device)" into a rolling weekly window if

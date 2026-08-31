@@ -12,7 +12,7 @@
 // get deleted and the new files get fetched fresh on next launch.
 //
 // So: every deploy that touches index.html or any part*.js -> bump this.
-const CACHE_VERSION = 'v13';
+const CACHE_VERSION = 'v14';
 const CACHE_NAME = `stickgames-shell-${CACHE_VERSION}`;
 
 // Every asset needed to fully play the game with no network connection.
@@ -35,6 +35,9 @@ const CORE_ASSETS = [
   '/part16.js',
   '/part6.js',
   '/part-daily-challenges.js',
+  '/part-dark-mode.js',
+  '/part-pause-system.js',
+  '/part-achievement-notifications.js',
   '/quest-bgm.mp3',
   '/manifest.json',
   '/icon-192.png',

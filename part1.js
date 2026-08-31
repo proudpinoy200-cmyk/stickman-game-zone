@@ -747,6 +747,15 @@ function startGame(id){
     setGameArea(factory);
     currentGame = factory.create();
     factory.bindControls && factory.bindControls();
+    // Pause system (part-pause-system.js) is a page-global feature layered on top of
+    // every game via a wrapped requestAnimationFrame loop. Its paused flag is NOT
+    // per-game, so it must be explicitly reset on every game start -- otherwise a
+    // player who paused game A, went home, and started game B would find game B
+    // silently frozen (loop still running, but skipping currentGame.update) with no
+    // overlay explaining why, since hideOverlay() alone doesn't touch PAUSE state.
+    if(typeof PAUSE !== 'undefined'){ PAUSE.resume(); }
+    if(typeof updatePauseUI === 'function') updatePauseUI();
+    if(typeof initPauseButton === 'function') initPauseButton();
     lastTime = performance.now();
     if(rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(loop);
@@ -770,6 +779,7 @@ function startGame(id){
 function goHome(){
   currentGame = null;
   activeGameId = null;
+  if(typeof PAUSE !== 'undefined'){ PAUSE.resume(); }
   if(rafId) cancelAnimationFrame(rafId);
   gameScreen.style.display='none';
   homeScreen.style.display='block';
