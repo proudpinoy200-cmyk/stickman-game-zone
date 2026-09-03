@@ -17,12 +17,21 @@
 const KV_URL =
   process.env.KV_REST_API_URL ||
   process.env.UPSTASH_REDIS_REST_URL ||
-  process.env.REDIS_REST_API_URL;
+  process.env.REDIS_REST_API_URL ||
+  // The Upstash-for-Redis Vercel Marketplace integration was connected with a
+  // custom "UPSTASH" env var prefix (needed to avoid colliding with a REDIS_URL
+  // left over from an earlier, wrong "Redis" (Redis Cloud) integration attempt
+  // that only exposed a raw TCP connection string, not a REST API this
+  // zero-dependency fetch()-based code can use). Keep this as the last fallback
+  // rather than the first, so an unprefixed connection (the common case if this
+  // is ever reconnected without a custom prefix) is still preferred.
+  process.env.UPSTASH_KV_REST_API_URL;
 
 const KV_TOKEN =
   process.env.KV_REST_API_TOKEN ||
   process.env.UPSTASH_REDIS_REST_TOKEN ||
-  process.env.REDIS_REST_API_TOKEN;
+  process.env.REDIS_REST_API_TOKEN ||
+  process.env.UPSTASH_KV_REST_API_TOKEN;
 
 // All games with global leaderboards. Each entry defines:
 // - higherIsBetter: whether higher/lower scores rank better
