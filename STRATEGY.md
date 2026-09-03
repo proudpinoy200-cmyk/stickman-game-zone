@@ -271,6 +271,51 @@ reverted to a known-good version during the 2026-08-28 hotfix. `api/leaderboard.
 attempt — only `part6.js`'s `GLOBAL_LB_GAMES` (still just 5) needs updating to
 actually re-expand it, now that the database itself works.
 
+## Ad hoc follow-up — Global leaderboard expanded to 17 games (2026-09-03)
+
+Immediately after the database fix above, Carol asked to restore the global
+leaderboard to all 17 games. `GLOBAL_LB_GAMES` in part6.js expanded from 5 to
+17 (adding martial, runner, hoops, ninja, bubble, racer, sniper, archery,
+swimmer, fortdefense, wordscramble, whackamole). Only Memory Match, Reaction
+Time, and Coloring Studio stay local-only (no server-side score ranges exist
+for the first two in `ALLOWED_GAMES`, and Coloring Studio has no score).
+README.md updated to match (was still describing "5 flagship games").
+`sw.js` `CACHE_VERSION` bumped `v14`→`v15`.
+
+Tested live before pushing (in-page array mutation against production, since
+`GLOBAL_LB_GAMES` is `const` — reassigning `window.GLOBAL_LB_GAMES` silently
+no-ops; mutating the array in place with `.length=0` + `.push(...)` is what
+actually works for this kind of live pre-push test). Confirmed the Local/
+Global tab toggle appeared for a previously-local-only game, and ran two real
+submissions through the actual UI code path (`showScoreEntryOverlay` →
+`GLB.submit`) for Ninja Fruit Slice and Whack-a-Mole — both stored and read
+back correctly. Cleaned up both test entries via `DEL` in the Upstash REPL
+afterward (simpler than `ZREM` with an exact member string when the key only
+has one test entry in it).
+
+**Post-deploy gotcha worth remembering:** the first `fetch()` against
+`stickgames.co` right after this deploy went out still returned the OLD
+`GLOBAL_LB_GAMES` (5 games), even though Vercel's deployment API confirmed
+the new commit was `READY` and aliased. Cause: the service worker's
+stale-while-revalidate strategy serves whatever's already in
+`caches.open(CACHE_NAME)` immediately, and in this case the cache under the
+NEW `v15` name had apparently already been populated by an `addAll()` that
+raced an edge/CDN layer still serving the previous `part6.js` for a few
+seconds after the alias flipped. Bumping `CACHE_VERSION` guarantees a clean
+break eventually, but doesn't guarantee the very first `install` after
+deploy fetches fully-fresh content if it happens to race the CDN's own
+propagation. The fix each time is the same one already documented in the
+standing rules below (clear `caches`, unregister the SW, hard-reload) — just
+worth noting it can still be needed even when `CACHE_VERSION` was bumped
+correctly and the deployment API says `READY`.
+
+Also spotted in passing (not fixed, not blocking): a local (per-device) Stick
+Fort Defense leaderboard entry on the test browser profile has a player name
+of `https://www.yo...` — confirms the local leaderboard has no name filtering
+at all (only the global one runs `sanitizeName`/profanity-filters). Since
+local entries never leave the device, this is cosmetic/low-risk, but flagged
+below as a nice-to-have for consistency.
+
 ## Standing rules for whoever runs this next
 
 - Always bump CACHE_VERSION in sw.js on any push that touches index.html or any part*.js file, and add any new part*.js file to CORE_ASSETS.
@@ -285,12 +330,11 @@ actually re-expand it, now that the database itself works.
   leftover `REDIS_URL` env var — it's dead weight now that Upstash for Redis is
   connected and working. Needs Carol to do the deletion herself (or a guided
   walkthrough), not done automatically.
-- Now that the global leaderboard database actually works, re-expand
-  `GLOBAL_LB_GAMES` in part6.js from 5 games to some/all of the 17 games
-  `api/leaderboard.js`'s `ALLOWED_GAMES` already has score ranges configured for
-  (an earlier attempt at this, commit 8mXT2nP, was lost in the Aug 28 hotfix revert
-  — the server-side config survived, only the client-side game list needs restoring/
-  extending). Test each game's submission end-to-end before considering it live.
+- Consider running `sanitizeName`-equivalent filtering on local (per-device)
+  leaderboard name entry too, for consistency with the global leaderboard —
+  currently local entries aren't filtered at all (spotted a URL used as a
+  player name on one test device; low risk since it's device-only, but easy
+  to align).
 - A deeper per-game interaction/edge-case pass (win states, lose states, restart
   loops) across all 20 games — the load-crash-level pass is now done (see this run),
   but nobody has scripted a genuine play-to-completion of most games yet.
