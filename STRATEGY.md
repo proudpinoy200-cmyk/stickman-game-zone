@@ -316,6 +316,77 @@ at all (only the global one runs `sanitizeName`/profanity-filters). Since
 local entries never leave the device, this is cosmetic/low-risk, but flagged
 below as a nice-to-have for consistency.
 
+## Ad hoc request — 5-feature session: post-game screen, Daily Challenge, progress dashboard, homepage polish (2026-09-03)
+
+Carol sent a ranked list of 5 site-improvement ideas after the global leaderboard fix
+and asked for all 5 in one session. All 5 shipped in one branch, tested live on a
+Vercel preview deployment (not production) before merging to main.
+
+**1. Completed PROG star/high-score tracking for the last 2 of 20 games** — Stick
+Archery Royale and Stick Swimmer Olympics (part10.js, part12.js) were the only two
+games without it; every game is now wired. Also fixed `PROG.getHighScore()` to treat
+a stored negative value as "no score yet" rather than displaying it — a defensive
+guard for a pre-existing bug (see 2026-08-31 fix to `setHighScore`'s `higherIsBetter`
+param) where Memory Match had stored negated move counts as a workaround.
+
+**2. Unified post-game screen** — `showGameOverOverlay()` in part1.js (the single
+choke-point every game already calls at its true end-of-round moment) now, on every
+call: checks today's Daily Challenge, shows a "⭐⭐☆ Best: 120" strip built from PROG
+data, and appends a "🎮 Next: <game>" button using the existing tag-similarity
+recommendation engine (`getRelatedGames`, already powering "You May Also Like").
+This reaches all 20 games from one place rather than editing each game file.
+`showOverlay()` and `showScoreEntryOverlay()` gained an optional trailing param to
+carry the stars/best-score strip through both the qualifying- and non-qualifying-score
+paths.
+
+**3. Daily Challenge, for real this time** — the home screen banner previously said
+"🎯 DAILY CHALLENGE" but was wired to `getDailyGameId()`, a totally different
+random-game-of-the-day picker with no goal, no target, and no completion tracking —
+exactly the mismatch flagged as an open item on 2026-08-31. Replaced with
+`renderDailyBanner()`, reading real data from `DAILY.getChallenge()`
+(part-daily-challenges.js): today's actual goal text, a 🔥-day streak (from the
+existing `CONT.getDayStreak()`), and a green "✅ Done today!" state once completed.
+Re-renders on every return to the home screen (via `refreshHomeSections()`) so
+completing the challenge mid-session updates the banner without a reload. Added 2 new
+achievements (`daily_first`, `daily_regular` at 5 lifetime completions) fired from
+inside `checkDailyChallenge()`'s existing qualifying branch.
+
+**4. Progress Dashboard** — the old stars-only bar (`#progBar`) was real but buried at
+the very bottom of the page, below "All Games", and only showed stars. Moved it up to
+right after Quick Actions (immediately visible) and wrapped it in a proper
+"📊 YOUR PROGRESS" dashboard with 3 more live stat tiles: Achievements (`ACH.getCount()
+/ ACH_DEFS.length`), Games Played (`CONT.getGamesPlayedCount() / CARD_DATA.length`),
+and Day Streak (`CONT.getDayStreak()`). New `updateProgressDashboard()` in part6.js
+drives all 4 stats together, called on load and on every `refreshHomeSections()`.
+
+**5. Homepage visual polish** — bigger card art (118px → 140px) and icon size
+(3.6em → 4.4em), a bolder Play button (bigger padding/shadow, hover scale), and new
+Easy/Medium/Hard difficulty badges on all 20 game cards. Coloring Studio intentionally
+has no difficulty badge — it's a free-draw tool with no win/lose state, so a
+difficulty label would be fabricated, same anti-fake-data reasoning already applied to
+`LIVE_COUNT` and `isNew`. **Judgment call worth flagging:** the Easy/Medium/Hard
+ratings are my own editorial assessment (based on time pressure, precision demands,
+and each game's daily-challenge target), not measured from real play-session data —
+reasonable starting point, but worth Carol's gut-check since she knows the actual
+games best. Reviewed home section ordering (Continue Playing → Favorites → Most
+Played → Editor's Picks → New This Week → All Games) and left it as-is — the dynamic,
+personalized sections were already above the static ones, and the new dashboard now
+sits above all of them.
+
+**Testing methodology, since this touched 12 files at once (too much to
+console-inject piece by piece):** pushed to a new `phase5-features` branch first
+(instead of main) to get a real Vercel preview deployment, bypassed its deployment
+-protection with `get_access_to_vercel_url`, then drove the live preview via the
+browser tool — screenshots of the home screen (dashboard, daily banner, card badges
+all render correctly), and direct calls to `showGameOverOverlay()` in the console to
+exercise both the qualifying-score and non-qualifying-score render paths, confirm the
+Next Game button actually navigates end-to-end, and confirm `goHome()` correctly
+refreshes the dashboard/banner afterward. Also isolated-function-tested the star-
+threshold formulas for archery/swimmer and the `higherIsBetter:false` fix. Zero
+console errors throughout. Only after all of that passed did this get merged to main.
+
+sw.js CACHE_VERSION bumped v15 → v16. sitemap.xml lastmod bumped to 2026-09-03.
+
 ## Standing rules for whoever runs this next
 
 - Always bump CACHE_VERSION in sw.js on any push that touches index.html or any part*.js file, and add any new part*.js file to CORE_ASSETS.
@@ -345,12 +416,6 @@ below as a nice-to-have for consistency.
   Dojo Kicks) — needs each game's enemy speed/damage code to read
   `DIFFICULTY.getMultipliers()`, plus rendering `createDifficultySelector()`
   somewhere in the pre-game flow. Not done this run; same reasoning as combo above.
-- Decide the fate of the Daily Challenge system (part-daily-challenges.js): it's
-  loaded and functional in isolation but nothing calls `checkDailyChallenge()` from
-  any game, and there's no UI showing the player what today's challenge even is.
-  Either wire it up properly (a `checkDailyChallenge(gameId, score)` call at each
-  game's game-over point, plus a small UI surface) or pull the script tag until it's
-  ready. Worth a quick check with Carol on whether this was meant to ship yet.
 - Clean up the stray `-api/leaderboard.js` file (leading-dash duplicate, likely an
   accidental path artifact from the 2026-08-24 upload) — appears unused, low priority.
 - Consider deleting the orphaned part11.js (still unreferenced, unchanged from
@@ -363,6 +428,12 @@ below as a nice-to-have for consistency.
   one SPA route), a blog/tips section, backlinks from kids'-game directories.
 - Consider evolving "Most Played (On This Device)" into a rolling weekly window if
   the lifetime-count version feels too static over time.
+- Carol gut-check on the new Easy/Medium/Hard difficulty badges (added this run,
+  see 2026-09-03 entry) — they're my editorial judgment based on game mechanics, not
+  measured play data, and she knows the actual games best.
+- Verify the new Progress Dashboard and Daily Challenge banner layouts on a real
+  narrow/mobile viewport — same `resize_window` limitation noted above meant this
+  run only confirmed the desktop-width preview render.
 - **Process suggestion:** any ad hoc change made outside the logged weekly cycle
   (like the 2026-08-24 commits that caused this incident) should still get a short
   STRATEGY.md entry when it happens, the way the 2026-08-22 Stick Fort Defense
