@@ -230,6 +230,47 @@ re-ran the dark mode/pause/achievement toast checks against the real deployed co
 (not just the console-injected version), and re-checked all 20 games still start
 clean. Zero console errors post-deploy.
 
+## Ad hoc fix — Global leaderboard database mismatch (2026-09-03)
+
+Carol asked for the global leaderboard to be checked directly (outside the weekly
+cycle). Diagnosis: a Redis database *was* connected to the project (contrary to
+what earlier STRATEGY.md notes assumed) — `redis-cordovan-branch`, created 2026-08-24
+— but it was the wrong Vercel Marketplace product. It's the plain "Redis" (Redis
+Cloud) integration, which only exposes a raw TCP connection string (`REDIS_URL`).
+`api/leaderboard.js` was written to avoid any npm dependency, so it talks to Redis
+via plain `fetch()` against Upstash's REST API — it needs `KV_REST_API_URL`/
+`KV_REST_API_TOKEN` (or a couple of named fallbacks), which a Redis Cloud database
+has no way to provide. Confirmed via Vercel's runtime logs: every `/api/leaderboard`
+request (including at least one real player's `POST`) was 500ing with "Leaderboard
+storage is not connected yet."
+
+Fix: Carol connected a proper **Upstash for Redis** integration (`upstash-kv-purple-
+grass`) with a custom `UPSTASH` env var prefix, needed because the old `REDIS_URL`
+was still occupying that name. `api/leaderboard.js` was updated to also check
+`UPSTASH_KV_REST_API_URL`/`UPSTASH_KV_REST_API_TOKEN` as a final fallback (commit
+`ba50657`). Verified live end-to-end after deploy: `GET /api/leaderboard?game=<id>`
+returns `200 {entries:[]}` for all 5 `GLOBAL_LB_GAMES`, and a real `POST` + `GET`
+round-trip correctly stored and returned a test score. The test entry was removed
+afterward via the Upstash database's built-in REPL (Vercel Storage → the Upstash
+resource → REPL, with Safe Mode toggled off to allow `ZREM`) — there's no admin
+delete endpoint in the API by design (see README), so a stray test/abuse score
+would need this same manual REPL cleanup path in the future.
+
+**Not yet done — flagged for next run:** the old `redis-cordovan-branch` (Redis
+Cloud) database is still connected to the project with its unused `REDIS_URL`
+env var. It should be deleted to avoid clutter/confusion, but deleting a database
+resource wasn't done in this session — needs Carol to do it herself via Vercel
+dashboard → Storage → redis-cordovan-branch → Settings → Delete (or ask for a
+guided walkthrough next time).
+
+Also re-surfaced during this investigation: an earlier, undocumented ad hoc attempt
+(commit `8mXT2nP`, "Expand global leaderboards to 17 games") had already once tried
+what's flagged below as a "next up" item, but it was lost when index.html got
+reverted to a known-good version during the 2026-08-28 hotfix. `api/leaderboard.js`'s
+`ALLOWED_GAMES` still has all 17 games' score ranges configured server-side from that
+attempt — only `part6.js`'s `GLOBAL_LB_GAMES` (still just 5) needs updating to
+actually re-expand it, now that the database itself works.
+
 ## Standing rules for whoever runs this next
 
 - Always bump CACHE_VERSION in sw.js on any push that touches index.html or any part*.js file, and add any new part*.js file to CORE_ASSETS.
@@ -240,6 +281,16 @@ clean. Zero console errors post-deploy.
 
 ## Next up
 
+- Delete the old, unused `redis-cordovan-branch` (Redis Cloud) database and its
+  leftover `REDIS_URL` env var — it's dead weight now that Upstash for Redis is
+  connected and working. Needs Carol to do the deletion herself (or a guided
+  walkthrough), not done automatically.
+- Now that the global leaderboard database actually works, re-expand
+  `GLOBAL_LB_GAMES` in part6.js from 5 games to some/all of the 17 games
+  `api/leaderboard.js`'s `ALLOWED_GAMES` already has score ranges configured for
+  (an earlier attempt at this, commit 8mXT2nP, was lost in the Aug 28 hotfix revert
+  — the server-side config survived, only the client-side game list needs restoring/
+  extending). Test each game's submission end-to-end before considering it live.
 - A deeper per-game interaction/edge-case pass (win states, lose states, restart
   loops) across all 20 games — the load-crash-level pass is now done (see this run),
   but nobody has scripted a genuine play-to-completion of most games yet.
