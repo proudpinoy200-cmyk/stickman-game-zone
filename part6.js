@@ -204,7 +204,13 @@ const LB_GAMES = [
    flagship games, backed by /api/leaderboard.js + a Redis database.
    Every other game only has the local (per-device) leaderboard above.
    ========================================================= */
-const GLOBAL_LB_GAMES = ['sword','platformer','galaxy','tycoon','blockpuzzle'];
+const GLOBAL_LB_GAMES = [
+  'sword','martial','platformer','galaxy','tycoon','blockpuzzle',
+  'runner','hoops','ninja','bubble','racer','sniper','archery',
+  'swimmer','fortdefense','wordscramble','whackamole',
+]; // all 17 games api/leaderboard.js's ALLOWED_GAMES supports (memory, reaction,
+   // and coloring are the only games without a global leaderboard: memory/reaction
+   // never had server-side score ranges configured, and coloring has no score at all)
 let lbActiveTab = 'local'; // 'local' | 'global' — which tab the leaderboard modal is showing
 let lbGlobalRequestSeq = 0; // guards against a slow/late global fetch overwriting a newer tab/game switch
 
