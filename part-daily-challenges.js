@@ -103,6 +103,16 @@ function checkDailyChallenge(gameId, score){
     DAILY.markCompleted();
     showToast('🎯 Daily Challenge Complete! +2 bonus points!', {duration: 3500, big: true});
     SFX.victory();
+    // Track lifetime completions (separate from today's single completed flag above)
+    // to power the two Daily Challenge achievements.
+    try{
+      const CKEY = 'stickman_daily_completions';
+      let n = parseInt(localStorage.getItem(CKEY)||'0',10)||0;
+      n++;
+      localStorage.setItem(CKEY, String(n));
+      if(n===1 && typeof unlockAchievement === 'function') unlockAchievement('daily_first');
+      if(n===5 && typeof unlockAchievement === 'function') unlockAchievement('daily_regular');
+    }catch(e){}
     return true;
   }
   return false;

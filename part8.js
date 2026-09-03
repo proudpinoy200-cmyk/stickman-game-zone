@@ -320,6 +320,12 @@ function createGalaxyGame(){
       if(state.level>=LEVELS){
         recordRoundComplete();
         unlockAchievement('galaxy_saved');
+        {
+          const stars = state.score>=5000 ? 3 : 2; // beating the whole campaign is at least a 2
+          PROG.setStars('galaxy', Math.max(stars, PROG.getStars('galaxy')));
+          PROG.setHighScore('galaxy', state.score);
+          PROG.updateDisplay();
+        }
         showGameOverOverlay('galaxy', state.score, '🏆 Galaxy Saved!', `You took down the Nova Overlord and defended the galaxy through all ${LEVELS} waves! Final score: ${state.score}`, [
           {label:'Play Again', onClick:()=>{ state=fresh(1,0); hideOverlay(); }},
           {label:'Home', onClick: goHome}
@@ -335,6 +341,12 @@ function createGalaxyGame(){
     state.over = true; state.win = false;
     SFX.gameover();
     recordRoundComplete();
+    {
+      const stars = state.score>=5000 ? 3 : state.score>=2000 ? 2 : 1;
+      PROG.setStars('galaxy', Math.max(stars, PROG.getStars('galaxy')));
+      PROG.setHighScore('galaxy', state.score);
+      PROG.updateDisplay();
+    }
     setTimeout(()=>{
       showGameOverOverlay('galaxy', state.score, '💥 Ship Down!', `Final score: ${state.score}. The galaxy needs you again!`, [
         {label:'Retry Wave', onClick:()=>{ state=fresh(state.level,0); hideOverlay(); }},

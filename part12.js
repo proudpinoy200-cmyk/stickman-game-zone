@@ -122,6 +122,12 @@ function createSwimmerGame(){
       if(state.level>=LEVELS){
         recordRoundComplete();
         unlockAchievement('swim_gold');
+        {
+          const stars = totalTime<=90 ? 3 : totalTime<=130 ? 2 : 1;
+          PROG.setStars('swimmer', Math.max(stars, PROG.getStars('swimmer')));
+          PROG.setHighScore('swimmer', totalTime, false); // lower (faster) time is better
+          PROG.updateDisplay();
+        }
         const goldLine = goldCount>0 ? ` You touched the wall first for gold ${goldCount} time${goldCount>1?'s':''} along the way!` : '';
         showGameOverOverlay('swimmer', totalTime, '🏅 Olympic Champion!',
           `${podiumSummary} — You medaled in all ${LEVELS} heats!${goldLine} Total swim time: ${totalTime.toFixed(1)}s`,

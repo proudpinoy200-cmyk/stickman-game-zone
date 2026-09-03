@@ -68,6 +68,12 @@ function createHoopsGame(){
     setTimeout(()=>{
       recordRoundComplete();
       if(state.score >= 15) unlockAchievement('hoops_allstar');
+      {
+        const stars = state.score>=30 ? 3 : state.score>=16 ? 2 : 1;
+        PROG.setStars('hoops', Math.max(stars, PROG.getStars('hoops')));
+        PROG.setHighScore('hoops', state.score);
+        PROG.updateDisplay();
+      }
       showGameOverOverlay('hoops', state.score, "Time's Up!", `Final Score: ${state.score} pts (${state.made} baskets) — ${rank}`, [
         {label:'Play Again', onClick:()=>{ state=fresh(); hideOverlay(); }},
         {label:'Home', onClick: goHome}
@@ -245,6 +251,12 @@ function createNinjaGame(){
     setTimeout(()=>{
       recordRoundComplete();
       if(state.score >= 40) unlockAchievement('ninja_master');
+      {
+        const stars = state.score>=40 ? 3 : state.score>=20 ? 2 : 1;
+        PROG.setStars('ninja', Math.max(stars, PROG.getStars('ninja')));
+        PROG.setHighScore('ninja', state.score);
+        PROG.updateDisplay();
+      }
       showGameOverOverlay('ninja', state.score, 'Game Over!', `Final Score: ${state.score} — nice slicing, ninja!`, [
         {label:'Play Again', onClick:()=>{ state=fresh(); hideOverlay(); }},
         {label:'Home', onClick: goHome}

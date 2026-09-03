@@ -164,6 +164,12 @@ function createArcheryGame(){
     if(state.win){
       recordRoundComplete();
       unlockAchievement('archery_champion');
+      {
+        const stars = state.player.kills>=3 ? 3 : state.player.kills>=1 ? 2 : 1;
+        PROG.setStars(GAME_ID, Math.max(stars, PROG.getStars(GAME_ID)));
+        PROG.setHighScore(GAME_ID, state.player.kills);
+        PROG.updateDisplay();
+      }
       showGameOverOverlay(GAME_ID, state.player.kills, '🏆 Last One Standing!',
         `You outlasted all 9 rivals in the arena! Kills: ${state.player.kills}`, [
         {label:'Play Again', onClick:()=>{ state = fresh(); hideOverlay(); }},
@@ -171,6 +177,12 @@ function createArcheryGame(){
       ]);
     } else {
       recordRoundComplete();
+      {
+        const stars = state.player.kills>=3 ? 3 : state.player.kills>=1 ? 2 : 1;
+        PROG.setStars(GAME_ID, Math.max(stars, PROG.getStars(GAME_ID)));
+        PROG.setHighScore(GAME_ID, state.player.kills);
+        PROG.updateDisplay();
+      }
       showGameOverOverlay(GAME_ID, state.player.kills, '💥 You Were Eliminated!',
         `You went down with ${state.player.kills} kill${state.player.kills===1?'':'s'}. Try again!`, [
         {label:'Retry', onClick:()=>{ state = fresh(); hideOverlay(); }},

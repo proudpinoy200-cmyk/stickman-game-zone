@@ -88,6 +88,13 @@ function createFightGame(cfg){
         if(state.level>=LEVELS){
           recordRoundComplete();
           unlockAchievement(cfg.gameId==='sword' ? 'sword_champion' : 'martial_blackbelt');
+          {
+            const t3 = cfg.gameId==='sword' ? 45 : 50, t2 = cfg.gameId==='sword' ? 90 : 100;
+            const stars = totalElapsed<=t3 ? 3 : totalElapsed<=t2 ? 2 : 1;
+            PROG.setStars(cfg.gameId, Math.max(stars, PROG.getStars(cfg.gameId)));
+            PROG.setHighScore(cfg.gameId, totalElapsed, false); // lower (faster) time is better
+            PROG.updateDisplay();
+          }
           showGameOverOverlay(cfg.gameId, totalElapsed, '🏆 Champion!',
             `You defeated every opponent and became the ${cfg.finalTitle}! Time: ${totalElapsed.toFixed(1)}s`, [
             {label:'Play Again', onClick:()=>{ state = freshState(1,100); totalElapsed = 0; hideOverlay(); }},
@@ -372,6 +379,12 @@ function createRunnerGame(){
       const score = Math.round(state.dist);
       recordRoundComplete();
       if(score >= 500) unlockAchievement('runner_500');
+      {
+        const stars = score>=500 ? 3 : score>=250 ? 2 : 1;
+        PROG.setStars('runner', Math.max(stars, PROG.getStars('runner')));
+        PROG.setHighScore('runner', Math.max(PROG.getHighScore('runner'), score));
+        PROG.updateDisplay();
+      }
       showGameOverOverlay('runner', score, 'Game Over!', `You ran ${score}m as a stick hero! `+ (score>300?'Amazing run! 🌟':'Nice try — go further!'), [
         {label:'Play Again', onClick:()=>{ state=fresh(); hideOverlay(); }},
         {label:'Home', onClick: goHome}

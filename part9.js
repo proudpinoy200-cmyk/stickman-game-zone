@@ -120,6 +120,8 @@ function createSniperGame(){
     SFX.gameover();
     setTimeout(()=>{
       recordRoundComplete();
+      PROG.setStars('sniper', Math.max(1, PROG.getStars('sniper'))); // didn't finish -- floor at 1
+      PROG.updateDisplay();
       showGameOverOverlay('sniper', Number(state.elapsed.toFixed(1)), '🚨 Mission Failed',
         `${state.strikes} rogue bots slipped away! You deactivated ${state.deactivated}/${TOTAL_TARGETS} before backup was called off. Regroup and try again, agent!`,
         [
@@ -140,6 +142,12 @@ function createSniperGame(){
     recordRoundComplete();
     unlockAchievement('sniper_hero');
     const finalScore = Number(state.elapsed.toFixed(1));
+    {
+      const stars = finalScore<=60 ? 3 : finalScore<=90 ? 2 : 1;
+      PROG.setStars('sniper', Math.max(stars, PROG.getStars('sniper')));
+      PROG.setHighScore('sniper', finalScore, false); // faster time is better
+      PROG.updateDisplay();
+    }
     showGameOverOverlay('sniper', finalScore, '🚁 Mission Complete!',
       `All ${TOTAL_TARGETS} rogue robot decoys deactivated in ${finalScore}s with ${state.strikes} strike${state.strikes===1?'':'s'}. The city is safe — you're a true Stick Sharpshooter hero!`,
       [

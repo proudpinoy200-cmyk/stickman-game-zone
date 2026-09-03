@@ -113,26 +113,26 @@ window.addEventListener('keyup', e=>{
    HOME SCREEN CARDS
    ========================================================= */
 const CARD_DATA = [
-  {id:'sword', icon:'⚔️', name:'Sword Duel', desc:'Battle 5 rising opponents with your blade.', tags:['action','fighting','boss'], color:['#334155','#64748b'], isNew:false, editorPick:true},
-  {id:'martial', icon:'🥋', name:'Dojo Kicks', desc:'Punch & kick your way to Black Belt.', tags:['action','fighting'], color:['#7c2d12','#ea580c'], isNew:false, editorPick:false},
-  {id:'runner', icon:'🏃', name:'Stickman Dash', desc:'Jump & duck an endless obstacle run.', tags:['action','endless','reflex'], color:['#0ea5e9','#38bdf8'], isNew:false, editorPick:false},
-  {id:'hoops', icon:'🏀', name:'Hoop Shootout', desc:'Slingshot swishes before time runs out.', tags:['sports','arcade'], color:['#f97316','#fb923c'], isNew:false, editorPick:false},
-  {id:'ninja', icon:'🍉', name:'Ninja Fruit Slice', desc:'Swipe fruit, dodge bombs, chain combos.', tags:['arcade','reflex','slicing'], color:['#166534','#22c55e'], isNew:false, editorPick:false},
-  {id:'memory', icon:'🧠', name:'Memory Match', desc:'Flip & match the stickman card pairs!', tags:['puzzle','brain'], color:['#7c3aed','#a78bfa'], isNew:false, editorPick:false},
-  {id:'reaction', icon:'⚡', name:'Reaction Time', desc:'Test your reflexes — tap fast!', tags:['arcade','reflex','brain'], color:['#ca8a04','#fde047'], isNew:false, editorPick:false},
-  {id:'platformer', icon:'🏁', name:'Stickman Quest', desc:'Jump, collect, stomp, reach the flag!', tags:['adventure','platformer','music'], color:['#059669','#34d399'], isNew:false, editorPick:true},
-  {id:'bubble', icon:'🫧', name:'Bubble Shooter', desc:'Aim, shoot, match 3+ to pop bubbles!', tags:['puzzle','arcade','colorful'], color:['#db2777','#f472b6'], isNew:false, editorPick:false},
-  {id:'racer', icon:'🏎️', name:'Stickman Racer', desc:'Dodge hurdles, boost, win the race!', tags:['action','endless','driving'], color:['#dc2626','#f87171'], isNew:false, editorPick:false},
-  {id:'galaxy', icon:'👾', name:'Stick Galaxy', desc:'Blast neon aliens, grab power-ups, beat the boss!', tags:['action','shooter','space','boss'], color:['#4c1d95','#7c3aed'], isNew:false, editorPick:true},
-  {id:'sniper', icon:'🎯', name:'Stick Sharpshooter', desc:'Deactivate 10 rogue robots before their timer runs out!', tags:['action','precision','arcade','timed'], color:['#1e3a8a','#3b82f6'], isNew:false, editorPick:false},
-  {id:'archery', icon:'🏹', name:'Stick Archery Royale', desc:'10 archers enter a free-for-all. Be the last one standing!', tags:['action','sports','battle','arcade'], color:['#92400e','#fbbf24'], isNew:false, editorPick:false},
-  {id:'swimmer', icon:'🏊', name:'Stick Swimmer Olympics', desc:'Mash to swim! Race 8-lane heats for the podium.', tags:['sports','racing','olympics','arcade'], color:['#0e7490','#22d3ee'], isNew:false, editorPick:false},
-  {id:'tycoon', icon:'💰', name:'Coin Rush Tycoon', desc:'Tap for gold, hire helpers, shoo the sneaky Coin Goblin!', tags:['clicker','tycoon','arcade'], color:['#b45309','#fbbf24'], isNew:false, editorPick:true},
-  {id:'fortdefense', icon:'🏰', name:'Stick Fort Defense', desc:'Command Spear Guards & Archers through 15 levels and defeat the Ogre King!', tags:['strategy','tower defense','boss'], color:['#166534','#4ade80'], isNew:false, editorPick:false},
-{id:'blockpuzzle', icon:'🧩', name:'Block Puzzle', desc:'Place blocks to clear rows and columns. How high can you score?', tags:['puzzle','brain','strategy'], color:['#0f766e','#2dd4bf'], isNew:false, editorPick:true},
-{id:'coloring', icon:'🎨', name:'Coloring Studio', desc:'Pick a color and paint! Try a template or draw something new.', tags:['creativity','art','relaxing'], color:['#be185d','#f9a8d4'], isNew:false, editorPick:false},
-{id:'wordscramble', icon:'🔤', name:'Word Scramble', desc:'Unscramble the letters to spell 10 picture-clue words!', tags:['word','brain','educational'], color:['#1d4ed8','#60a5fa'], isNew:false, editorPick:false},
-{id:'whackamole', icon:'🔨', name:'Whack-a-Mole', desc:'Whack the fighters fast — but dodge the sneaky bandit!', tags:['arcade','reflex','quick'], color:['#a16207','#fde047'], isNew:false, editorPick:false},
+  {id:'sword', icon:'⚔️', name:'Sword Duel', desc:'Battle 5 rising opponents with your blade.', tags:['action','fighting','boss'], color:['#334155','#64748b'], isNew:false, editorPick:true, difficulty:'Medium'},
+  {id:'martial', icon:'🥋', name:'Dojo Kicks', desc:'Punch & kick your way to Black Belt.', tags:['action','fighting'], color:['#7c2d12','#ea580c'], isNew:false, editorPick:false, difficulty:'Medium'},
+  {id:'runner', icon:'🏃', name:'Stickman Dash', desc:'Jump & duck an endless obstacle run.', tags:['action','endless','reflex'], color:['#0ea5e9','#38bdf8'], isNew:false, editorPick:false, difficulty:'Medium'},
+  {id:'hoops', icon:'🏀', name:'Hoop Shootout', desc:'Slingshot swishes before time runs out.', tags:['sports','arcade'], color:['#f97316','#fb923c'], isNew:false, editorPick:false, difficulty:'Easy'},
+  {id:'ninja', icon:'🍉', name:'Ninja Fruit Slice', desc:'Swipe fruit, dodge bombs, chain combos.', tags:['arcade','reflex','slicing'], color:['#166534','#22c55e'], isNew:false, editorPick:false, difficulty:'Medium'},
+  {id:'memory', icon:'🧠', name:'Memory Match', desc:'Flip & match the stickman card pairs!', tags:['puzzle','brain'], color:['#7c3aed','#a78bfa'], isNew:false, editorPick:false, difficulty:'Easy'},
+  {id:'reaction', icon:'⚡', name:'Reaction Time', desc:'Test your reflexes — tap fast!', tags:['arcade','reflex','brain'], color:['#ca8a04','#fde047'], isNew:false, editorPick:false, difficulty:'Easy'},
+  {id:'platformer', icon:'🏁', name:'Stickman Quest', desc:'Jump, collect, stomp, reach the flag!', tags:['adventure','platformer','music'], color:['#059669','#34d399'], isNew:false, editorPick:true, difficulty:'Medium'},
+  {id:'bubble', icon:'🫧', name:'Bubble Shooter', desc:'Aim, shoot, match 3+ to pop bubbles!', tags:['puzzle','arcade','colorful'], color:['#db2777','#f472b6'], isNew:false, editorPick:false, difficulty:'Easy'},
+  {id:'racer', icon:'🏎️', name:'Stickman Racer', desc:'Dodge hurdles, boost, win the race!', tags:['action','endless','driving'], color:['#dc2626','#f87171'], isNew:false, editorPick:false, difficulty:'Medium'},
+  {id:'galaxy', icon:'👾', name:'Stick Galaxy', desc:'Blast neon aliens, grab power-ups, beat the boss!', tags:['action','shooter','space','boss'], color:['#4c1d95','#7c3aed'], isNew:false, editorPick:true, difficulty:'Hard'},
+  {id:'sniper', icon:'🎯', name:'Stick Sharpshooter', desc:'Deactivate 10 rogue robots before their timer runs out!', tags:['action','precision','arcade','timed'], color:['#1e3a8a','#3b82f6'], isNew:false, editorPick:false, difficulty:'Hard'},
+  {id:'archery', icon:'🏹', name:'Stick Archery Royale', desc:'10 archers enter a free-for-all. Be the last one standing!', tags:['action','sports','battle','arcade'], color:['#92400e','#fbbf24'], isNew:false, editorPick:false, difficulty:'Hard'},
+  {id:'swimmer', icon:'🏊', name:'Stick Swimmer Olympics', desc:'Mash to swim! Race 8-lane heats for the podium.', tags:['sports','racing','olympics','arcade'], color:['#0e7490','#22d3ee'], isNew:false, editorPick:false, difficulty:'Easy'},
+  {id:'tycoon', icon:'💰', name:'Coin Rush Tycoon', desc:'Tap for gold, hire helpers, shoo the sneaky Coin Goblin!', tags:['clicker','tycoon','arcade'], color:['#b45309','#fbbf24'], isNew:false, editorPick:true, difficulty:'Easy'},
+  {id:'fortdefense', icon:'🏰', name:'Stick Fort Defense', desc:'Command Spear Guards & Archers through 15 levels and defeat the Ogre King!', tags:['strategy','tower defense','boss'], color:['#166534','#4ade80'], isNew:false, editorPick:false, difficulty:'Hard'},
+{id:'blockpuzzle', icon:'🧩', name:'Block Puzzle', desc:'Place blocks to clear rows and columns. How high can you score?', tags:['puzzle','brain','strategy'], color:['#0f766e','#2dd4bf'], isNew:false, editorPick:true, difficulty:'Medium'},
+{id:'coloring', icon:'🎨', name:'Coloring Studio', desc:'Pick a color and paint! Try a template or draw something new.', tags:['creativity','art','relaxing'], color:['#be185d','#f9a8d4'], isNew:false, editorPick:false, difficulty:null},
+{id:'wordscramble', icon:'🔤', name:'Word Scramble', desc:'Unscramble the letters to spell 10 picture-clue words!', tags:['word','brain','educational'], color:['#1d4ed8','#60a5fa'], isNew:false, editorPick:false, difficulty:'Medium'},
+{id:'whackamole', icon:'🔨', name:'Whack-a-Mole', desc:'Whack the fighters fast — but dodge the sneaky bandit!', tags:['arcade','reflex','quick'], color:['#a16207','#fde047'], isNew:false, editorPick:false, difficulty:'Easy'},
 ];
 
 /* =========================================================
@@ -171,6 +171,8 @@ const ACH_DEFS = [
 {id:'creative_spirit', icon:'🎨', name:'Creative Spirit', desc:'Finish a drawing in Coloring Studio.'},
 {id:'word_wizard', icon:'🔤', name:'Word Wizard', desc:'Correctly spell 8+ words in one Word Scramble run.'},
 {id:'mole_master', icon:'🔨', name:'Mole Master', desc:'Score 20+ points in Whack-a-Mole.'},
+{id:'daily_first', icon:'🎯', name:'Challenger', desc:'Complete your first Daily Challenge.'},
+{id:'daily_regular', icon:'🌟', name:'Daily Devotee', desc:'Complete 5 Daily Challenges.'},
 ];
 
 /* =========================================================
@@ -335,6 +337,7 @@ function buildCard(c){
   const playCount = CONT.getPlayCount(c.id);
   const isFav = FAV.isFav(c.id);
   const grad = 'linear-gradient(135deg,' + c.color[0] + ',' + c.color[1] + ')';
+  const diffClass = c.difficulty ? c.difficulty.toLowerCase() : '';
   div.innerHTML = `
     <div class="art" style="background:${grad}">
       ${c.isNew ? '<span class="badge new">NEW</span>' : ''}
@@ -344,6 +347,7 @@ function buildCard(c){
     </div>
     <div class="body">
       <h3>${c.name}</h3>
+      ${c.difficulty ? `<span class="diffBadge ${diffClass}">${c.difficulty}</span>` : ''}
       <p>${c.desc}</p>
       ${playCount > 0 ? `<div class="meta">Played ${playCount}× on this device</div>` : ''}
       <button class="playBtn">Play ▶</button>
@@ -397,32 +401,64 @@ renderGrid('gridPicks', CARD_DATA.filter(c=>c.editorPick).map(c=>c.id));
   renderGrid('gridNew', CARD_DATA.filter(c=>c.isNew).map(c=>c.id));
   renderGrid('cardGrid', CARD_DATA.map(c=>c.id));
   updateAchBadge();
+  if(typeof renderDailyBanner === 'function') renderDailyBanner();
+  if(typeof updateProgressDashboard === 'function') updateProgressDashboard();
+}
+// Fills in the three stat tiles under the star bar (Achievements / Games Played /
+// Day Streak). The star bar itself is still owned by PROG.updateDisplay() (part4.js) —
+// this only touches the tiles PROG doesn't know about, and re-runs PROG.updateDisplay()
+// too so the whole dashboard refreshes together every time the player lands on home.
+function updateProgressDashboard(){
+  if(typeof PROG !== 'undefined') PROG.updateDisplay();
+  const achEl = document.getElementById('pdAch');
+  if(achEl && typeof ACH !== 'undefined' && typeof ACH_DEFS !== 'undefined'){
+    achEl.textContent = ACH.getCount() + ' / ' + ACH_DEFS.length;
+  }
+  const playedEl = document.getElementById('pdPlayed');
+  if(playedEl && typeof CONT !== 'undefined'){
+    playedEl.textContent = CONT.getGamesPlayedCount() + ' / ' + CARD_DATA.length;
+  }
+  const streakEl = document.getElementById('pdStreak');
+  if(streakEl && typeof CONT !== 'undefined'){
+    streakEl.textContent = CONT.getDayStreak();
+  }
 }
 refreshHomeSections();
 
 /* =========================================================
-   DAILY GAME OF THE DAY — deterministic pick from the calendar date,
-   no backend needed since every device computes the same index for
-   the same date.
+   DAILY CHALLENGE BANNER — shows today's real challenge from the DAILY
+   module (part-daily-challenges.js): a specific game + a specific goal
+   (e.g. "Score 300+ points in Bubble Shooter"), not just a random pick.
+   Re-rendered every time the player returns to the home screen (via
+   refreshHomeSections) so it reflects a just-earned "Done today!" state
+   without needing a page reload.
    ========================================================= */
-function getDailyGameId(){
-  const d = new Date();
-  const key = d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate();
-  return CARD_DATA[key % CARD_DATA.length].id;
-}
-(function(){
-  const c = CARD_DATA.find(x=>x.id===getDailyGameId());
+function renderDailyBanner(){
+  if(typeof DAILY === 'undefined') return;
+  const challenge = DAILY.getChallenge();
+  if(!challenge) return;
+  const c = CARD_DATA.find(x=>x.id===challenge.game);
   if(!c) return;
   const icon = document.getElementById('dailyIcon');
   const name = document.getElementById('dailyName');
+  const goal = document.getElementById('dailyGoal');
   const banner = document.getElementById('dailyBanner');
   const playBtn = document.getElementById('dailyPlayBtn');
+  const streakEl = document.getElementById('dailyStreak');
   if(icon) icon.textContent = c.icon;
   if(name) name.textContent = c.name;
+  if(goal) goal.textContent = challenge.desc + (challenge.completed ? ' — ✅ Done today!' : '');
+  if(banner) banner.classList.toggle('completed', !!challenge.completed);
+  if(playBtn) playBtn.textContent = challenge.completed ? 'Play Again ▶' : 'Play ▶';
+  if(streakEl){
+    const streak = (typeof CONT !== 'undefined') ? CONT.getDayStreak() : 0;
+    streakEl.textContent = streak>=2 ? ('🔥 ' + streak + '-day streak') : '';
+  }
   const openIt = ()=>{ SFX.unlock(); SFX.click(); startGame(c.id); };
   if(banner) banner.onclick = openIt;
   if(playBtn) playBtn.onclick = (e)=>{ e.stopPropagation(); openIt(); };
-})();
+}
+renderDailyBanner();
 
 /* =========================================================
    LIVE PLAYER COUNT BADGE — playful, kid-friendly "social proof" touch on

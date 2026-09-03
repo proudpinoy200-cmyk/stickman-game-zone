@@ -318,9 +318,10 @@ function roundRect(x,y,w,h,r){
 }
 
 /* ---------------- Overlay helpers ---------------- */
-function showOverlay(title, text, buttons){
+function showOverlay(title, text, buttons, extraEl){
   omTitle.textContent = title;
   omText.textContent = text;
+  if(extraEl) omText.appendChild(extraEl);
   omBtns.innerHTML = '';
   buttons.forEach(b=>{
     const btn = document.createElement('button');
@@ -435,13 +436,14 @@ function showLeaderboardOverlay(gameId, cfg, buttons){
   });
   overlayMsg.style.display = 'flex';
 }
-function showScoreEntryOverlay(gameId, score, cfg, buttons){
+function showScoreEntryOverlay(gameId, score, cfg, buttons, extraEl){
   omTitle.textContent = '🏆 New High Score!';
   omText.innerHTML = '';
   const p = document.createElement('p');
   p.style.margin = '4px 0 10px';
   p.textContent = 'Score: ' + cfg.format(score);
   omText.appendChild(p);
+  if(extraEl) omText.appendChild(extraEl);
   const input = document.createElement('input');
   input.type = 'text'; input.maxLength = 14; input.placeholder = 'Enter your name'; input.className = 'lbInput';
   input.autocomplete = 'off';
@@ -467,19 +469,67 @@ function showScoreEntryOverlay(gameId, score, cfg, buttons){
   overlayMsg.style.display = 'flex';
   setTimeout(()=>{ input.focus(); }, 60);
 }
+// Builds a small "⭐⭐☆  Best: 120" strip shown on every game-over screen, reading
+// from PROG (part4.js). Returns null when the player has no stars/score for this
+// game yet (e.g. their very first run) so first-timers don't see a "0 stars" strip
+// before they've even had a chance to earn one.
+function buildProgressStripEl(gameId){
+  if(typeof PROG === 'undefined') return null;
+  const stars = PROG.getStars(gameId);
+  const best = PROG.getHighScore(gameId);
+  if(stars<=0 && best<=0) return null;
+  const div = document.createElement('div');
+  div.className = 'ogProgress';
+  const starsSpan = document.createElement('span');
+  starsSpan.className = 'ogStars';
+  starsSpan.textContent = '⭐'.repeat(stars) + '☆'.repeat(Math.max(0, 3-stars));
+  div.appendChild(starsSpan);
+  if(best>0){
+    const cfg = (typeof LB_GAMES !== 'undefined') ? LB_GAMES.find(g=>g.id===gameId) : null;
+    const bestSpan = document.createElement('span');
+    bestSpan.className = 'ogBest';
+    bestSpan.textContent = 'Best: ' + (cfg ? cfg.format(best) : best);
+    div.appendChild(bestSpan);
+  }
+  return div;
+}
+// Builds a "🎮 Next: <game name>" button pointing at a related game (same tag-based
+// recommendation engine that powers "You May Also Like" on the home screen), so a
+// player can keep playing without going back to the home screen first. Returns null
+// if the recommendation engine isn't loaded yet or there's genuinely nothing to
+// suggest (shouldn't happen with 20 games, but this keeps it defensive).
+function buildNextGameButton(gameId){
+  if(typeof getRelatedGames !== 'function') return null;
+  const rel = getRelatedGames(gameId, 1);
+  if(!rel || !rel.length) return null;
+  const next = rel[0];
+  return {
+    label: '🎮 Next: ' + next.name,
+    onClick: ()=>{ hideOverlay(); startGame(next.id); }
+  };
+}
 // Drop-in replacement for showOverlay() at a game's true "run is over" moment (not mid-campaign
 // checkpoints like "Level Complete"). Looks up gameId in LB_GAMES; if that game isn't registered
 // there, it just behaves exactly like a plain showOverlay(). Otherwise: a qualifying score goes
 // straight to the name-entry prompt, and a non-qualifying one gets a normal game-over overlay
 // with an extra "🏆 Leaderboard" button so the player can still see how they stack up.
+// Also, regardless of leaderboard status: checks today's Daily Challenge, shows a stars/best-score
+// strip (from PROG), and appends a "Next Game" recommendation button — the single choke-point
+// every game already calls at its true end-of-round moment, so this reaches all 20 games at once.
 function showGameOverOverlay(gameId, score, title, text, buttons){
+  if(typeof checkDailyChallenge === 'function') checkDailyChallenge(gameId, score);
+
+  const nextBtn = buildNextGameButton(gameId);
+  const finalButtons = nextBtn ? buttons.concat([nextBtn]) : buttons;
+  const progressEl = buildProgressStripEl(gameId);
+
   const cfg = (typeof LB_GAMES !== 'undefined') ? LB_GAMES.find(g=>g.id===gameId) : null;
-  if(!cfg){ showOverlay(title, text, buttons); return; }
+  if(!cfg){ showOverlay(title, text, finalButtons, progressEl); return; }
   if(LB.qualifies(gameId, score, cfg.higherIsBetter)){
-    showScoreEntryOverlay(gameId, score, cfg, buttons);
+    showScoreEntryOverlay(gameId, score, cfg, finalButtons, progressEl);
   } else {
-    const withLb = buttons.concat([{label:'🏆 Leaderboard', onClick:()=>{ showLeaderboardOverlay(gameId, cfg, buttons); }}]);
-    showOverlay(title, text, withLb);
+    const withLb = finalButtons.concat([{label:'🏆 Leaderboard', onClick:()=>{ showLeaderboardOverlay(gameId, cfg, finalButtons); }}]);
+    showOverlay(title, text, withLb, progressEl);
   }
 }
 

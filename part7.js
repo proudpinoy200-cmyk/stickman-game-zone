@@ -146,6 +146,9 @@ function createBubbleGame(){
       if(state.level>=LEVELS){
         recordRoundComplete();
         unlockAchievement('bubble_master');
+        PROG.setStars('bubble', 3); // clearing every board is the best possible outcome
+        PROG.setHighScore('bubble', state.score);
+        PROG.updateDisplay();
         showGameOverOverlay('bubble', state.score, '🏆 Bubble Master!', `You cleared every board! Final score: ${state.score} pts`, [
           {label:'Play Again', onClick:()=>{ state=fresh(1,0); hideOverlay(); }},
           {label:'Home', onClick: goHome}
@@ -161,6 +164,12 @@ function createBubbleGame(){
     state.over = true; state.win = false;
     SFX.gameover();
     recordRoundComplete();
+    {
+      const stars = state.score>=150 ? 2 : 1; // didn't clear the board, so cap below 3
+      PROG.setStars('bubble', Math.max(stars, PROG.getStars('bubble')));
+      PROG.setHighScore('bubble', state.score);
+      PROG.updateDisplay();
+    }
     setTimeout(()=>{
       showGameOverOverlay('bubble', state.score, '🫧 Bubbles Overflowed!', `Final score: ${state.score} pts. Try again!`, [
         {label:'Retry Level', onClick:()=>{ state=fresh(state.level, 0); hideOverlay(); }},
@@ -338,6 +347,12 @@ function createRacerGame(){
       if(state.level>=LEVELS){
         recordRoundComplete();
         unlockAchievement('racer_champion');
+        {
+          const stars = totalTime<=35 ? 3 : totalTime<=50 ? 2 : 1;
+          PROG.setStars('racer', Math.max(stars, PROG.getStars('racer')));
+          PROG.setHighScore('racer', totalTime, false); // faster total time is better
+          PROG.updateDisplay();
+        }
         showGameOverOverlay('racer', totalTime, '🏆 Racing Champion!', `You finished all ${LEVELS} races! Total time: ${totalTime.toFixed(1)}s`, [
           {label:'Play Again', onClick:()=>{ totalTime=0; state=fresh(1); hideOverlay(); }},
           {label:'Home', onClick: goHome}

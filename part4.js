@@ -17,13 +17,29 @@ const PROG = (function(){
   }
   function getHighScore(gameId){
     const d = load();
-    return d.highScores && d.highScores[gameId] ? d.highScores[gameId] : 0;
+    const v = d.highScores && d.highScores[gameId];
+    if(!v) return 0;
+    // Defensive guard: a since-fixed bug in Memory Match's old call site stored
+    // negated move counts as a workaround for setHighScore always taking Math.max.
+    // Any already-saved negative value is stale/corrupted -- treat as "no score yet"
+    // rather than displaying a negative number to the player.
+    return v < 0 ? 0 : v;
   }
-  function setHighScore(gameId, score){
+  function setHighScore(gameId, score, higherIsBetter){
+    // higherIsBetter defaults to true so every existing call site (which only ever
+    // passed 2 args, for score-based games where bigger is better) keeps behaving
+    // exactly as before. Time-based games (lower is better, e.g. Sword Duel's
+    // clear time) pass higherIsBetter:false explicitly.
+    higherIsBetter = higherIsBetter !== false;
     const d = load();
     if(!d.highScores) d.highScores = {};
     if(!d.stars) d.stars = {};
-    d.highScores[gameId] = Math.max(d.highScores[gameId]||0, score);
+    const prev = d.highScores[gameId];
+    if(prev === undefined || prev === null){
+      d.highScores[gameId] = score;
+    } else {
+      d.highScores[gameId] = higherIsBetter ? Math.max(prev, score) : Math.min(prev, score);
+    }
     save(d);
   }
   function totalStars(){
@@ -202,7 +218,10 @@ function createMemoryGame(){
               state.over = true;
               const stars = state.moves <= 20 ? 3 : state.moves <= 30 ? 2 : 1;
               PROG.setStars('memory', stars);
-              PROG.setHighScore('memory', Math.max(PROG.getHighScore('memory'), -state.moves));
+              // Fewer moves is better here -- pass higherIsBetter:false so PROG stores
+              // the real move count (not a negated max-hack), which matters now that
+              // getHighScore() is displayed directly (post-game screen, daily challenge banner).
+              PROG.setHighScore('memory', state.moves, false);
               PROG.updateDisplay();
               recordRoundComplete();
               if(state.moves <= MEM_ICONS.length) unlockAchievement('memory_genius');
@@ -272,7 +291,9 @@ function createReactionGame(){
       const avg = state.times.length ? Math.round(state.times.reduce((a,b)=>a+b,0)/state.times.length) : 0;
       const stars = avg <= 300 ? 3 : avg <= 450 ? 2 : 1;
       PROG.setStars('reaction', stars);
-      PROG.setHighScore('reaction', avg > 0 ? Math.min(PROG.getHighScore('reaction')||9999, avg) : (PROG.getHighScore('reaction')||0));
+      // Lower average reaction time is better -- higherIsBetter:false (see memory's
+      // fix above for why this matters beyond just the stars calculation).
+      if(avg > 0) PROG.setHighScore('reaction', avg, false);
       PROG.updateDisplay();
       recordRoundComplete();
       if(avg > 0 && avg <= 250) unlockAchievement('reaction_lightning');
