@@ -1,0 +1,23 @@
+{
+  "name": "stickman-game-zone",
+  "version": "1.0.0",
+  "description": "Kid-friendly stick-figure multi-game website, live at [stickgames.co](https://stickgames.co).",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/proudpinoy200-cmyk/stickman-game-zone.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/proudpinoy200-cmyk/stickman-game-zone/issues"
+  },
+  "homepage": "https://github.com/proudpinoy200-cmyk/stickman-game-zone#readme",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}
